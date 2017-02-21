@@ -68,7 +68,7 @@ public class BoardListActivity extends AppCompatActivity {
 
                 Board board = new Board();
                 board.setName("Test".toUpperCase());  // TODO set name of board
-                board.setColor(ColorUtil.randomColor(getApplicationContext(), "500"));
+                board.setColor(ColorUtil.randomColor(getApplicationContext()));
                 board.save();
 
                 if (mTwoPane) {
@@ -151,9 +151,12 @@ public class BoardListActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.mItem = mValues.get(position);
-            holder.mContentView.setText(mValues.get(position).getName().toUpperCase());
+
+            final String boardName = mValues.get(position).getName().toUpperCase();
+
+            holder.mContentView.setText(boardName);
             holder.mView.setBackgroundColor(holder.mItem.getColor());
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -179,20 +182,23 @@ public class BoardListActivity extends AppCompatActivity {
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    showStatsPopup();
+                    showStatsPopup(boardName);
                     return true;
                 }
             });
         }
 
-        private void showStatsPopup() {
+        // opens a dialog on long press on a list item
+        private void showStatsPopup(String boardName) {
             final Dialog dialog = new Dialog(BoardListActivity.this);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.setCancelable(false);
+//            dialog.setCancelable(false);
             dialog.setContentView(R.layout.popup_stats);
 
-//            TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
-//            text.setText(msg);
+            // TODO fill popup window with informations
+
+            TextView tvBoardName = (TextView) dialog.findViewById(R.id.pop_stat_board_name);
+            tvBoardName.setText(boardName);
 
             Button dialogButton = (Button) dialog.findViewById(R.id.pop_button);
             dialogButton.setOnClickListener(new View.OnClickListener() {
@@ -203,43 +209,6 @@ public class BoardListActivity extends AppCompatActivity {
             });
 
             dialog.show();
-
-
-//            final PopupWindow mPopup;
-//            View popUpView = getLayoutInflater().inflate(R.layout.popup_stats, null); // inflating popup layout
-//            mPopup = new PopupWindow(popUpView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true); // Creation of popup
-//            mPopup.setAnimationStyle(android.R.style.Animation_Dialog);
-//            mPopup.showAtLocation(popUpView, Gravity.CENTER, 0, 0); // Displaying popup
-////            mPopup.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-//
-//
-//
-//
-//            Button btnCancel = (Button) popUpView.findViewById(R.id.pop_button);
-//            btnCancel.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    mPopup.dismiss();
-//                }
-//            });
-
-//            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getApplicationContext(), R.style.Theme_AppCompat_Dialog_Alert);
-//            LayoutInflater inflater =  BoardListActivity.this.getLayoutInflater();
-//            View dialogView = inflater.inflate(R.layout.popup_stats, null);
-//            dialogBuilder.setView(dialogView);
-//
-//            Button btnCancel = (Button) dialogView.findViewById(R.id.pop_button);
-//            btnCancel.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    finish();
-//                }
-//            });
-
-//            EditText editText = (EditText) dialogView.findViewById(R.id.label_field);
-//            editText.setText("test label");
-//            AlertDialog alertDialog = dialogBuilder.create();
-//            alertDialog.show();
         }
 
         @Override

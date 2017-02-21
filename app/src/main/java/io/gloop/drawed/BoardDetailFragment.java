@@ -117,7 +117,7 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
         return rootView;
     }
 
-    private class ColorChangeListener implements  View.OnClickListener{
+    private class ColorChangeListener implements View.OnClickListener {
         private ImageButton imgView;
 
         ColorChangeListener(ImageButton imgView) {

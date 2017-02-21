@@ -66,13 +66,13 @@ public class DrawingView extends View {
     private void drawLines() {
         for (Line l : board.getLines()) {
 
-             GloopLogger.i("GloopBoard" + board.toString());
+            GloopLogger.i("GloopBoard" + board.toString());
 
             List<Point> points = l.getPoints();
             if (points.size() > 0) {
 
                 drawPaint.setColor(l.getColor());
-                drawPaint.setStrokeWidth((float)l.getBrushSize());
+                drawPaint.setStrokeWidth((float) l.getBrushSize());
 
                 Point firstPoint = points.get(0);
                 drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
@@ -140,8 +140,8 @@ public class DrawingView extends View {
                 if (touchX != 0 && touchY != 0) {
                     line.add(new Point(touchX, touchY));
                 }
-                GloopLogger.i("BrushSize: "  + brushSize);
-                board.addLine(new Line(line, paintColor, (int)brushSize));
+                GloopLogger.i("BrushSize: " + brushSize);
+                board.addLine(new Line(line, paintColor, (int) brushSize));
                 board.save();
                 line = null;
                 GloopLogger.i("Action up");

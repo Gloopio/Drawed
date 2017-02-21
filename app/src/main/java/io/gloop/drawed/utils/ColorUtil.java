@@ -14,21 +14,21 @@ public class ColorUtil {
     private static int previousColor;
 
     // Generates a random color and takes care that it is not equals to the previous one.
-    public static int randomColor(Context context, String typeColor) {
+    public static int randomColor(Context context) {
         if (previousColor == 0)
-            return getMatColor(context, typeColor);
+            return getMatColor(context);
 
         int newColor;
         do {
-            newColor = getMatColor(context, typeColor);
+            newColor = getMatColor(context);
         } while (newColor == previousColor);
         previousColor = newColor;
         return newColor;
     }
 
-    private static int getMatColor(Context context, String typeColor) {
+    private static int getMatColor(Context context) {
         int returnColor = Color.BLACK;
-        int arrayId = context.getResources().getIdentifier("mdcolor_" + typeColor, "array", context.getPackageName());
+        int arrayId = context.getResources().getIdentifier("mdcolor_500", "array", context.getPackageName());
 
         if (arrayId != 0) {
             TypedArray colors = context.getResources().obtainTypedArray(arrayId);
