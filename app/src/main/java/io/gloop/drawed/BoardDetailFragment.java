@@ -134,7 +134,6 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
             currPaint.setImageDrawable(getResources().getDrawable(R.drawable.paint));
             currPaint = (ImageButton) view;
         }
-
     }
 
 

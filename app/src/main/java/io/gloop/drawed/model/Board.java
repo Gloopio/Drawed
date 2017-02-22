@@ -10,8 +10,8 @@ import io.gloop.GloopObject;
  */
 public class Board extends GloopObject {
 
-    private boolean privateBoard;
-    private boolean freezeBoard;
+    private boolean privateBoard = false;
+    private boolean freezeBoard = false;
     private String name;
     private int color;
     private List<Line> lines = new ArrayList<>();
@@ -54,5 +54,26 @@ public class Board extends GloopObject {
     public void clear() {
         this.lines = new ArrayList<>();
         this.save();
+    }
+
+
+    public boolean isPrivateBoard() {
+        return privateBoard;
+    }
+
+    public void setPrivateBoard(boolean privateBoard) {
+        this.privateBoard = privateBoard;
+    }
+
+    public boolean isFreezeBoard() {
+        return freezeBoard;
+    }
+
+    public void setFreezeBoard(boolean freezeBoard) {
+        this.freezeBoard = freezeBoard;
+    }
+
+    public void setLines(List<Line> lines) {
+        this.lines = lines;
     }
 }

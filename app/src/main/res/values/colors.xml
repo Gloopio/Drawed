@@ -5,4 +5,7 @@
     <color name="colorAccent">#303F9F</color>
 
     <color name="popupBackground">#303f9f</color>
+    <color name="listBackground">#EEEEEE</color>
+
+    <color name="textColor">#ffffff</color>
 </resources>

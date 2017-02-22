@@ -13,5 +13,12 @@
     <string name="med">Medium</string>
     <string name="lrg">Large</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="only_i_can_edit_this_board">Only I can edit this board</string>
+    <string name="freeze">Freeze</string>
+    <string name="only_approved_drawers_can_view_this_board">Only approved drawers can view this board</string>
+    <string name="private_label">Private</string>
+    <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="dummy_board_name">BoardName</string>
 
 </resources>

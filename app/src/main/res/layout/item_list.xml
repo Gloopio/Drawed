@@ -3,24 +3,13 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorPrimary"
+                android:background="@color/listBackground"
                 tools:context=".BoardListActivity">
 
-
-    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-                                            xmlns:app="http://schemas.android.com/apk/res-auto"
-                                            xmlns:tools="http://schemas.android.com/tools"
-                                            android:id="@+id/item_list"
-                                            android:name="io.gloop.board.ItemListFragment"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            app:layoutManager="LinearLayoutManager"
-                                            android:paddingBottom="85dp"
-                                            tools:listitem="@layout/item_list_content"/>
-
     <LinearLayout
+        android:id="@+id/footer"
         android:layout_width="match_parent"
-        android:layout_height="85dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary">
 
@@ -35,5 +24,24 @@
             android:textSize="@dimen/text_size"/>
 
     </LinearLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/item_list"
+            android:name="io.gloop.board.ItemListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/footer"
+            app:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/item_list_content"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

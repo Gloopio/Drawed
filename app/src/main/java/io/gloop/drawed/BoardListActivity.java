@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import io.gloop.Gloop;
@@ -47,7 +52,6 @@ public class BoardListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item_list);
 
         new Gloop(this, API_KEY, DEBUG);
-
 
         showIntroOnFirstRun();
 
@@ -88,6 +92,16 @@ public class BoardListActivity extends AppCompatActivity {
                 }
             }
         });
+
+        final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Gloop.sync();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
     }
 
     private void showIntroOnFirstRun() {
@@ -154,9 +168,19 @@ public class BoardListActivity extends AppCompatActivity {
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.mItem = mValues.get(position);
 
-            final String boardName = mValues.get(position).getName().toUpperCase();
+            final Board board = mValues.get(position);
 
-            holder.mContentView.setText(boardName);
+            holder.mContentView.setText(board.getName().toUpperCase());
+            if (board.isPrivateBoard())
+                holder.mImagePrivate.setVisibility(View.VISIBLE);
+            else {
+                holder.mImagePrivate.setVisibility(View.GONE);
+            }
+            if (board.isFreezeBoard())
+                holder.mImageFreeze.setVisibility(View.VISIBLE);
+            else
+                holder.mImageFreeze.setVisibility(View.GONE);
+
             holder.mView.setBackgroundColor(holder.mItem.getColor());
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -182,28 +206,58 @@ public class BoardListActivity extends AppCompatActivity {
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    showStatsPopup(boardName);
+                    showStatsPopup(board);
                     return true;
                 }
             });
         }
 
-        // opens a dialog on long press on a list item
-        private void showStatsPopup(String boardName) {
-            final Dialog dialog = new Dialog(BoardListActivity.this);
+        // opens a dialog on long press on the list item
+        private void showStatsPopup(final Board board) {
+            final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//            dialog.setCancelable(false);
             dialog.setContentView(R.layout.popup_stats);
 
-            // TODO fill popup window with informations
+            LinearLayout layout = (LinearLayout) dialog.findViewById(R.id.pop_stat_view);
+            layout.setBackgroundColor(board.getColor());
 
             TextView tvBoardName = (TextView) dialog.findViewById(R.id.pop_stat_board_name);
-            tvBoardName.setText(boardName);
+            tvBoardName.setText(board.getName());
 
-            Button dialogButton = (Button) dialog.findViewById(R.id.pop_button);
+            Switch switchPrivate = (Switch) dialog.findViewById(R.id.pop_stat_switch_private);
+            switchPrivate.setChecked(board.isPrivateBoard());
+            switchPrivate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    board.setPrivateBoard(isChecked);
+                    board.save();
+                }
+            });
+
+            Switch switchFreeze = (Switch) dialog.findViewById(R.id.pop_stat_switch_freeze);
+            switchFreeze.setChecked(board.isFreezeBoard());
+            switchFreeze.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    board.setFreezeBoard(isChecked);
+                    board.save();
+                }
+            });
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.pop_stat_btn_close);
             dialogButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            Button deleteButton = (Button) dialog.findViewById(R.id.pop_stat_btn_delete);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO impl (right now the board is always deleted, impl to just leave if the user is not the owner)
+                    board.delete();
                     dialog.dismiss();
                 }
             });
@@ -219,12 +273,16 @@ public class BoardListActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             final View mView;
             final TextView mContentView;
+            ImageView mImagePrivate;
+            ImageView mImageFreeze;
             Board mItem;
 
             ViewHolder(View view) {
                 super(view);
                 mView = view;
                 mContentView = (TextView) view.findViewById(R.id.content);
+                mImagePrivate = (ImageView) view.findViewById(R.id.list_item_private_image);
+                mImageFreeze = (ImageView) view.findViewById(R.id.list_item_freeze_image);
             }
 
             @Override
