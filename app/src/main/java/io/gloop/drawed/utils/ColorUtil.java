@@ -11,6 +11,7 @@ import android.graphics.Color;
  */
 public class ColorUtil {
 
+    // TODO fix does not work
     private static int previousColor;
 
     // Generates a random color and takes care that it is not equals to the previous one.

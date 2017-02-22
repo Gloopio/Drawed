@@ -20,5 +20,6 @@
     <string name="close">Close</string>
     <string name="delete">Delete</string>
     <string name="dummy_board_name">BoardName</string>
+    <string name="line_thickness">Line Thickness</string>
 
 </resources>
