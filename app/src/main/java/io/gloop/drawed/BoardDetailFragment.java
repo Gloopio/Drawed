@@ -1,6 +1,9 @@
 package io.gloop.drawed;
 
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,7 +22,7 @@ import io.gloop.drawed.model.Board;
  * in two-pane mode (on tablets) or a {@link BoardDetailActivity}
  * on handsets.
  */
-public class BoardDetailFragment extends Fragment implements View.OnClickListener {
+public class BoardDetailFragment extends Fragment {
 
     public static final String ARG_BOARD = "board";
 
@@ -27,11 +30,11 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
 
     private DrawingView drawView;
 
-    private ImageButton currPaint;
-
-    private String currentColor;
+    private String currentColor = "#FF000000";
 
     private float smallBrush, mediumBrush, largeBrush;
+
+    private ImageView changeColorButton;
 
     public BoardDetailFragment() {
         // Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -61,7 +64,6 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
 //        currPaint = (ImageButton) paintLayout.getChildAt(0);
 //        currPaint.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
 
-        currentColor = "#FF000000";
         drawView.setColor(currentColor);
 
         //sizes from dimensions
@@ -72,7 +74,7 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
         //set initial size
         drawView.setBrushSize(smallBrush);
 
-        ImageView changeColorButton = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_color);
+        changeColorButton = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_color);
         changeColorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,24 +89,6 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
                 showChangeLineThicknessPopup();
             }
         });
-
-
-//        //draw button
-//        ImageButton drawBtn = (ImageButton) rootView.findViewById(R.id.draw_btn);
-//        drawBtn.setOnClickListener(this);
-//
-//
-//        //erase button
-//        ImageButton eraseBtn = (ImageButton) rootView.findViewById(R.id.erase_btn);
-//        eraseBtn.setOnClickListener(this);
-//
-//        //new button
-//        ImageButton newBtn = (ImageButton) rootView.findViewById(R.id.new_btn);
-//        newBtn.setOnClickListener(this);
-//
-//        //save button
-//        ImageButton saveBtn = (ImageButton) rootView.findViewById(R.id.save_btn);
-//        saveBtn.setOnClickListener(this);
 
         return rootView;
     }
@@ -147,11 +131,15 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
     @SuppressWarnings("deprecation")
     private class ColorChangeListener implements View.OnClickListener {
         private ImageButton imgView;
+        private ImageView colorIcon;
         private Dialog dialog;
 
+        // TODO do not pass as arguments, change to global variable
         ColorChangeListener(ImageButton imgView, Dialog dialog) {
             this.imgView = imgView;
             this.dialog = dialog;
+            this.colorIcon = colorIcon;
+
             // set currently selected color
             if (this.imgView.getTag().toString().equals(currentColor))
                 this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
@@ -162,6 +150,11 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
             currentColor = view.getTag().toString();
 
             drawView.setColor(currentColor);
+
+            // change color of icon
+            Drawable myIcon = getResources().getDrawable(R.drawable.ic_color_lens_black_24dp);
+            myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
+            changeColorButton.setImageDrawable(myIcon);
 
             // set selected color
             imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
@@ -219,133 +212,5 @@ public class BoardDetailFragment extends Fragment implements View.OnClickListene
 
         //show and wait for user interaction
         dialog.show();
-    }
-
-
-    @Override
-    public void onClick(View view) {
-
-//        if (view.getId() == R.id.draw_btn) {
-//            //draw button clicked
-//            final Dialog brushDialog = new Dialog(getContext());
-//            brushDialog.setTitle("Brush size:");
-//            brushDialog.setContentView(R.layout.popup_chooser_line_thickness);
-//            //listen for clicks on size buttons
-//            ImageButton smallBtn = (ImageButton) brushDialog.findViewById(R.id.small_brush);
-//            smallBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(false);
-//                    drawView.setBrushSize(smallBrush);
-//                    drawView.setLastBrushSize(smallBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            ImageButton mediumBtn = (ImageButton) brushDialog.findViewById(R.id.medium_brush);
-//            mediumBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(false);
-//                    drawView.setBrushSize(mediumBrush);
-//                    drawView.setLastBrushSize(mediumBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            ImageButton largeBtn = (ImageButton) brushDialog.findViewById(R.id.large_brush);
-//            largeBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(false);
-//                    drawView.setBrushSize(largeBrush);
-//                    drawView.setLastBrushSize(largeBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            //show and wait for user interaction
-//            brushDialog.show();
-//        } else if (view.getId() == R.id.erase_btn) {
-//            //switch to erase - choose size
-//            final Dialog brushDialog = new Dialog(getContext());
-//            brushDialog.setTitle("Eraser size:");
-//            brushDialog.setContentView(R.layout.popup_chooser_line_thickness);
-//            //size buttons
-//            ImageButton smallBtn = (ImageButton) brushDialog.findViewById(R.id.small_brush);
-//            smallBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(true);
-//                    drawView.setBrushSize(smallBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            ImageButton mediumBtn = (ImageButton) brushDialog.findViewById(R.id.medium_brush);
-//            mediumBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(true);
-//                    drawView.setBrushSize(mediumBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            ImageButton largeBtn = (ImageButton) brushDialog.findViewById(R.id.large_brush);
-//            largeBtn.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    drawView.setErase(true);
-//                    drawView.setBrushSize(largeBrush);
-//                    brushDialog.dismiss();
-//                }
-//            });
-//            brushDialog.show();
-//        } else if (view.getId() == R.id.new_btn) {
-//            //new button
-//            AlertDialog.Builder newDialog = new AlertDialog.Builder(getContext());
-//            newDialog.setTitle("New drawing");
-//            newDialog.setMessage("Start new drawing (you will lose the current drawing)?");
-//            newDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int which) {
-//                    drawView.startNew();
-//                    dialog.dismiss();
-//                }
-//            });
-//            newDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.cancel();
-//                }
-//            });
-//            newDialog.show();
-//        } else if (view.getId() == R.id.save_btn) {
-//            //save drawing
-//            AlertDialog.Builder saveDialog = new AlertDialog.Builder(getContext());
-//            saveDialog.setTitle("Save drawing");
-//            saveDialog.setMessage("Save drawing to device Gallery?");
-//            saveDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int which) {
-//                    //save drawing
-//                    drawView.setDrawingCacheEnabled(true);
-//                    //attempt to save
-//                    String imgSaved = MediaStore.Images.Media.insertImage(
-//                            getActivity().getContentResolver(), drawView.getDrawingCache(),
-//                            UUID.randomUUID().toString() + ".png", "drawing");
-//                    //feedback
-//                    if (imgSaved != null) {
-//                        Toast savedToast = Toast.makeText(getContext(),
-//                                "Drawing saved to Gallery!", Toast.LENGTH_SHORT);
-//                        savedToast.show();
-//                    } else {
-//                        Toast unsavedToast = Toast.makeText(getContext(),
-//                                "Oops! Image could not be saved.", Toast.LENGTH_SHORT);
-//                        unsavedToast.show();
-//                    }
-//                    drawView.destroyDrawingCache();
-//                }
-//            });
-//            saveDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.cancel();
-//                }
-//            });
-//            saveDialog.show();
-//        }
     }
 }
