@@ -15,4 +15,14 @@
     <color name="color4">#4251B2</color>
     <color name="color5">#79B049</color>
     <color name="color6">#D52A6D</color>
+
+
+    <color name="Blue">#4354AF</color>
+    <color name="Red">#E34346</color>
+    <color name="Green">#7BAF4F</color>
+    <color name="Yellow">#FDB12F</color>
+    <color name="Purple">#8D38B2</color>
+    <color name="Orange">#ffa100</color>
+    <color name="Pink">#D52A6D</color>
+    <color name="Violet">#6b0597</color>
 </resources>

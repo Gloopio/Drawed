@@ -27,6 +27,7 @@ import io.gloop.GloopList;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.utils.ColorUtil;
+import io.gloop.drawed.utils.NameUtil;
 
 /**
  * An activity representing a list of Items. This activity
@@ -55,6 +56,10 @@ public class BoardListActivity extends AppCompatActivity {
 
         showIntroOnFirstRun();
 
+        //set username
+        TextView username = (TextView) findViewById(R.id.user_name);
+        username.setText(NameUtil.randomUserName(getApplicationContext())); // TODO at the moment name is randomly generated every time the app starts
+
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
@@ -71,8 +76,10 @@ public class BoardListActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Board board = new Board();
-                board.setName("Test".toUpperCase());  // TODO set name of board
-                board.setColor(ColorUtil.randomColor(getApplicationContext()));
+                String colorName = NameUtil.randomColor(getApplicationContext());
+                board.setName(NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext()));
+//                board.setColor(ColorUtil.randomColor(getApplicationContext()));
+                board.setColor(ColorUtil.getColorByName(getApplicationContext(), colorName));
                 board.save();
 
                 if (mTwoPane) {
@@ -171,7 +178,7 @@ public class BoardListActivity extends AppCompatActivity {
 
             final Board board = mValues.get(position);
 
-            holder.mContentView.setText(board.getName().toUpperCase());
+            holder.mContentView.setText(board.getName());
             if (board.isPrivateBoard())
                 holder.mImagePrivate.setVisibility(View.VISIBLE);
             else {

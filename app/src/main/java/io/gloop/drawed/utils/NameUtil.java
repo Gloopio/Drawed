@@ -1,32 +1,44 @@
 package io.gloop.drawed.utils;
 
+import android.content.Context;
+
+import java.util.Random;
+
+import io.gloop.drawed.R;
+
 /**
  * Created by Alex Untertrifaller on 20.02.17.
  */
 
 public class NameUtil {
 
-    public static String randomUserName() {
-        return randomAdjective() + randomColor() + randomAnimal();
+    private static final Random random = new Random();
+
+    public static String randomUserName(Context context) {
+        return randomAdjective(context) + randomColor(context) + randomAnimal(context);
     }
 
-    public static String randomBoardName() {
-        return randomAdjective() + randomColor() + randomObject();
+//    public static String randomBoardName(Context context) {
+//        return randomAdjective(context) + randomColor(context) + randomObject(context);
+//    }
+
+    public static String randomAdjective(Context context) {
+        String[] myString = context.getResources().getStringArray(R.array.adjectives);
+        return  myString[random.nextInt(myString.length)];
     }
 
-    private static String randomAdjective() {
-        return ""; // TODO impl
+    public static String randomColor(Context context) {
+        String[] myString = context.getResources().getStringArray(R.array.colors);
+        return  myString[random.nextInt(myString.length)];
     }
 
-    private static String randomColor() {
-        return ""; // TODO impl
+    public static String randomAnimal(Context context) {
+        String[] myString = context.getResources().getStringArray(R.array.animals);
+        return  myString[random.nextInt(myString.length)];
     }
 
-    private static String randomAnimal() {
-        return ""; // TODO impl
-    }
-
-    private static String randomObject() {
-        return ""; // TODO impl
+    public static String randomObject(Context context) {
+        String[] myString = context.getResources().getStringArray(R.array.objects);
+        return  myString[random.nextInt(myString.length)];
     }
 }

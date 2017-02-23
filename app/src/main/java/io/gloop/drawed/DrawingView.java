@@ -107,7 +107,6 @@ public class DrawingView extends View {
         canvas.drawPath(drawPath, drawPaint);
     }
 
-
     private List<Point> line;
 
     //register user touches as drawing action
@@ -115,8 +114,6 @@ public class DrawingView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float touchX = event.getX();
         float touchY = event.getY();
-
-//        if (touchX != 0 && touchY != 0) {
 
         //respond to down, move and up events
         switch (event.getAction()) {
@@ -142,14 +139,13 @@ public class DrawingView extends View {
                 }
                 GloopLogger.i("BrushSize: " + brushSize);
                 board.addLine(new Line(line, paintColor, (int) brushSize));
-                board.save();
+                board.save();   // TODO save in background
                 line = null;
                 GloopLogger.i("Action up");
                 break;
             default:
                 return false;
         }
-//        }
         //redraw
         invalidate();
         return true;

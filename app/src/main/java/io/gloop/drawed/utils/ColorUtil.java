@@ -3,6 +3,11 @@ package io.gloop.drawed.utils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.v4.content.res.ResourcesCompat;
+
+import java.lang.reflect.Field;
+
+import io.gloop.drawed.R;
 
 /**
  * Util to get random generated colors.
@@ -10,6 +15,24 @@ import android.graphics.Color;
  * Created by Alex Untertrifaller on 17.02.17.
  */
 public class ColorUtil {
+
+
+    public static int getColorByName(Context context, String name) {
+        int colorId = 0;
+
+        try {
+            Class res = R.color.class;
+            Field field = res.getField(name);
+            colorId = field.getInt(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (colorId == 0)
+            return randomColor(context);
+        return ResourcesCompat.getColor(context.getResources(), colorId, null); //without theme
+
+    }
 
     // TODO fix does not work
     private static int previousColor;
