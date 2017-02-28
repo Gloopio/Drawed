@@ -16,7 +16,7 @@ import io.gloop.serializers.GloopSerializeToString;
  */
 public class PointsSerializer extends GloopSerializeToString<List<Point>> {
 
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     @Override
     public String serialize(List<Point> points, Map<String, Object> map) {

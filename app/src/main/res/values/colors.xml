@@ -25,4 +25,6 @@
     <color name="Orange">#ffa100</color>
     <color name="Pink">#D52A6D</color>
     <color name="Violet">#6b0597</color>
+
+    <color name="background_splash_screen">#ffffff</color>
 </resources>

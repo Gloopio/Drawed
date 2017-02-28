@@ -1,5 +1,6 @@
 package io.gloop.drawed;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,17 +38,25 @@ public class IntroActivity extends AppIntro {
     public void onSkipPressed(Fragment currentFragment) {
         super.onSkipPressed(currentFragment);
         finish();
+        startMainIntent();
     }
 
     @Override
     public void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
         finish();
+        startMainIntent();
     }
 
     @Override
     public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment) {
         super.onSlideChanged(oldFragment, newFragment);
         // Do something when the slide changes.
+    }
+
+    private void startMainIntent() {
+        Intent i = new Intent(getApplicationContext(), SplashActivity.class);
+        startActivity(i);
+        finish();
     }
 }

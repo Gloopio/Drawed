@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,11 @@ public class BoardDetailFragment extends Fragment {
         if (getArguments().containsKey(ARG_BOARD)) {
             board = (Board) getArguments().getSerializable(ARG_BOARD);
         }
+
+        //sizes from dimensions
+        smallBrush = getResources().getInteger(R.integer.small_size);
+        mediumBrush = getResources().getInteger(R.integer.medium_size);
+        largeBrush = getResources().getInteger(R.integer.large_size);
     }
 
     @Override
@@ -59,17 +65,8 @@ public class BoardDetailFragment extends Fragment {
         if (board != null)
             drawView.setBoard(board);
 
-        //get the palette and first color button
-//        LinearLayout paintLayout = (LinearLayout) rootView.findViewById(R.id.paint_colors);
-//        currPaint = (ImageButton) paintLayout.getChildAt(0);
-//        currPaint.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
-
+        // set default color
         drawView.setColor(currentColor);
-
-        //sizes from dimensions
-        smallBrush = getResources().getInteger(R.integer.small_size);
-        mediumBrush = getResources().getInteger(R.integer.medium_size);
-        largeBrush = getResources().getInteger(R.integer.large_size);
 
         //set initial size
         drawView.setBrushSize(smallBrush);
@@ -128,17 +125,13 @@ public class BoardDetailFragment extends Fragment {
         dialog.show();
     }
 
-    @SuppressWarnings("deprecation")
     private class ColorChangeListener implements View.OnClickListener {
-        private ImageButton imgView;
-        private ImageView colorIcon;
-        private Dialog dialog;
+        private final ImageButton imgView;
+        private final Dialog dialog;
 
-        // TODO do not pass as arguments, change to global variable
         ColorChangeListener(ImageButton imgView, Dialog dialog) {
             this.imgView = imgView;
             this.dialog = dialog;
-            this.colorIcon = colorIcon;
 
             // set currently selected color
             if (this.imgView.getTag().toString().equals(currentColor))
@@ -147,17 +140,21 @@ public class BoardDetailFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
+            // get selected color and set to drawView
             currentColor = view.getTag().toString();
-
             drawView.setColor(currentColor);
 
             // change color of icon
-            Drawable myIcon = getResources().getDrawable(R.drawable.ic_color_lens_black_24dp);
-            myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
+            Drawable myIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_color_lens_black_24dp, null);
+            if (myIcon != null)
+                myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
+
             changeColorButton.setImageDrawable(myIcon);
 
-            // set selected color
+            // set button to selected
             imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
+
+            // close dialog
             dialog.dismiss();
         }
     }
@@ -178,7 +175,6 @@ public class BoardDetailFragment extends Fragment {
                 dialog.dismiss();
             }
         });
-
 
         ImageButton mediumBtn = (ImageButton) dialog.findViewById(R.id.medium_brush);
         mediumBtn.setOnClickListener(new View.OnClickListener() {

@@ -3,9 +3,7 @@ package io.gloop.drawed;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,6 +22,7 @@ import android.widget.TextView;
 
 import io.gloop.Gloop;
 import io.gloop.GloopList;
+import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.utils.ColorUtil;
@@ -44,21 +43,14 @@ public class BoardListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
 
-    private static final String API_KEY = "TEST";
-    private static final boolean DEBUG = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        new Gloop(this, API_KEY, DEBUG);
-
-        showIntroOnFirstRun();
-
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
-        username.setText(NameUtil.randomUserName(getApplicationContext())); // TODO at the moment name is randomly generated every time the app starts
+        username.setText(Gloop.getOwner().getObjectId()); // TODO at the moment name is randomly generated every time the app starts
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -76,9 +68,9 @@ public class BoardListActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Board board = new Board();
+
                 String colorName = NameUtil.randomColor(getApplicationContext());
                 board.setName(NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext()));
-//                board.setColor(ColorUtil.randomColor(getApplicationContext()));
                 board.setColor(ColorUtil.getColorByName(getApplicationContext(), colorName));
                 board.save();
 
@@ -110,41 +102,6 @@ public class BoardListActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void showIntroOnFirstRun() {
-        //  Declare a new thread to do a preference check
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //  Initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-
-                //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
-
-                //  If the activity has never started before...
-                if (isFirstStart) {
-
-                    //  Launch app intro
-                    Intent i = new Intent(BoardListActivity.this, IntroActivity.class);
-                    startActivity(i);
-
-                    //  Make a new preferences editor
-                    SharedPreferences.Editor e = getPrefs.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
-                    e.apply();
-                }
-            }
-        });
-
-        // Start the thread
-        t.start();
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -281,8 +238,8 @@ public class BoardListActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             final View mView;
             final TextView mContentView;
-            ImageView mImagePrivate;
-            ImageView mImageFreeze;
+            final ImageView mImagePrivate;
+            final ImageView mImageFreeze;
             Board mItem;
 
             ViewHolder(View view) {
@@ -298,5 +255,9 @@ public class BoardListActivity extends AppCompatActivity {
                 return super.toString() + " '" + mContentView.getText() + "'";
             }
         }
+    }
+
+    public void onBackPressed() {
+        finish();
     }
 }

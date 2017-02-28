@@ -15,7 +15,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
@@ -41,9 +43,13 @@ public class DrawingView extends View {
 
     private Board board;
 
+    private final Queue<Line> linesToSave;
+
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
+
+        linesToSave = new LinkedList<>();
     }
 
     //setup drawing
@@ -65,8 +71,6 @@ public class DrawingView extends View {
 
     private void drawLines() {
         for (Line l : board.getLines()) {
-
-            GloopLogger.i("GloopBoard" + board.toString());
 
             List<Point> points = l.getPoints();
             if (points.size() > 0) {
@@ -138,10 +142,14 @@ public class DrawingView extends View {
                     line.add(new Point(touchX, touchY));
                 }
                 GloopLogger.i("BrushSize: " + brushSize);
-                board.addLine(new Line(line, paintColor, (int) brushSize));
-                board.save();   // TODO save in background
-                line = null;
-                GloopLogger.i("Action up");
+
+                Line newLine = new Line(line, paintColor, (int) brushSize);
+//                linesToSave.add(newLine);
+                synchronized (linesToSave) {
+                    linesToSave.add(newLine);
+                    linesToSave.notify();
+                }
+
                 break;
             default:
                 return false;
@@ -149,7 +157,6 @@ public class DrawingView extends View {
         //redraw
         invalidate();
         return true;
-
     }
 
     //update color
@@ -193,7 +200,7 @@ public class DrawingView extends View {
 
     public void setBoard(Board board) {
         this.board = board;
-//        if (board != null)
-//            drawLines();
+        Thread worker  = new SaveInBackgroundWorker(linesToSave, board);
+        worker.start();
     }
 }
