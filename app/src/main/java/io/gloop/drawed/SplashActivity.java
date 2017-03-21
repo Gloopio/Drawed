@@ -21,7 +21,9 @@ public class SplashActivity extends Activity {
     public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
     private static final String HOST_URL = "192.168.0.16:8080";
-    private static final String API_KEY = "8576f9e3-2eb6-489c-9d4f-cf7f2349738f";
+//    private static final String HOST_URL = "52.169.152.13:8080";
+//    private static final String API_KEY = "2054bba8-c712-4e91-ba08-f14dad98d814";
+    private static final String API_KEY = "abf36d11-d40d-44bb-bf2f-22a70dcf5380";
     private static final boolean DEBUG = true;
 
     /**

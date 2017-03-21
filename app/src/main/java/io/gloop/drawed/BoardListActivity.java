@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -27,6 +28,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
+import io.gloop.permissions.GloopGroup;
 
 /**
  * An activity representing a list of Items. This activity
@@ -62,12 +64,26 @@ public class BoardListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
+        FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_search);
+        fabSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showSearchPopup();
+            }
+        });
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                // create and set public group by default.
+                GloopGroup group = new GloopGroup();
+                group.setPublic();
+                group.save();
+
                 Board board = new Board();
+                board.setUser(group);
 
                 String colorName = NameUtil.randomColor(getApplicationContext());
                 board.setName(NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext()));
@@ -104,8 +120,37 @@ public class BoardListActivity extends AppCompatActivity {
 
     }
 
+    private void showSearchPopup() {
+        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_search);
+
+        final EditText tvBoardName = (EditText) dialog.findViewById(R.id.pop_search_board_name);
+
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.pop_search_btn);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Board board = Gloop.all(Board.class).where().equalsTo("name", tvBoardName.getText().toString()).first();
+                if (board != null) {
+                    GloopLogger.i("Found board.");
+                    board.save();
+                    // TODO
+//                        board.getGloopUser()
+//                        board.saveLocal();
+                } else {
+                    GloopLogger.i("Could not find board with name: " + tvBoardName.getText().toString());
+                }
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        GloopList<Board> boards = Gloop.all(Board.class);
+        GloopList<Board> boards = Gloop.allLocal(Board.class);
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(boards));
     }
 
@@ -229,6 +274,8 @@ public class BoardListActivity extends AppCompatActivity {
 
             dialog.show();
         }
+
+
 
         @Override
         public int getItemCount() {

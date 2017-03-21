@@ -37,6 +37,8 @@ public class BoardDetailFragment extends Fragment {
 
     private ImageView changeColorButton;
 
+    private SaveInBackgroundWorker worker;
+
     public BoardDetailFragment() {
         // Mandatory empty constructor for the fragment manager to instantiate the fragment
     }
@@ -53,6 +55,9 @@ public class BoardDetailFragment extends Fragment {
         smallBrush = getResources().getInteger(R.integer.small_size);
         mediumBrush = getResources().getInteger(R.integer.medium_size);
         largeBrush = getResources().getInteger(R.integer.large_size);
+
+        worker = new SaveInBackgroundWorker(board);
+        worker.start();
     }
 
     @Override
@@ -63,7 +68,7 @@ public class BoardDetailFragment extends Fragment {
         //get drawing view
         drawView = (DrawingView) rootView.findViewById(R.id.drawing);
         if (board != null)
-            drawView.setBoard(board);
+            drawView.setBoard(board, worker);
 
         // set default color
         drawView.setColor(currentColor);
@@ -88,6 +93,13 @@ public class BoardDetailFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    public void onPause() {
+//        drawView.stopWorker();
+        worker.stopWorker();
+        super.onPause();
+
     }
 
     // opens a dialog on long press on the list item

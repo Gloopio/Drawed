@@ -15,9 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
@@ -43,13 +41,13 @@ public class DrawingView extends View {
 
     private Board board;
 
-    private final Queue<Line> linesToSave;
+//    private final Queue<Line> linesToSave;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
 
-        linesToSave = new LinkedList<>();
+//        linesToSave = new LinkedList<>();
     }
 
     //setup drawing
@@ -144,11 +142,21 @@ public class DrawingView extends View {
                 GloopLogger.i("BrushSize: " + brushSize);
 
                 Line newLine = new Line(line, paintColor, (int) brushSize);
+//                board.addLine(newLine);
+//                board.saveInBackground();
+
+//                Intent mServiceIntent = new Intent(getContext(), BackgroundService.class);
+//                mServiceIntent.putExtra(BackgroundService.PARAMETER, board);
+//                getContext().startService(mServiceIntent);
+
+//                board.addLine(newLine);
+//                board.save();
 //                linesToSave.add(newLine);
-                synchronized (linesToSave) {
-                    linesToSave.add(newLine);
-                    linesToSave.notify();
-                }
+//                synchronized (linesToSave) {
+//                    linesToSave.add(newLine);
+//                    linesToSave.notifyAll();
+                worker.addItem(newLine);
+//                }
 
                 break;
             default:
@@ -198,9 +206,19 @@ public class DrawingView extends View {
         invalidate();
     }
 
-    public void setBoard(Board board) {
+    private SaveInBackgroundWorker worker;
+
+    public void setBoard(Board board, SaveInBackgroundWorker worker) {
         this.board = board;
-        Thread worker  = new SaveInBackgroundWorker(linesToSave, board);
-        worker.start();
+        this.worker = worker;
     }
+
+//    public void stopWorker() {
+//        worker.stopWorker();
+//    }
+
+//    public void onDetachedFromWindow() {
+//        worker.stopWorker();
+//        super.onDetachedFromWindow();
+//    }
 }
