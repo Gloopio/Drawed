@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.gloop.GloopObject;
+import io.gloop.annotations.GloopClass;
 
 /**
  * Created by Alex Untertrifaller on 16.02.17.
  */
+@GloopClass
 public class Board extends GloopObject {
 
     private boolean privateBoard = false;

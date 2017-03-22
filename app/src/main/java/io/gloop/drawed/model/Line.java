@@ -11,7 +11,6 @@ import io.gloop.drawed.serializers.PointsSerializer;
 /**
  * Created by Alex Untertrifaller on 16.02.17.
  */
-
 public class Line extends GloopObject {
 
     private int color;

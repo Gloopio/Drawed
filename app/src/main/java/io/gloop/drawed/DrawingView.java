@@ -142,6 +142,7 @@ public class DrawingView extends View {
                 GloopLogger.i("BrushSize: " + brushSize);
 
                 Line newLine = new Line(line, paintColor, (int) brushSize);
+                newLine.setUser(board.getOwner());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
 //                board.addLine(newLine);
 //                board.saveInBackground();
 
@@ -211,6 +212,13 @@ public class DrawingView extends View {
     public void setBoard(Board board, SaveInBackgroundWorker worker) {
         this.board = board;
         this.worker = worker;
+
+//        this.board.getLines().addOnChangeListener(new GloopOnChangeListener() {
+//            @Override
+//            public void onChange() {
+//                invalidate();
+//            }
+//        });
     }
 
 //    public void stopWorker() {
