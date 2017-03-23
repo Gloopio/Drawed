@@ -132,10 +132,16 @@ public class BoardListActivity extends AppCompatActivity {
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Board board = Gloop.all(Board.class).where().equalsTo("name", tvBoardName.getText().toString()).first();
+
+                Board board = Gloop.all(Board.class)
+                        .online()
+                        .where()
+                        .equalsTo("name", tvBoardName.getText().toString())
+                        .first();
+
                 if (board != null) {
                     GloopLogger.i("Found board.");
-                    board.save();
+//                    board.save();
                     // TODO
 //                        board.getGloopUser()
 //                        board.saveLocal();
@@ -274,8 +280,6 @@ public class BoardListActivity extends AppCompatActivity {
 
             dialog.show();
         }
-
-
 
         @Override
         public int getItemCount() {
