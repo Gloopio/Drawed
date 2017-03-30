@@ -143,21 +143,7 @@ public class DrawingView extends View {
 
                 Line newLine = new Line(line, paintColor, (int) brushSize);
                 newLine.setUser(board.getOwner());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
-//                board.addLine(newLine);
-//                board.saveInBackground();
-
-//                Intent mServiceIntent = new Intent(getContext(), BackgroundService.class);
-//                mServiceIntent.putExtra(BackgroundService.PARAMETER, board);
-//                getContext().startService(mServiceIntent);
-
-//                board.addLine(newLine);
-//                board.save();
-//                linesToSave.add(newLine);
-//                synchronized (linesToSave) {
-//                    linesToSave.add(newLine);
-//                    linesToSave.notifyAll();
                 worker.addItem(newLine);
-//                }
 
                 break;
             default:

@@ -50,7 +50,11 @@ public class SaveInBackgroundWorker extends Thread {
                 GloopLogger.i("save line");
                 // Process the work item
                 board.addLine(newLine);
+
                 board.save();
+
+//                Gloop.printTable(Line.class);
+
                 GloopLogger.i("line saved");
             } catch (InterruptedException ie) {
                 break;  // Terminate

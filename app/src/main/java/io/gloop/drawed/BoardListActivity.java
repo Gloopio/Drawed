@@ -52,7 +52,8 @@ public class BoardListActivity extends AppCompatActivity {
 
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
-        username.setText(Gloop.getOwner().getObjectId()); // TODO at the moment name is randomly generated every time the app starts
+        // at the moment name is randomly generated every time the app starts
+//        username.setText(Gloop.getOwner().getName()); TODO
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -79,11 +80,14 @@ public class BoardListActivity extends AppCompatActivity {
 
                 // create and set public group by default.
                 GloopGroup group = new GloopGroup();
-                group.setPublic();
+                group.setUser(Gloop.getOwner().getUserId());
                 group.save();
 
                 Board board = new Board();
-                board.setUser(group);
+                board.setUser(group.getObjectId());
+
+                // test to grant additional permission to another user
+//                board.addPermission("seppl", 1000);
 
                 String colorName = NameUtil.randomColor(getApplicationContext());
                 board.setName(NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext()));
@@ -134,15 +138,31 @@ public class BoardListActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Board board = Gloop.all(Board.class)
-                        .online()
+//                        .online()
                         .where()
                         .equalsTo("name", tvBoardName.getText().toString())
                         .first();
 
                 if (board != null) {
                     GloopLogger.i("Found board.");
+
+                    if (mTwoPane) {
+                        Bundle arguments = new Bundle();
+                        arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
+                        BoardDetailFragment fragment = new BoardDetailFragment();
+                        fragment.setArguments(arguments);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.item_detail_container, fragment)
+                                .commit();
+                    } else {
+                        Context context = v.getContext();
+                        Intent intent = new Intent(context, BoardDetailActivity.class);
+                        intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+
+                        context.startActivity(intent);
+                    }
+
 //                    board.save();
-                    // TODO
 //                        board.getGloopUser()
 //                        board.saveLocal();
                 } else {
