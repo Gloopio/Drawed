@@ -142,7 +142,6 @@ public class DrawingView extends View {
                 GloopLogger.i("BrushSize: " + brushSize);
 
                 Line newLine = new Line(line, paintColor, (int) brushSize);
-                newLine.setUser(board.getOwner());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                 worker.addItem(newLine);
 
                 break;

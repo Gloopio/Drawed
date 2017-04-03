@@ -49,11 +49,12 @@ public class SaveInBackgroundWorker extends Thread {
 
                 GloopLogger.i("save line");
                 // Process the work item
+                newLine.setUser(board.getOwner());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                 board.addLine(newLine);
 
-                board.save();
+                GloopLogger.i("board user: " + board.getOwner());
 
-//                Gloop.printTable(Line.class);
+                board.save();
 
                 GloopLogger.i("line saved");
             } catch (InterruptedException ie) {
