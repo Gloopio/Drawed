@@ -209,15 +209,6 @@ public class BoardDetailFragment extends Fragment {
             }
         });
 
-        //set selected line thickness
-        // TODO impl
-//        if (drawView.getLastBrushSize() == smallBrush)
-//            smallBtn.setSelected(true);
-//        else if (drawView.getLastBrushSize() == mediumBrush)
-//            mediumBtn.setSelected(true);
-//        else if (drawView.getLastBrushSize() == largeBrush)
-//            largeBtn.setSelected(true);
-
         //show and wait for user interaction
         dialog.show();
     }

@@ -49,7 +49,7 @@ public class SaveInBackgroundWorker extends Thread {
 
                 GloopLogger.i("save line");
                 // Process the work item
-                newLine.setUser(board.getOwner());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
+                newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                 board.addLine(newLine);
 
                 GloopLogger.i("board user: " + board.getOwner());

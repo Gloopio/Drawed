@@ -1,6 +1,7 @@
 package io.gloop.drawed;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.gloop.GloopLogger;
+import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
@@ -194,16 +196,28 @@ public class DrawingView extends View {
 
     private SaveInBackgroundWorker worker;
 
-    public void setBoard(Board board, SaveInBackgroundWorker worker) {
+    public void setBoard(final Board board, SaveInBackgroundWorker worker) {
         this.board = board;
         this.worker = worker;
 
-//        this.board.getLines().addOnChangeListener(new GloopOnChangeListener() {
-//            @Override
-//            public void onChange() {
-//                invalidate();
-//            }
-//        });
+        final Activity host = (Activity) getContext();
+
+        this.board.removeOnChangeListeners();
+        this.board.addOnChangeListener(new GloopOnChangeListener() {
+
+            @Override
+            public void onChange() {
+                GloopLogger.i("Redraw image because has changed in the background.");
+                host.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        GloopLogger.i("XXXXXXXX " + DrawingView.this.board.getLines().size());
+//                        invalidate();
+                        drawLines();
+                    }});
+            }
+        });
+
     }
 
 //    public void stopWorker() {

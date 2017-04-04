@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -29,6 +30,10 @@ import io.gloop.drawed.model.Board;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
+
+import static io.gloop.permissions.GloopPermission.PUBLIC;
+import static io.gloop.permissions.GloopPermission.READ;
+import static io.gloop.permissions.GloopPermission.WRITE;
 
 /**
  * An activity representing a list of Items. This activity
@@ -49,11 +54,13 @@ public class BoardListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
         // at the moment name is randomly generated every time the app starts
-//        username.setText(Gloop.getOwner().getName()); TODO
+        username.setText(Gloop.getOwner().getName());
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -77,38 +84,7 @@ public class BoardListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // create and set public group by default.
-                GloopGroup group = new GloopGroup();
-                group.setUser(Gloop.getOwner().getUserId());
-                group.save();
-
-                Board board = new Board();
-                board.setUser(group.getObjectId());
-
-                // test to grant additional permission to another user
-//                board.addPermission("seppl", 1000);
-
-                String colorName = NameUtil.randomColor(getApplicationContext());
-                board.setName(NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext()));
-                board.setColor(ColorUtil.getColorByName(getApplicationContext(), colorName));
-                board.save();
-
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
-                    BoardDetailFragment fragment = new BoardDetailFragment();
-                    fragment.setArguments(arguments);
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, BoardDetailActivity.class);
-                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-
-                    context.startActivity(intent);
-                }
+                showNewBoardPopup(view);
             }
         });
 
@@ -138,13 +114,22 @@ public class BoardListActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Board board = Gloop.all(Board.class)
-//                        .online()
                         .where()
                         .equalsTo("name", tvBoardName.getText().toString())
                         .first();
 
                 if (board != null) {
                     GloopLogger.i("Found board.");
+
+                    // TODO if PUBLIC board add your self to the group.
+//                    GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getOwner()).first();
+//                    if (group != null) {
+//                        group.addMember(Gloop.getOwner().getUserId());
+//                        group.save();
+//                    }
+
+                    // save public object to local db.
+                    board.saveLocal();
 
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
@@ -161,17 +146,97 @@ public class BoardListActivity extends AppCompatActivity {
 
                         context.startActivity(intent);
                     }
-
-//                    board.save();
-//                        board.getGloopUser()
-//                        board.saveLocal();
                 } else {
-                    GloopLogger.i("Could not find board with name: " + tvBoardName.getText().toString());
+                    GloopLogger.i("Could not find public board with name: " + tvBoardName.getText().toString());
+
+
                 }
                 dialog.dismiss();
             }
         });
 
+        dialog.show();
+    }
+
+    private void showNewBoardPopup(final View view) {
+        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_new_board);
+
+        final String colorName = NameUtil.randomColor(getApplicationContext());
+        final String randomName = NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext());
+
+        final EditText etBoardName = (EditText) dialog.findViewById(R.id.pop_new_board_board_name);
+        etBoardName.setText(randomName);
+
+
+        Button saveButton = (Button) dialog.findViewById(R.id.pop_new_board_btn_save);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // create and set group by default.
+                GloopGroup group = new GloopGroup();
+                group.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
+                group.save();
+
+                final Board board = new Board();
+
+                // test to grant additional permission to another user
+//                board.addPermission("test", 1000);
+
+                // set name and color
+                board.setName(etBoardName.getText().toString());
+                board.setColor(ColorUtil.getColorByName(getApplicationContext(), colorName));
+
+                // set board private
+                Switch switchPrivate = (Switch) dialog.findViewById(R.id.pop_new_board_switch_private);
+                board.setPrivateBoard(switchPrivate.isChecked());
+
+                // set board freeze
+                Switch switchFreeze = (Switch) dialog.findViewById(R.id.pop_new_board_switch_freeze);
+                board.setFreezeBoard(switchFreeze.isChecked());
+
+                // TODO test all different permissions
+                // set permissions depending on the selection.
+                if (board.isPrivateBoard()) {
+                    if (board.isFreezeBoard())
+                        board.setUser(Gloop.getOwner().toString(), READ);
+                    else
+                        board.setUser(Gloop.getOwner().toString(), READ | WRITE);
+                } else if (board.isFreezeBoard()) {
+                    if (board.isPrivateBoard())
+                        board.setUser(Gloop.getOwner().toString(), READ);
+                    else
+                        board.setUser(group.getObjectId(), READ | PUBLIC);
+                } else {
+                    board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
+                }
+
+                // save the created board
+                board.save();
+
+                // open the board in detail fragment
+                if (mTwoPane) {
+                    Bundle arguments = new Bundle();
+                    arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
+                    BoardDetailFragment fragment = new BoardDetailFragment();
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.item_detail_container, fragment)
+                            .commit();
+                } else {
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, BoardDetailActivity.class);
+                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+
+                    context.startActivity(intent);
+                }
+
+                // close popup
+                dialog.dismiss();
+            }
+        });
         dialog.show();
     }
 

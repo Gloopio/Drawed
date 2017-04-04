@@ -9,13 +9,14 @@ import io.gloop.annotations.GloopClass;
 /**
  * Created by Alex Untertrifaller on 16.02.17.
  */
-@GloopClass(lazyLoading = true)
+@GloopClass(lazyLoading = false)
 public class Board extends GloopObject {
 
     private boolean privateBoard = false;
     private boolean freezeBoard = false;
     private String name;
     private int color;
+
     private List<Line> lines = new ArrayList<>();
 
     public Board() {
@@ -34,6 +35,7 @@ public class Board extends GloopObject {
     }
 
     public List<Line> getLines() {
+        load("lines");
         return lines;
     }
 
