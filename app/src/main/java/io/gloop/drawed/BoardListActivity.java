@@ -31,9 +31,7 @@ import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
 
-import static io.gloop.permissions.GloopPermission.PUBLIC;
-import static io.gloop.permissions.GloopPermission.READ;
-import static io.gloop.permissions.GloopPermission.WRITE;
+import static io.gloop.permissions.GloopPermission.*;
 
 /**
  * An activity representing a list of Items. This activity

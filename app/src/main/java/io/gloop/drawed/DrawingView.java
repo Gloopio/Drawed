@@ -205,27 +205,26 @@ public class DrawingView extends View {
         this.board.removeOnChangeListeners();
         this.board.addOnChangeListener(new GloopOnChangeListener() {
 
+            // TODO at the moment this method is called to often. Makes everything very slow!
+
             @Override
             public void onChange() {
-                GloopLogger.i("Redraw image because has changed in the background.");
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        GloopLogger.i("XXXXXXXX " + DrawingView.this.board.getLines().size());
-//                        invalidate();
+                        GloopLogger.i("XXXXXXXX " + DrawingView.this.board.getObjectId());
+                        DrawingView.this.board.load();
                         drawLines();
-                    }});
+                    }
+                });
             }
         });
 
     }
 
-//    public void stopWorker() {
-//        worker.stopWorker();
-//    }
 
-//    public void onDetachedFromWindow() {
-//        worker.stopWorker();
-//        super.onDetachedFromWindow();
-//    }
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        this.board.removeOnChangeListeners();
+    }
 }

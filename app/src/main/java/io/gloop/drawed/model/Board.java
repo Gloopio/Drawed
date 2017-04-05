@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.gloop.GloopObject;
-import io.gloop.annotations.GloopClass;
 
 /**
  * Created by Alex Untertrifaller on 16.02.17.
  */
-@GloopClass(lazyLoading = false)
 public class Board extends GloopObject {
 
     private boolean privateBoard = false;
@@ -35,7 +33,11 @@ public class Board extends GloopObject {
     }
 
     public List<Line> getLines() {
-        load("lines");
+//        if (lines == null) {
+//            load("lines");
+//            if (lines == null)
+//                lines = new ArrayList<>();
+//        }
         return lines;
     }
 
