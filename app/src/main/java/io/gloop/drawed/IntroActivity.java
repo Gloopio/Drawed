@@ -13,6 +13,7 @@ import com.github.paolorotolo.appintro.AppIntroFragment;
  * This activity is shown only on the first run of the app. It shows a intro screen.
  */
 public class IntroActivity extends AppIntro {
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

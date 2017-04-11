@@ -12,7 +12,7 @@
         android:id="@+id/pop_stat_board_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search for a Board"
+        android:text="@string/search_for_a_board"
         android:textAlignment="center"
         android:textColor="@color/textColor"
         android:textSize="@dimen/text_size"/>
@@ -29,12 +29,12 @@
 
         <Button
             android:id="@+id/pop_search_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:background="@drawable/button"
-            android:text="Search"
+            android:text="@string/search"
             android:textColor="@color/textColor"/>
     </LinearLayout>
 

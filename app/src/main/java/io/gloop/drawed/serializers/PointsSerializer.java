@@ -16,7 +16,8 @@ import io.gloop.serializers.GloopSerializeToString;
  */
 public class PointsSerializer extends GloopSerializeToString<List<Point>> {
 
-    private final Gson gson = new Gson();
+    private static final Gson gson = new Gson();
+    private static final Type listType = new TypeToken<ArrayList<Point>>(){}.getType();
 
     @Override
     public String serialize(List<Point> points, Map<String, Object> map) {
@@ -25,7 +26,6 @@ public class PointsSerializer extends GloopSerializeToString<List<Point>> {
 
     @Override
     public List<Point> deserialize(String s, Map<String, Object> map) {
-        Type listType = new TypeToken<ArrayList<Point>>(){}.getType();
         return gson.fromJson(s, listType);
     }
 }

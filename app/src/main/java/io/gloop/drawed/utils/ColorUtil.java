@@ -16,6 +16,7 @@ import io.gloop.drawed.R;
  */
 public class ColorUtil {
 
+    private static int previousColor;
 
     public static int getColorByName(Context context, String name) {
         int colorId = 0;
@@ -34,11 +35,8 @@ public class ColorUtil {
 
     }
 
-    // TODO fix does not work
-    private static int previousColor;
-
     // Generates a random color and takes care that it is not equals to the previous one.
-    public static int randomColor(Context context) {
+    private static int randomColor(Context context) {
         if (previousColor == 0)
             return getMatColor(context);
 

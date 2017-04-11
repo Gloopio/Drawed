@@ -27,16 +27,12 @@ public class BoardDetailFragment extends Fragment {
 
     public static final String ARG_BOARD = "board";
 
-    private Board board;
-
     private DrawingView drawView;
-
     private String currentColor = "#FF000000";
-
     private float smallBrush, mediumBrush, largeBrush;
-
     private ImageView changeColorButton;
 
+    private Board board;
     private SaveInBackgroundWorker worker;
 
     public BoardDetailFragment() {
@@ -95,8 +91,8 @@ public class BoardDetailFragment extends Fragment {
         return rootView;
     }
 
+    @Override
     public void onPause() {
-//        drawView.stopWorker();
         worker.stopWorker();
         super.onPause();
 
@@ -137,6 +133,45 @@ public class BoardDetailFragment extends Fragment {
         dialog.show();
     }
 
+    private void showChangeLineThicknessPopup() {
+        final Dialog dialog = new Dialog(getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_chooser_line_thickness);
+
+        //listen for clicks on size buttons
+        ImageButton smallBtn = (ImageButton) dialog.findViewById(R.id.small_brush);
+        smallBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.setErase(false);
+                drawView.setBrushSize(smallBrush);
+                dialog.dismiss();
+            }
+        });
+
+        ImageButton mediumBtn = (ImageButton) dialog.findViewById(R.id.medium_brush);
+        mediumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.setErase(false);
+                drawView.setBrushSize(mediumBrush);
+                dialog.dismiss();
+            }
+        });
+        ImageButton largeBtn = (ImageButton) dialog.findViewById(R.id.large_brush);
+        largeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.setErase(false);
+                drawView.setBrushSize(largeBrush);
+                dialog.dismiss();
+            }
+        });
+
+        //show and wait for user interaction
+        dialog.show();
+    }
+
     private class ColorChangeListener implements View.OnClickListener {
         private final ImageButton imgView;
         private final Dialog dialog;
@@ -169,47 +204,5 @@ public class BoardDetailFragment extends Fragment {
             // close dialog
             dialog.dismiss();
         }
-    }
-
-    private void showChangeLineThicknessPopup() {
-        final Dialog dialog = new Dialog(getContext());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_chooser_line_thickness);
-
-        //listen for clicks on size buttons
-        ImageButton smallBtn = (ImageButton) dialog.findViewById(R.id.small_brush);
-        smallBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(smallBrush);
-                drawView.setLastBrushSize(smallBrush);
-                dialog.dismiss();
-            }
-        });
-
-        ImageButton mediumBtn = (ImageButton) dialog.findViewById(R.id.medium_brush);
-        mediumBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(mediumBrush);
-                drawView.setLastBrushSize(mediumBrush);
-                dialog.dismiss();
-            }
-        });
-        ImageButton largeBtn = (ImageButton) dialog.findViewById(R.id.large_brush);
-        largeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(largeBrush);
-                drawView.setLastBrushSize(largeBrush);
-                dialog.dismiss();
-            }
-        });
-
-        //show and wait for user interaction
-        dialog.show();
     }
 }

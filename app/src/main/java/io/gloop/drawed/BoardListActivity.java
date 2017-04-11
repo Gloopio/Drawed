@@ -31,7 +31,9 @@ import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
 
-import static io.gloop.permissions.GloopPermission.*;
+import static io.gloop.permissions.GloopPermission.PUBLIC;
+import static io.gloop.permissions.GloopPermission.READ;
+import static io.gloop.permissions.GloopPermission.WRITE;
 
 /**
  * An activity representing a list of Items. This activity
@@ -58,7 +60,9 @@ public class BoardListActivity extends AppCompatActivity {
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
         // at the moment name is randomly generated every time the app starts
-        username.setText(Gloop.getOwner().getName());
+        String name = Gloop.getOwner().getName();
+        if (name != null)
+            username.setText(name);
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -243,18 +247,27 @@ public class BoardListActivity extends AppCompatActivity {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(boards));
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
     class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final GloopList<Board> mValues;
+        private final GloopOnChangeListener onChangeListener;
+
 
         SimpleItemRecyclerViewAdapter(GloopList<Board> boards) {
             mValues = boards;
-            mValues.addOnChangeListener(new GloopOnChangeListener() {
+            onChangeListener = new GloopOnChangeListener() {
                 @Override
                 public void onChange() {
                     notifyDataSetChanged();
                 }
-            });
+            };
+            GloopLogger.i("On change listener for the board list attached.");
+            mValues.addOnChangeListener(onChangeListener);
         }
 
         @Override
@@ -300,6 +313,9 @@ public class BoardListActivity extends AppCompatActivity {
 
                         context.startActivity(intent);
                     }
+
+                    GloopLogger.i("On change listener for the board list detached.");
+                    mValues.removeOnChangeListener(onChangeListener);
                 }
             });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -389,9 +405,5 @@ public class BoardListActivity extends AppCompatActivity {
                 return super.toString() + " '" + mContentView.getText() + "'";
             }
         }
-    }
-
-    public void onBackPressed() {
-        finish();
     }
 }

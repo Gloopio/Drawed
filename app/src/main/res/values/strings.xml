@@ -21,5 +21,7 @@
     <string name="delete">Delete</string>
     <string name="dummy_board_name">BoardName</string>
     <string name="line_thickness">Line Thickness</string>
+    <string name="search_for_a_board">Search for a Board</string>
+    <string name="search">Search</string>
 
 </resources>

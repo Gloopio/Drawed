@@ -18,6 +18,7 @@ public class Board extends GloopObject {
     private List<Line> lines = new ArrayList<>();
 
     public Board() {
+        super();
     }
 
     public String getName() {
@@ -33,12 +34,11 @@ public class Board extends GloopObject {
     }
 
     public List<Line> getLines() {
-//        if (lines == null) {
-//            load("lines");
-//            if (lines == null)
-//                lines = new ArrayList<>();
-//        }
         return lines;
+    }
+
+    public void setLines(List<Line> lines) {
+        this.lines = lines;
     }
 
     @Override
@@ -49,19 +49,18 @@ public class Board extends GloopObject {
                 '}';
     }
 
-    public void setColor(int color) {
-        this.color = color;
-    }
-
     public int getColor() {
         return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public void clear() {
         this.lines = new ArrayList<>();
         this.save();
     }
-
 
     public boolean isPrivateBoard() {
         return privateBoard;
@@ -77,9 +76,5 @@ public class Board extends GloopObject {
 
     public void setFreezeBoard(boolean freezeBoard) {
         this.freezeBoard = freezeBoard;
-    }
-
-    public void setLines(List<Line> lines) {
-        this.lines = lines;
     }
 }

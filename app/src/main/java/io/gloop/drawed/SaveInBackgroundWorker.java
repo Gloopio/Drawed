@@ -7,19 +7,18 @@ import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 
-public class SaveInBackgroundWorker extends Thread {
+class SaveInBackgroundWorker extends Thread {
     private final Queue<Line> queue;
     private Board board;
 
     private boolean run = true;
 
-    public SaveInBackgroundWorker(Board board) {
-//        this.queue = queue;
+    SaveInBackgroundWorker(Board board) {
         this.queue = new LinkedList<>();
         this.board = board;
     }
 
-    public void stopWorker() {
+    void stopWorker() {
         synchronized (queue) {
             GloopLogger.i("Stop worker thread.");
             run = false;
@@ -64,7 +63,7 @@ public class SaveInBackgroundWorker extends Thread {
         GloopLogger.i("Service stopped");
     }
 
-    public void addItem(Line newLine) {
+    void addItem(Line newLine) {
         synchronized (queue) {
             queue.add(newLine);
             queue.notifyAll();

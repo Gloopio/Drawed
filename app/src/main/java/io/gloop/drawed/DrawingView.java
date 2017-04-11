@@ -37,19 +37,17 @@ public class DrawingView extends View {
     //canvas bitmap
     private Bitmap canvasBitmap;
     //brush sizes
-    private float brushSize, lastBrushSize;
+    private float brushSize;
     //erase flag
     private boolean erase = false;
 
     private Board board;
-
-//    private final Queue<Line> linesToSave;
+    private List<Point> line;
+    private SaveInBackgroundWorker worker;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
-
-//        linesToSave = new LinkedList<>();
     }
 
     //setup drawing
@@ -57,9 +55,9 @@ public class DrawingView extends View {
 
         //prepare for drawing and setup paint stroke properties
         brushSize = getResources().getInteger(R.integer.medium_size);
-        lastBrushSize = brushSize;
         drawPath = new Path();
         drawPaint = new Paint();
+        paintColor = 0xFF660000;
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
         drawPaint.setStrokeWidth(brushSize);
@@ -82,7 +80,7 @@ public class DrawingView extends View {
                 drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
                 for (int i = 1; i < points.size(); i++) {
                     Point point = points.get(i);
-                    if (point.getX() == 0 || point.getY() == 0) // TODO remove and fix bug
+                    if (point.getX() == 0 || point.getY() == 0)
                         continue;
                     drawPath.lineTo(point.getX(), point.getY());
                 }
@@ -110,8 +108,6 @@ public class DrawingView extends View {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(drawPath, drawPaint);
     }
-
-    private List<Point> line;
 
     //register user touches as drawing action
     @Override
@@ -141,8 +137,8 @@ public class DrawingView extends View {
                 if (touchX != 0 && touchY != 0) {
                     line.add(new Point(touchX, touchY));
                 }
-                GloopLogger.i("BrushSize: " + brushSize);
 
+                // create new line and add to worker to save it in the background.
                 Line newLine = new Line(line, paintColor, (int) brushSize);
                 worker.addItem(newLine);
 
@@ -169,15 +165,6 @@ public class DrawingView extends View {
         drawPaint.setStrokeWidth(brushSize);
     }
 
-    //get and set last brush size
-    public void setLastBrushSize(float lastSize) {
-        lastBrushSize = lastSize;
-    }
-
-    public float getLastBrushSize() {
-        return lastBrushSize;
-    }
-
     //set erase true or false
     public void setErase(boolean isErase) {
         erase = isErase;
@@ -193,8 +180,6 @@ public class DrawingView extends View {
         this.board.clear();
         invalidate();
     }
-
-    private SaveInBackgroundWorker worker;
 
     public void setBoard(final Board board, SaveInBackgroundWorker worker) {
         this.board = board;
@@ -212,8 +197,8 @@ public class DrawingView extends View {
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        GloopLogger.i("XXXXXXXX " + DrawingView.this.board.getObjectId());
-                        DrawingView.this.board.load();
+                        GloopLogger.i("XXXXXXXX ");
+                        DrawingView.this.board.loadLocal();  // TODO check if will work when loading local objects only, because they should already have been pushed over the websocket.
                         drawLines();
                     }
                 });
@@ -222,7 +207,7 @@ public class DrawingView extends View {
 
     }
 
-
+    @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         this.board.removeOnChangeListeners();

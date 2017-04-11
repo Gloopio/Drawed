@@ -20,9 +20,11 @@ public class Line extends GloopObject {
     private List<Point> points = new ArrayList<>();
 
     public Line() {
+        super();
     }
 
     public Line(List<Point> line, int color, int brushSize) {
+        super();
         this.points = line;
         this.color = color;
         this.brushSize = brushSize;
@@ -34,6 +36,10 @@ public class Line extends GloopObject {
 
     public List<Point> getPoints() {
         return points;
+    }
+
+    public void setPoints(List<Point> points) {
+        this.points = points;
     }
 
     @Override
@@ -49,19 +55,15 @@ public class Line extends GloopObject {
         return color;
     }
 
-    public int getBrushSize() {
-        return brushSize;
-    }
-
     public void setColor(int color) {
         this.color = color;
     }
 
-    public void setBrushSize(int brushSize) {
-        this.brushSize = brushSize;
+    public int getBrushSize() {
+        return brushSize;
     }
 
-    public void setPoints(List<Point> points) {
-        this.points = points;
+    public void setBrushSize(int brushSize) {
+        this.brushSize = brushSize;
     }
 }
