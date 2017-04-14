@@ -23,6 +23,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
+import io.gloop.drawed.utils.ScreenUtil;
 
 public class DrawingView extends View {
 
@@ -41,6 +42,8 @@ public class DrawingView extends View {
     //erase flag
     private boolean erase = false;
 
+    private float screenDensity;    // TODO try to use density to scale image
+
     private Board board;
     private List<Point> line;
     private SaveInBackgroundWorker worker;
@@ -48,6 +51,8 @@ public class DrawingView extends View {
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
+
+        screenDensity = ScreenUtil.getScreenDensity(context);
     }
 
     //setup drawing
@@ -198,7 +203,7 @@ public class DrawingView extends View {
                     @Override
                     public void run() {
                         GloopLogger.i("XXXXXXXX ");
-                        DrawingView.this.board.loadLocal();  // TODO check if will work when loading local objects only, because they should already have been pushed over the websocket.
+                        DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                         drawLines();
                     }
                 });

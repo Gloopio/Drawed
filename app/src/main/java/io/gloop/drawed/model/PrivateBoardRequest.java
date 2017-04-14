@@ -3,14 +3,13 @@ package io.gloop.drawed.model;
 import io.gloop.GloopObject;
 
 /**
- * Created by Alex Untertrifaller on 04.04.17.
+ * Created by Alex Untertrifaller on 14.04.17.
  */
 
-public class BoardAccessRequest extends GloopObject {
+public class PrivateBoardRequest extends GloopObject {
 
     private String boardName;
     private String boardOwner;
-    private String userId;
 
     public String getBoardName() {
         return boardName;
@@ -20,20 +19,11 @@ public class BoardAccessRequest extends GloopObject {
         this.boardName = boardName;
     }
 
-    @Override
-    public String getOwner() {
+    public String getBoardOwner() {
         return boardOwner;
     }
 
     public void setBoardOwner(String boardOwner) {
         this.boardOwner = boardOwner;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 }

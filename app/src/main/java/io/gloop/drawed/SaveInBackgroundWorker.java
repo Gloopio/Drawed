@@ -35,32 +35,25 @@ class SaveInBackgroundWorker extends Thread {
                 synchronized (queue) {
                     while (queue.isEmpty() && run) {
                         queue.wait();
-                        GloopLogger.i("wake up");
                     }
 
                     if (!run && queue.isEmpty())
                         break;
 
-                    GloopLogger.i("get new line to save");
                     // Get the next work item off of the queue
                     newLine = queue.poll();
                 }
 
-                GloopLogger.i("save line");
                 // Process the work item
                 newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                 board.addLine(newLine);
 
-                GloopLogger.i("board user: " + board.getOwner());
-
                 board.save();
 
-                GloopLogger.i("line saved");
             } catch (InterruptedException ie) {
                 break;  // Terminate
             }
         }
-        GloopLogger.i("Service stopped");
     }
 
     void addItem(Line newLine) {

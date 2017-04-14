@@ -1,11 +1,14 @@
 package io.gloop.drawed;
 
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +30,8 @@ import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
@@ -100,6 +105,46 @@ public class BoardListActivity extends AppCompatActivity {
             }
         });
 
+        checkForPrivateBoardAccessRequests();
+
+    }
+
+    private void checkForPrivateBoardAccessRequests() {
+        final GloopList<BoardAccessRequest> accessRequests = Gloop.all(BoardAccessRequest.class)
+                .where()
+                .equalsTo("boardOwner", Gloop.getOwner().getUserId())
+                .all();
+        for (BoardAccessRequest accessRequest : accessRequests) {
+            showNotification(accessRequest);
+        }
+
+        accessRequests.addOnChangeListener(new GloopOnChangeListener() {
+            @Override
+            public void onChange() {
+                GloopLogger.i("Request access to a private board");
+                GloopList<BoardAccessRequest> tmp = Gloop.allLocal(BoardAccessRequest.class)
+                        .where()
+                        .equalsTo("boardOwner", Gloop.getOwner().getUserId())
+                        .all();
+                GloopLogger.i(tmp);
+                for (BoardAccessRequest accessRequest : tmp) {
+                    showNotification(accessRequest);
+                }
+            }
+        });
+    }
+
+    private void showNotification(BoardAccessRequest accessRequest) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setContentTitle("Notification!") // title for notification
+                .setContentText("Hello word") // message for notification
+                .setAutoCancel(true); // clear notification after click
+        Intent intent = new Intent(this, BoardListActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        mBuilder.setContentIntent(pi);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, mBuilder.build());
     }
 
     private void showSearchPopup() {
@@ -115,23 +160,34 @@ public class BoardListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Board board = Gloop.all(Board.class)
+                String boardName = tvBoardName.getText().toString();
+
+                Board board = Gloop
+                        .all(Board.class)
                         .where()
-                        .equalsTo("name", tvBoardName.getText().toString())
+                        .equalsTo("name", boardName)
                         .first();
 
                 if (board != null) {
                     GloopLogger.i("Found board.");
 
-                    // TODO if PUBLIC board add your self to the group.
-//                    GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getOwner()).first();
-//                    if (group != null) {
-//                        group.addMember(Gloop.getOwner().getUserId());
-//                        group.save();
-//                    }
+                    // if PUBLIC board add your self to the group.
+                    GloopGroup group = Gloop
+                            .all(GloopGroup.class)
+                            .where()
+                            .equalsTo("objectId", board.getOwner())
+                            .first();
+
+                    if (group != null) {
+                        GloopLogger.i("GloopGroup found add myself to group and save");
+                        group.addMember(Gloop.getOwner().getUserId());
+                        group.save();
+                    } else {
+                        GloopLogger.e("GloopGroup not found!");
+                    }
 
                     // save public object to local db.
-                    board.saveLocal();
+                    board.save();
 
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
@@ -149,9 +205,24 @@ public class BoardListActivity extends AppCompatActivity {
                         context.startActivity(intent);
                     }
                 } else {
-                    GloopLogger.i("Could not find public board with name: " + tvBoardName.getText().toString());
 
+                    // if the board is not public check the PrivateBoardRequest objects.
 
+                    PrivateBoardRequest privateBoard = Gloop.all(PrivateBoardRequest.class)
+                            .where()
+                            .equalsTo("boardName", boardName)
+                            .first();
+
+                    if (privateBoard != null) {
+                        // request access to private board with the BoardAccessRequest object.
+                        BoardAccessRequest request = new BoardAccessRequest();
+                        request.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
+                        request.setBoardName(boardName);
+                        request.setBoardOwner(privateBoard.getOwner());
+                        request.save();
+                    } else {
+                        GloopLogger.i("Could not find public board with name: " + boardName);
+                    }
                 }
                 dialog.dismiss();
             }
@@ -215,6 +286,15 @@ public class BoardListActivity extends AppCompatActivity {
                     board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
                 }
 
+                if (board.isPrivateBoard()) {
+                    // this is used to discover private boards and request access to it.
+                    PrivateBoardRequest privateBoard = new PrivateBoardRequest();
+                    privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
+                    privateBoard.setBoardName(board.getName());
+                    privateBoard.setBoardOwner(board.getOwner());
+                    privateBoard.save();
+                }
+
                 // save the created board
                 board.save();
 
@@ -266,7 +346,6 @@ public class BoardListActivity extends AppCompatActivity {
                     notifyDataSetChanged();
                 }
             };
-            GloopLogger.i("On change listener for the board list attached.");
             mValues.addOnChangeListener(onChangeListener);
         }
 
@@ -285,9 +364,9 @@ public class BoardListActivity extends AppCompatActivity {
             holder.mContentView.setText(board.getName());
             if (board.isPrivateBoard())
                 holder.mImagePrivate.setVisibility(View.VISIBLE);
-            else {
+            else
                 holder.mImagePrivate.setVisibility(View.GONE);
-            }
+
             if (board.isFreezeBoard())
                 holder.mImageFreeze.setVisibility(View.VISIBLE);
             else
@@ -314,7 +393,6 @@ public class BoardListActivity extends AppCompatActivity {
                         context.startActivity(intent);
                     }
 
-                    GloopLogger.i("On change listener for the board list detached.");
                     mValues.removeOnChangeListener(onChangeListener);
                 }
             });
