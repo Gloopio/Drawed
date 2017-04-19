@@ -9,7 +9,8 @@ import io.gloop.GloopObject;
 public class BoardAccessRequest extends GloopObject {
 
     private String boardName;
-    private String boardOwner;
+    private String boardGroupId;
+    private String boardCreator;
     private String userId;
 
     public String getBoardName() {
@@ -20,13 +21,9 @@ public class BoardAccessRequest extends GloopObject {
         this.boardName = boardName;
     }
 
-    @Override
-    public String getOwner() {
-        return boardOwner;
-    }
 
-    public void setBoardOwner(String boardOwner) {
-        this.boardOwner = boardOwner;
+    public void setBoardCreator(String boardCreator) {
+        this.boardCreator = boardCreator;
     }
 
     public String getUserId() {
@@ -35,5 +32,17 @@ public class BoardAccessRequest extends GloopObject {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getBoardGroupId() {
+        return boardGroupId;
+    }
+
+    public void setBoardGroupId(String boardGroupId) {
+        this.boardGroupId = boardGroupId;
+    }
+
+    public String getBoardCreator() {
+        return boardCreator;
     }
 }

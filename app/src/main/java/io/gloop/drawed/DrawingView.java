@@ -18,7 +18,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
@@ -85,7 +84,7 @@ public class DrawingView extends View {
                 drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
                 for (int i = 1; i < points.size(); i++) {
                     Point point = points.get(i);
-                    if (point.getX() == 0 || point.getY() == 0)
+                    if ((int)point.getX() == 0 || (int)point.getY() == 0)   // cast to int for correct equality check with 0
                         continue;
                     drawPath.lineTo(point.getX(), point.getY());
                 }
@@ -125,22 +124,25 @@ public class DrawingView extends View {
             case MotionEvent.ACTION_DOWN:
                 drawPath.moveTo(touchX, touchY);
                 line = new ArrayList<>();
-                if (touchX != 0 && touchY != 0) {
+                if ((int)touchX == 0 && (int)touchY == 0) {
                     line.add(new Point(touchX, touchY));
+                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 drawPath.lineTo(touchX, touchY);
-                if (touchX != 0 && touchY != 0) {
+                if ((int)touchX != 0 && (int)touchY != 0) {
                     line.add(new Point(touchX, touchY));
+                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 drawPath.lineTo(touchX, touchY);
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
-                if (touchX != 0 && touchY != 0) {
+                if ((int)touchX != 0 && (int)touchY != 0) {
                     line.add(new Point(touchX, touchY));
+                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
                 }
 
                 // create new line and add to worker to save it in the background.
@@ -202,7 +204,7 @@ public class DrawingView extends View {
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        GloopLogger.i("XXXXXXXX ");
+                        // GloopLogger.i("XXXXXXXX ");
                         DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                         drawLines();
                     }

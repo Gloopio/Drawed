@@ -7,6 +7,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import io.gloop.GloopLogger;
+import io.gloop.drawed.model.Point;
 
 /**
  * Created by Alex Untertrifaller on 12.04.17.
@@ -32,11 +33,23 @@ public class ScreenUtil {
         return metrics.density;
     }
 
+
     public static float getScreenDensity(Context context) {
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         display.getMetrics(metrics);
         return metrics.density;
+    }
+
+    public static Point scalePoints(Point point, Context context) {
+        Point scaledPoint = new Point();
+
+        float screenDensity = getScreenDensity(context);
+
+        scaledPoint.setX(point.getX()/screenDensity);
+        scaledPoint.setY(point.getY()/screenDensity);
+
+        return scaledPoint;
     }
 }

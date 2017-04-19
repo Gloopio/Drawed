@@ -3,7 +3,6 @@ package io.gloop.drawed;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 
@@ -20,7 +19,6 @@ class SaveInBackgroundWorker extends Thread {
 
     void stopWorker() {
         synchronized (queue) {
-            GloopLogger.i("Stop worker thread.");
             run = false;
             queue.notifyAll();
         }

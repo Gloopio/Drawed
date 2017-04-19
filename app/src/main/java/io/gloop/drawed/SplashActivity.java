@@ -21,10 +21,10 @@ public class SplashActivity extends Activity {
     public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
     public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
-    private static final String HOST_URL = "192.168.0.10:8080";
+    private static final String HOST_URL = "192.168.0.11:8080";
 //    private static final String HOST_URL = "128.130.255.122:8080";
 //    private static final String HOST_URL = "52.169.152.13:8080";
-    private static final String API_KEY = "d2ab405c-43fa-446e-b9c8-026a5f02a26f";
+    private static final String API_KEY = "faa6d654-29e8-438f-a828-50057477c6c7";
     private static final boolean DEBUG = true;
 
     /**
@@ -84,6 +84,7 @@ public class SplashActivity extends Activity {
         final String username = pref.getString(SHARED_PREFERENCES_USER_NAME, "");
         final String password = pref.getString(SHARED_PREFERENCES_USER_PASSWORD, "");
 
+        // TODO if server is not available do everything in local mode.
         if (!username.isEmpty() && !password.isEmpty()) {
             if (Gloop.login(username, password)) {
                 saveUserCredentialsToSharedPrefs(username, password);

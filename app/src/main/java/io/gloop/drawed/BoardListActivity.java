@@ -1,12 +1,12 @@
 package io.gloop.drawed;
 
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -69,9 +69,8 @@ public class BoardListActivity extends AppCompatActivity {
         if (name != null)
             username.setText(name);
 
-        View recyclerView = findViewById(R.id.item_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+
+        setupRecyclerView();
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts (res/values-w900dp).
@@ -106,13 +105,20 @@ public class BoardListActivity extends AppCompatActivity {
         });
 
         checkForPrivateBoardAccessRequests();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        setupRecyclerView();
+        checkForPrivateBoardAccessRequests();
     }
 
     private void checkForPrivateBoardAccessRequests() {
         final GloopList<BoardAccessRequest> accessRequests = Gloop.all(BoardAccessRequest.class)
                 .where()
-                .equalsTo("boardOwner", Gloop.getOwner().getUserId())
+                .equalsTo("boardCreator", Gloop.getOwner().getUserId())
                 .all();
         for (BoardAccessRequest accessRequest : accessRequests) {
             showNotification(accessRequest);
@@ -122,12 +128,8 @@ public class BoardListActivity extends AppCompatActivity {
             @Override
             public void onChange() {
                 GloopLogger.i("Request access to a private board");
-                GloopList<BoardAccessRequest> tmp = Gloop.allLocal(BoardAccessRequest.class)
-                        .where()
-                        .equalsTo("boardOwner", Gloop.getOwner().getUserId())
-                        .all();
-                GloopLogger.i(tmp);
-                for (BoardAccessRequest accessRequest : tmp) {
+                GloopLogger.i(accessRequests);
+                for (BoardAccessRequest accessRequest : accessRequests) {
                     showNotification(accessRequest);
                 }
             }
@@ -135,16 +137,43 @@ public class BoardListActivity extends AppCompatActivity {
     }
 
     private void showNotification(BoardAccessRequest accessRequest) {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setContentTitle("Notification!") // title for notification
-                .setContentText("Hello word") // message for notification
-                .setAutoCancel(true); // clear notification after click
-        Intent intent = new Intent(this, BoardListActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
-        mBuilder.setContentIntent(pi);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+        GloopLogger.i("Grant access to user via notification");
+
+        Context ctx = getApplicationContext();
+
+        Intent intent = new Intent(ctx, SplashActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx);
+
+        b.setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setTicker("Drawed")
+                .setContentTitle("Grant user access to private board")
+                .setContentText("Give user: " + accessRequest.getUserId() + " access to board: " + accessRequest.getBoardName())
+                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND)
+                .setContentIntent(contentIntent)
+                .setContentInfo("Info");
+
+        //Yes intent
+        Intent yesReceive = new Intent();
+        yesReceive.setAction(NotificationReceiver.YES_ACTION);
+        yesReceive.putExtra(NotificationReceiver.ACCESS_REQUEST, accessRequest);
+        PendingIntent pendingIntentYes = PendingIntent.getBroadcast(this, 12345, yesReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        b.addAction(R.drawable.ic_done_black_24dp, "Yes", pendingIntentYes);
+
+        //No intent
+        Intent noReceive = new Intent();
+        noReceive.setAction(NotificationReceiver.NO_ACTION);
+        yesReceive.putExtra(NotificationReceiver.ACCESS_REQUEST, accessRequest);
+        PendingIntent pendingIntentNo = PendingIntent.getBroadcast(this, 12345, noReceive, PendingIntent.FLAG_UPDATE_CURRENT);
+        b.addAction(R.drawable.ic_clear_black_24dp, "No", pendingIntentNo);
+
+
+        NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(1, b.build());
     }
 
     private void showSearchPopup() {
@@ -208,7 +237,8 @@ public class BoardListActivity extends AppCompatActivity {
 
                     // if the board is not public check the PrivateBoardRequest objects.
 
-                    PrivateBoardRequest privateBoard = Gloop.all(PrivateBoardRequest.class)
+                    PrivateBoardRequest privateBoard = Gloop
+                            .all(PrivateBoardRequest.class)
                             .where()
                             .equalsTo("boardName", boardName)
                             .first();
@@ -216,9 +246,11 @@ public class BoardListActivity extends AppCompatActivity {
                     if (privateBoard != null) {
                         // request access to private board with the BoardAccessRequest object.
                         BoardAccessRequest request = new BoardAccessRequest();
-                        request.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
+                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
                         request.setBoardName(boardName);
-                        request.setBoardOwner(privateBoard.getOwner());
+                        request.setBoardCreator(privateBoard.getBoardCreator());
+                        request.setUserId(Gloop.getOwner().getUserId());
+                        request.setBoardGroupId(privateBoard.getGroupId());
                         request.save();
                     } else {
                         GloopLogger.i("Could not find public board with name: " + boardName);
@@ -248,11 +280,6 @@ public class BoardListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                // create and set group by default.
-                GloopGroup group = new GloopGroup();
-                group.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
-                group.save();
-
                 final Board board = new Board();
 
                 // test to grant additional permission to another user
@@ -270,30 +297,38 @@ public class BoardListActivity extends AppCompatActivity {
                 Switch switchFreeze = (Switch) dialog.findViewById(R.id.pop_new_board_switch_freeze);
                 board.setFreezeBoard(switchFreeze.isChecked());
 
-                // TODO test all different permissions
+                GloopGroup group = new GloopGroup();
+                group.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
+
                 // set permissions depending on the selection.
                 if (board.isPrivateBoard()) {
+                    group.setUser(Gloop.getOwner().getUserId(), READ | WRITE);
                     if (board.isFreezeBoard())
-                        board.setUser(Gloop.getOwner().toString(), READ);
+                        board.setUser(group.getObjectId(), READ);
                     else
-                        board.setUser(Gloop.getOwner().toString(), READ | WRITE);
+                        board.setUser(group.getObjectId(), READ | WRITE);
                 } else if (board.isFreezeBoard()) {
-                    if (board.isPrivateBoard())
-                        board.setUser(Gloop.getOwner().toString(), READ);
-                    else
+                    if (board.isPrivateBoard()) {
+                        group.setUser(Gloop.getOwner().getUserId(), READ | WRITE);
+                        board.setUser(group.getObjectId(), READ);
+                    } else
                         board.setUser(group.getObjectId(), READ | PUBLIC);
                 } else {
                     board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
                 }
+
+                group.save();
 
                 if (board.isPrivateBoard()) {
                     // this is used to discover private boards and request access to it.
                     PrivateBoardRequest privateBoard = new PrivateBoardRequest();
                     privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
                     privateBoard.setBoardName(board.getName());
-                    privateBoard.setBoardOwner(board.getOwner());
+                    privateBoard.setBoardCreator(Gloop.getOwner().getUserId());
+                    privateBoard.setGroupId(group.getObjectId());
                     privateBoard.save();
                 }
+
 
                 // save the created board
                 board.save();
@@ -322,8 +357,10 @@ public class BoardListActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+    private void setupRecyclerView() {
         GloopList<Board> boards = Gloop.allLocal(Board.class);
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.item_list);
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(boards));
     }
 
