@@ -1,12 +1,9 @@
 package io.gloop.drawed.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.WindowManager;
 
-import io.gloop.GloopLogger;
+import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
 
 /**
@@ -15,41 +12,63 @@ import io.gloop.drawed.model.Point;
 
 public class ScreenUtil {
 
-    public static void getScreenSize(Activity activity) {
+    private static Activity activity;
+    private static float scaleFactor;
+
+    public static void setActivity(Activity a) {
+        activity = a;
+        scaleFactor = getScaleFactor();
+    }
+
+    private static float getScreenHeight(Activity activity) {
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        GloopLogger.i(metrics.heightPixels);
-        GloopLogger.i(metrics.widthPixels);
-        GloopLogger.i(metrics.density);
-        GloopLogger.i(metrics.densityDpi);
-        GloopLogger.i(metrics.scaledDensity);
-        GloopLogger.i(metrics.toString());
+        return metrics.heightPixels;
     }
 
-    public static float getScreenDensity(Activity activity) {
+    private static float getScreenWidth(Activity activity) {
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        return metrics.density;
+        return metrics.widthPixels;
     }
 
-
-    public static float getScreenDensity(Context context) {
+    private static float getScaleFactor() {
         DisplayMetrics metrics = new DisplayMetrics();
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        display.getMetrics(metrics);
-        return metrics.density;
+        activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        float factor1 = metrics.heightPixels / 1920f;
+        float factor2 = metrics.widthPixels / 1080f;
+
+        if (factor1 >= factor2)
+            return factor1;
+        else
+            return factor2;
     }
 
-    public static Point scalePoints(Point point, Context context) {
-        Point scaledPoint = new Point();
+    public static Line normalize(Line line) {
+        if (line != null) {
+            for (Point point : line.getPoints()) {
+                point.setX(point.getX() / scaleFactor);
+                point.setY(point.getY() / scaleFactor);
+            }
+        }
+        return line;
+    }
 
-        float screenDensity = getScreenDensity(context);
+    public static Line scale(Line line) {
+        if (line != null) {
+            for (Point point : line.getPoints()) {
+                point.setX(point.getX() * scaleFactor);
+                point.setY(point.getY() * scaleFactor);
+            }
+        }
+        return line;
+    }
 
-        scaledPoint.setX(point.getX()/screenDensity);
-        scaledPoint.setY(point.getY()/screenDensity);
+    public static float scale(float lineThickness) {
+        return lineThickness * scaleFactor;
+    }
 
-        return scaledPoint;
+    public static float normalize(float lineThickness) {
+        return lineThickness / scaleFactor;
     }
 }

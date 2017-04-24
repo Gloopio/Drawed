@@ -23,5 +23,7 @@
     <string name="line_thickness">Line Thickness</string>
     <string name="search_for_a_board">Search for a Board</string>
     <string name="search">Search</string>
+    <string name="deny">deny</string>
+    <string name="grant">grant</string>
 
 </resources>

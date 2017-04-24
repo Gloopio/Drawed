@@ -116,7 +116,8 @@ public class BoardListActivity extends AppCompatActivity {
     }
 
     private void checkForPrivateBoardAccessRequests() {
-        final GloopList<BoardAccessRequest> accessRequests = Gloop.all(BoardAccessRequest.class)
+        final GloopList<BoardAccessRequest> accessRequests = Gloop
+                .all(BoardAccessRequest.class)
                 .where()
                 .equalsTo("boardCreator", Gloop.getOwner().getUserId())
                 .all();
@@ -128,9 +129,15 @@ public class BoardListActivity extends AppCompatActivity {
             @Override
             public void onChange() {
                 GloopLogger.i("Request access to a private board");
+//                GloopList<BoardAccessRequest> accessRequests = Gloop
+//                        .allLocal(BoardAccessRequest.class)
+//                        .where()
+//                        .equalsTo("boardCreator", Gloop.getOwner().getUserId())
+//                        .all();
                 GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
-                    showNotification(accessRequest);
+//                    showNotification(accessRequest);
+                    showAcceptAccessToBoardPopup(accessRequest);
                 }
             }
         });
@@ -351,6 +358,45 @@ public class BoardListActivity extends AppCompatActivity {
                 }
 
                 // close popup
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private void showAcceptAccessToBoardPopup(final BoardAccessRequest request) {
+        GloopLogger.i("Show access user popup.");
+        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.popup_acceped_board_access);
+
+        TextView textView = (TextView) dialog.findViewById(R.id.pop_accept_text);
+        textView.setText("Allow access to user " + request.getUserId() + " on board " + request.getBoardName());
+
+        //grant access
+        Button grantButton = (Button) dialog.findViewById(R.id.pop_accept_btn_grant);
+        grantButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GloopGroup group = Gloop
+                        .all(GloopGroup.class)
+                        .where()
+                        .equalsTo("objectId", request.getBoardGroupId())
+                        .first();
+                group.addMember(request.getUserId());
+                group.save();
+
+                request.delete();
+
+                dialog.dismiss();
+            }
+        });
+        // deny access
+        Button denyButton = (Button) dialog.findViewById(R.id.pop_accept_btn_deny);
+        denyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                request.delete();
                 dialog.dismiss();
             }
         });

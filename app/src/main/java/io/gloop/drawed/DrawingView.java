@@ -41,8 +41,6 @@ public class DrawingView extends View {
     //erase flag
     private boolean erase = false;
 
-    private float screenDensity;    // TODO try to use density to scale image
-
     private Board board;
     private List<Point> line;
     private SaveInBackgroundWorker worker;
@@ -50,8 +48,6 @@ public class DrawingView extends View {
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
-
-        screenDensity = ScreenUtil.getScreenDensity(context);
     }
 
     //setup drawing
@@ -72,26 +68,33 @@ public class DrawingView extends View {
     }
 
     private void drawLines() {
-        for (Line l : board.getLines()) {
+        for (Line line : board.getLines()) {
 
-            List<Point> points = l.getPoints();
-            if (points.size() > 0) {
+            line = ScreenUtil.scale(line);
 
-                drawPaint.setColor(l.getColor());
-                drawPaint.setStrokeWidth((float) l.getBrushSize());
+            if (line != null) {
+                List<Point> points = line.getPoints();
+                if (points.size() > 0) {
 
-                Point firstPoint = points.get(0);
-                drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
-                for (int i = 1; i < points.size(); i++) {
-                    Point point = points.get(i);
-                    if ((int)point.getX() == 0 || (int)point.getY() == 0)   // cast to int for correct equality check with 0
-                        continue;
-                    drawPath.lineTo(point.getX(), point.getY());
+                    drawPaint.setColor(line.getColor());
+                    float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
+                    drawPaint.setStrokeWidth(lineThickness);
+
+                    Point firstPoint = points.get(0);
+                    drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
+                    for (int i = 1; i < points.size(); i++) {
+                        Point point = points.get(i);
+                        if (((int) point.getX()) != 0 && ((int) point.getY()) != 0) {  // cast to int for correct equality check with 0
+                            drawPath.lineTo(point.getX(), point.getY());
+                        }
+                    }
+                    drawCanvas.drawPath(drawPath, drawPaint);
+                    drawPath.reset();
                 }
-                drawCanvas.drawPath(drawPath, drawPaint);
-                drawPath.reset();
             }
         }
+        drawPaint.setColor(paintColor);
+        drawPaint.setStrokeWidth(brushSize);
         invalidate();
     }
 
@@ -119,36 +122,32 @@ public class DrawingView extends View {
         float touchX = event.getX();
         float touchY = event.getY();
 
+
         //respond to down, move and up events
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                drawPath.moveTo(touchX, touchY);
                 line = new ArrayList<>();
-                if ((int)touchX == 0 && (int)touchY == 0) {
+                drawPath.moveTo(touchX, touchY);
+                if (((int) touchX) != 0 && ((int) touchY) != 0) {
                     line.add(new Point(touchX, touchY));
-                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 drawPath.lineTo(touchX, touchY);
-                if ((int)touchX != 0 && (int)touchY != 0) {
+                if (((int) touchX) != 0 && ((int) touchY) != 0) {
                     line.add(new Point(touchX, touchY));
-                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 drawPath.lineTo(touchX, touchY);
+                if (((int) touchX) != 0 && ((int) touchY) != 0) {
+                    line.add(new Point(touchX, touchY));
+                }
                 drawCanvas.drawPath(drawPath, drawPaint);
                 drawPath.reset();
-                if ((int)touchX != 0 && (int)touchY != 0) {
-                    line.add(new Point(touchX, touchY));
-                    // line.add(ScreenUtil.scalePoints(new Point(touchX, touchY), getContext()));
-                }
 
                 // create new line and add to worker to save it in the background.
-                Line newLine = new Line(line, paintColor, (int) brushSize);
-                worker.addItem(newLine);
-
+                worker.addItem(new Line(line, paintColor, (int) ScreenUtil.normalize(brushSize)));
                 break;
             default:
                 return false;
@@ -159,6 +158,7 @@ public class DrawingView extends View {
     }
 
     //update color
+
     public void setColor(String newColor) {
         invalidate();
         paintColor = Color.parseColor(newColor);
@@ -167,8 +167,8 @@ public class DrawingView extends View {
 
     //set brush size
     public void setBrushSize(float newSize) {
-        brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                newSize, getResources().getDisplayMetrics());
+        brushSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, newSize, getResources().getDisplayMetrics());
+        brushSize = ScreenUtil.scale(brushSize);
         drawPaint.setStrokeWidth(brushSize);
     }
 
@@ -204,7 +204,6 @@ public class DrawingView extends View {
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        // GloopLogger.i("XXXXXXXX ");
                         DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                         drawLines();
                     }

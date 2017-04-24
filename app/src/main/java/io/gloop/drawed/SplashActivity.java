@@ -21,10 +21,10 @@ public class SplashActivity extends Activity {
     public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
     public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
-    private static final String HOST_URL = "192.168.0.11:8080";
-//    private static final String HOST_URL = "128.130.255.122:8080";
-//    private static final String HOST_URL = "52.169.152.13:8080";
-    private static final String API_KEY = "faa6d654-29e8-438f-a828-50057477c6c7";
+    //    private static final String HOST_URL = "192.168.0.16:8080";
+    private static final String HOST_URL = "52.169.152.13:8080";
+    //    private static final String API_KEY = "faa6d654-29e8-438f-a828-50057477c6c7";
+    private static final String API_KEY = "f42db1ff-a23d-4921-b420-f1e6c9c03ee5";
     private static final boolean DEBUG = true;
 
     /**
@@ -41,11 +41,13 @@ public class SplashActivity extends Activity {
         setContentView(R.layout.activity_splashscreen);
     }
 
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        ScreenUtil.getScreenSize(this);
+        // setup screen util at start
+        ScreenUtil.setActivity(this);
 
         if (isFirstStart())
             showIntroOnFirstRun();

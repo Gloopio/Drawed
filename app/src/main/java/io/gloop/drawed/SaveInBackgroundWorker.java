@@ -5,6 +5,7 @@ import java.util.Queue;
 
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
+import io.gloop.drawed.utils.ScreenUtil;
 
 class SaveInBackgroundWorker extends Thread {
     private final Queue<Line> queue;
@@ -43,10 +44,13 @@ class SaveInBackgroundWorker extends Thread {
                 }
 
                 // Process the work item
-                newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
-                board.addLine(newLine);
+                if (newLine != null) {
+                    newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
+                    newLine = ScreenUtil.normalize(newLine);
 
-                board.save();
+                    board.addLine(newLine);
+                    board.save();
+                }
 
             } catch (InterruptedException ie) {
                 break;  // Terminate
