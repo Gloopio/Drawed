@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -40,6 +41,8 @@ public class DrawingView extends View {
     private float brushSize;
     //erase flag
     private boolean erase = false;
+
+    private boolean readOnly = false;
 
     private Board board;
     private List<Point> line;
@@ -119,41 +122,42 @@ public class DrawingView extends View {
     //register user touches as drawing action
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float touchX = event.getX();
-        float touchY = event.getY();
+        if (!this.readOnly) {
+            float touchX = event.getX();
+            float touchY = event.getY();
 
+            //respond to down, move and up events
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    line = new ArrayList<>();
+                    drawPath.moveTo(touchX, touchY);
+                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
+                        line.add(new Point(touchX, touchY));
+                    }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
+                        drawPath.lineTo(touchX, touchY);
+                        line.add(new Point(touchX, touchY));
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
+                        drawPath.lineTo(touchX, touchY);
+                        line.add(new Point(touchX, touchY));
+                    }
+                    drawCanvas.drawPath(drawPath, drawPaint);
+                    drawPath.reset();
 
-        //respond to down, move and up events
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                line = new ArrayList<>();
-                drawPath.moveTo(touchX, touchY);
-                if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                    line.add(new Point(touchX, touchY));
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                drawPath.lineTo(touchX, touchY);
-                if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                    line.add(new Point(touchX, touchY));
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                drawPath.lineTo(touchX, touchY);
-                if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                    line.add(new Point(touchX, touchY));
-                }
-                drawCanvas.drawPath(drawPath, drawPaint);
-                drawPath.reset();
-
-                // create new line and add to worker to save it in the background.
-                worker.addItem(new Line(line, paintColor, (int) ScreenUtil.normalize(brushSize)));
-                break;
-            default:
-                return false;
+                    // create new line and add to worker to save it in the background.
+                    worker.addItem(new Line(line, paintColor, (int) ScreenUtil.normalize(brushSize)));
+                    break;
+                default:
+                    return false;
+            }
+            //redraw
+            invalidate();
         }
-        //redraw
-        invalidate();
         return true;
     }
 
@@ -191,27 +195,42 @@ public class DrawingView extends View {
     public void setBoard(final Board board, SaveInBackgroundWorker worker) {
         this.board = board;
         this.worker = worker;
+        this.readOnly = this.board.isFreezeBoard();
 
         final Activity host = (Activity) getContext();
 
         this.board.removeOnChangeListeners();
         this.board.addOnChangeListener(new GloopOnChangeListener() {
 
-            // TODO at the moment this method is called to often. Makes everything very slow!
-
             @Override
             public void onChange() {
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        synchronized (DrawingView.this.board) {
+
+                // TODO slows down the drawing on the app
+                DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
+
                         drawLines();
                     }
                 });
+//                        }
+
+//                    }
+//                }).start();
             }
         });
 
+        if (this.readOnly) {
+            Snackbar snackbar = Snackbar.make(host.findViewById(R.id.item_detail_root), "You are not allowed to draw on this board.", Snackbar.LENGTH_INDEFINITE);
+            snackbar.show();
+        }
     }
+
 
     @Override
     public void onDetachedFromWindow() {

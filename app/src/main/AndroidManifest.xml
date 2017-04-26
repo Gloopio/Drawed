@@ -52,6 +52,9 @@
                 <action android:name="STOP_ACTION"/>
             </intent-filter>
         </receiver>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab" />
     </application>
 
 </manifest>

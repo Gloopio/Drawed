@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import java.util.UUID;
 
 import io.gloop.Gloop;
@@ -23,7 +25,6 @@ public class SplashActivity extends Activity {
 
     //    private static final String HOST_URL = "192.168.0.16:8080";
     private static final String HOST_URL = "52.169.152.13:8080";
-    //    private static final String API_KEY = "faa6d654-29e8-438f-a828-50057477c6c7";
     private static final String API_KEY = "f42db1ff-a23d-4921-b420-f1e6c9c03ee5";
     private static final boolean DEBUG = true;
 
@@ -38,6 +39,7 @@ public class SplashActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_splashscreen);
     }
 

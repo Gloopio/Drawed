@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="io.gloop.drawed.BoardDetailActivity"
+    android:id="@+id/item_detail_root"
     tools:ignore="MergeRootFrame">
 
     <FrameLayout

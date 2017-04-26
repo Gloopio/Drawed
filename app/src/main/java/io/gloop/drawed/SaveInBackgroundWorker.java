@@ -48,8 +48,10 @@ class SaveInBackgroundWorker extends Thread {
                     newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                     newLine = ScreenUtil.normalize(newLine);
 
-                    board.addLine(newLine);
-                    board.save();
+                    synchronized (board) {
+                        board.addLine(newLine);
+                        board.save();
+                    }
                 }
 
             } catch (InterruptedException ie) {

@@ -35,6 +35,7 @@ import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
+import io.gloop.permissions.GloopUser;
 
 import static io.gloop.permissions.GloopPermission.PUBLIC;
 import static io.gloop.permissions.GloopPermission.READ;
@@ -55,6 +56,8 @@ public class BoardListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
 
+    private GloopUser owner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +68,8 @@ public class BoardListActivity extends AppCompatActivity {
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
         // at the moment name is randomly generated every time the app starts
-        String name = Gloop.getOwner().getName();
+        this.owner = Gloop.getOwner();
+        String name = this.owner.getName();
         if (name != null)
             username.setText(name);
 
@@ -119,7 +123,7 @@ public class BoardListActivity extends AppCompatActivity {
         final GloopList<BoardAccessRequest> accessRequests = Gloop
                 .all(BoardAccessRequest.class)
                 .where()
-                .equalsTo("boardCreator", Gloop.getOwner().getUserId())
+                .equalsTo("boardCreator", owner.getUserId())
                 .all();
         for (BoardAccessRequest accessRequest : accessRequests) {
             showNotification(accessRequest);
@@ -216,7 +220,7 @@ public class BoardListActivity extends AppCompatActivity {
 
                     if (group != null) {
                         GloopLogger.i("GloopGroup found add myself to group and save");
-                        group.addMember(Gloop.getOwner().getUserId());
+                        group.addMember(owner.getUserId());
                         group.save();
                     } else {
                         GloopLogger.e("GloopGroup not found!");
@@ -256,7 +260,7 @@ public class BoardListActivity extends AppCompatActivity {
                         request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
                         request.setBoardName(boardName);
                         request.setBoardCreator(privateBoard.getBoardCreator());
-                        request.setUserId(Gloop.getOwner().getUserId());
+                        request.setUserId(owner.getUserId());
                         request.setBoardGroupId(privateBoard.getGroupId());
                         request.save();
                     } else {
@@ -305,18 +309,18 @@ public class BoardListActivity extends AppCompatActivity {
                 board.setFreezeBoard(switchFreeze.isChecked());
 
                 GloopGroup group = new GloopGroup();
-                group.setUser(Gloop.getOwner().getUserId(), PUBLIC | READ | WRITE);
+                group.setUser(owner.getUserId(), PUBLIC | READ | WRITE);
 
                 // set permissions depending on the selection.
                 if (board.isPrivateBoard()) {
-                    group.setUser(Gloop.getOwner().getUserId(), READ | WRITE);
+                    group.setUser(owner.getUserId(), READ | WRITE);
                     if (board.isFreezeBoard())
                         board.setUser(group.getObjectId(), READ);
                     else
                         board.setUser(group.getObjectId(), READ | WRITE);
                 } else if (board.isFreezeBoard()) {
                     if (board.isPrivateBoard()) {
-                        group.setUser(Gloop.getOwner().getUserId(), READ | WRITE);
+                        group.setUser(owner.getUserId(), READ | WRITE);
                         board.setUser(group.getObjectId(), READ);
                     } else
                         board.setUser(group.getObjectId(), READ | PUBLIC);
@@ -331,7 +335,7 @@ public class BoardListActivity extends AppCompatActivity {
                     PrivateBoardRequest privateBoard = new PrivateBoardRequest();
                     privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
                     privateBoard.setBoardName(board.getName());
-                    privateBoard.setBoardCreator(Gloop.getOwner().getUserId());
+                    privateBoard.setBoardCreator(owner.getUserId());
                     privateBoard.setGroupId(group.getObjectId());
                     privateBoard.save();
                 }
