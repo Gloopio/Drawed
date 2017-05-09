@@ -26,5 +26,7 @@
     <string name="deny">deny</string>
     <string name="grant">grant</string>
     <string name="you_are_not_allowed_to_draw_on_this_board">You are not allowed to draw on this board.</string>
+    <string name="not_allowed_to_draw">You are not allowed to draw on this board.</string>
+    <string name="username">USERNAME</string>
 
 </resources>

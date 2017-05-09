@@ -73,24 +73,37 @@ public class DrawingView extends View {
     private void drawLines() {
         for (Line line : board.getLines()) {
 
-            line = ScreenUtil.scale(line);
+            Line l = ScreenUtil.scale(line);
 
-            if (line != null) {
-                List<Point> points = line.getPoints();
+            if (l != null) {
+                List<Point> points = l.getPoints();
                 if (points.size() > 0) {
 
-                    drawPaint.setColor(line.getColor());
+                    drawPaint.setColor(l.getColor());
                     float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
                     drawPaint.setStrokeWidth(lineThickness);
+//
+//                    int i = 1;
+//                    Point firstPoint;
+//                    do {
+//                        firstPoint = points.get(i++);
+//                    } while (((int) firstPoint.getX()) == 0 || ((int) firstPoint.getY()) == 0);
 
                     Point firstPoint = points.get(0);
                     drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
-                    for (int i = 1; i < points.size(); i++) {
+
+                    int size = points.size();
+                    for (int i = 1; i < size; i++) {
                         Point point = points.get(i);
-                        if (((int) point.getX()) != 0 && ((int) point.getY()) != 0) {  // cast to int for correct equality check with 0
-                            drawPath.lineTo(point.getX(), point.getY());
-                        }
+
+                        if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
+                            continue;
+
+                        drawPath.lineTo(point.getX(), point.getY());
                     }
+//                    Point lastPoint = points.get(size-1);
+//                    drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
+
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
                 }
@@ -98,7 +111,7 @@ public class DrawingView extends View {
         }
         drawPaint.setColor(paintColor);
         drawPaint.setStrokeWidth(brushSize);
-        invalidate();
+//        invalidate();
     }
 
     //size assigned to view
@@ -126,26 +139,23 @@ public class DrawingView extends View {
             float touchX = event.getX();
             float touchY = event.getY();
 
+            if (((int) touchX) == 0 || ((int) touchY) == 0)
+                return false;
+
             //respond to down, move and up events
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     line = new ArrayList<>();
                     drawPath.moveTo(touchX, touchY);
-                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                        line.add(new Point(touchX, touchY));
-                    }
+                    line.add(new Point(touchX, touchY));
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                        drawPath.lineTo(touchX, touchY);
-                        line.add(new Point(touchX, touchY));
-                    }
+                    drawPath.lineTo(touchX, touchY);
+                    line.add(new Point(touchX, touchY));
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (((int) touchX) != 0 && ((int) touchY) != 0) {
-                        drawPath.lineTo(touchX, touchY);
-                        line.add(new Point(touchX, touchY));
-                    }
+                    drawPath.lineTo(touchX, touchY);
+                    line.add(new Point(touchX, touchY));
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
 
@@ -204,33 +214,23 @@ public class DrawingView extends View {
 
             @Override
             public void onChange() {
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        synchronized (DrawingView.this.board) {
 
                 // TODO slows down the drawing on the app
                 DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         drawLines();
                     }
                 });
-//                        }
-
-//                    }
-//                }).start();
             }
         });
 
         if (this.readOnly) {
-            Snackbar snackbar = Snackbar.make(host.findViewById(R.id.item_detail_root), "You are not allowed to draw on this board.", Snackbar.LENGTH_INDEFINITE);
+            Snackbar snackbar = Snackbar.make(host.findViewById(R.id.item_detail_root), R.string.not_allowed_to_draw, Snackbar.LENGTH_INDEFINITE);
             snackbar.show();
         }
     }
-
 
     @Override
     public void onDetachedFromWindow() {

@@ -56,12 +56,20 @@ public class ScreenUtil {
 
     public static Line scale(Line line) {
         if (line != null) {
+            Line l = new Line();
+            l.setColor(line.getColor());
+            l.setBrushSize(line.getBrushSize());
+
             for (Point point : line.getPoints()) {
-                point.setX(point.getX() * scaleFactor);
-                point.setY(point.getY() * scaleFactor);
+                Point p = new Point();
+                p.setX(point.getX() * scaleFactor);
+                p.setY(point.getY() * scaleFactor);
+                l.addPoint(p);
             }
+
+            return l;
         }
-        return line;
+        return null;
     }
 
     public static float scale(float lineThickness) {

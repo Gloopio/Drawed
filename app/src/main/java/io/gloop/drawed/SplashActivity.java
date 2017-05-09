@@ -9,9 +9,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
+
 import java.util.UUID;
 
+import io.fabric.sdk.android.Fabric;
 import io.gloop.Gloop;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.drawed.utils.ScreenUtil;
@@ -41,6 +42,7 @@ public class SplashActivity extends Activity {
         super.onCreate(icicle);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_splashscreen);
+
     }
 
 

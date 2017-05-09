@@ -43,6 +43,19 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name="io.gloop.drawed.deepLinks.DeepLinkActivity"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                    android:scheme="drawed"/>
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".NotificationReceiver"
@@ -54,7 +67,7 @@
         </receiver>
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab" />
+            android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab"/>
     </application>
 
 </manifest>
