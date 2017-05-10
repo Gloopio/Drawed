@@ -111,7 +111,7 @@ public class DrawingView extends View {
         }
         drawPaint.setColor(paintColor);
         drawPaint.setStrokeWidth(brushSize);
-//        invalidate();
+        invalidate();
     }
 
     //size assigned to view

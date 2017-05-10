@@ -25,14 +25,14 @@ public class SplashActivity extends Activity {
     public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
     //    private static final String HOST_URL = "192.168.0.16:8080";
-    private static final String HOST_URL = "52.169.152.13:8080";
-    private static final String API_KEY = "f42db1ff-a23d-4921-b420-f1e6c9c03ee5";
+    public static final String HOST_URL = "52.169.152.13:8080";
+    public static final String API_KEY = "f42db1ff-a23d-4921-b420-f1e6c9c03ee5";
     private static final boolean DEBUG = true;
 
     /**
      * Duration of wait
      **/
-    private static final int SPLASH_DISPLAY_LENGTH = 1000;
+    private static final int SPLASH_DISPLAY_LENGTH = 500;
 
     /**
      * Called when the activity is first created.

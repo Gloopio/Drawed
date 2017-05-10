@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +23,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import io.gloop.Gloop;
 import io.gloop.GloopList;
@@ -82,19 +84,23 @@ public class BoardListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_search);
+        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
+
+        FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_menu_item_search);
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showSearchPopup();
+                floatingActionMenu.close(false);
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_menu_item_new);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showNewBoardPopup(view);
+                floatingActionMenu.close(false);
             }
         });
 
@@ -117,6 +123,16 @@ public class BoardListActivity extends AppCompatActivity {
 
         setupRecyclerView();
         checkForPrivateBoardAccessRequests();
+    }
+
+    private void share(String username, Board board) {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        // Todo change deep link to look nicer
+        String shareBody = username + " want's to share the board " + board.getName() + " with you. drawed://gloop.io/methodDeepLink/" + board.getName();
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Drawed Board Invite");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
     private void checkForPrivateBoardAccessRequests() {
@@ -510,7 +526,7 @@ public class BoardListActivity extends AppCompatActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     board.setPrivateBoard(isChecked);
-                    board.save();
+                    board.saveInBackground();
                 }
             });
 
@@ -520,7 +536,21 @@ public class BoardListActivity extends AppCompatActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     board.setFreezeBoard(isChecked);
-                    board.save();
+                    board.saveInBackground();
+                }
+            });
+
+            Button shareButton =(Button) dialog.findViewById(R.id.pop_stat_btn_share);
+//            if (owner.getName().equals(board.getGloopUser()))
+//                shareButton.setVisibility(View.VISIBLE);
+//            else
+//                shareButton.setVisibility(View.GONE);
+
+            shareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    share(owner.getName(), board);
+                    dialog.dismiss();
                 }
             });
 
@@ -536,8 +566,10 @@ public class BoardListActivity extends AppCompatActivity {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO impl (right now the board is always deleted, impl to just leave if the user is not the owner)
-                    board.delete();
+                    if (!owner.getName().equals(board.getGloopUser()))
+                        board.deleteLocal();
+                    else
+                        board.delete();
                     dialog.dismiss();
                 }
             });
