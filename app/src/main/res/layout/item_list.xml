@@ -11,45 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@color/colorPrimary">
-
-    <ImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:src="@android:drawable/divider_horizontal_dark"
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:background="@android:color/white"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="2dp"
-        android:paddingTop="2dp" />
-
-    <LinearLayout
-        android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
 
         <ImageView
-            android:layout_width="36sp"
-            android:layout_height="36sp"
-            android:layout_margin="@dimen/text_margin"
-            android:layout_marginEnd="0dp"
-            android:src="@drawable/ic_person_outline_white_24dp"/>
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/white"
+            android:paddingBottom="2dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="2dp"
+            android:src="@android:drawable/divider_horizontal_dark"/>
 
-        <TextView
-            android:id="@+id/user_name"
+        <LinearLayout
+            android:id="@+id/footer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:layout_marginStart="0dp"
-            android:text="@string/username"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size"/>
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <ImageView
+                android:layout_width="36sp"
+                android:layout_height="36sp"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_marginEnd="0dp"
+                android:src="@drawable/ic_person_outline_white_24dp"/>
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_marginStart="0dp"
+                android:text="@string/username"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_size"/>
+
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

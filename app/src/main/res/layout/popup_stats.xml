@@ -12,11 +12,10 @@
         android:id="@+id/pop_stat_board_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="BoardName"
+        android:text="@string/dummy_boardname"
         android:textAlignment="center"
         android:textColor="@color/textColor"
         android:textSize="@dimen/text_size"/>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -71,7 +70,7 @@
 
         <Button
             android:id="@+id/pop_stat_btn_share"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"

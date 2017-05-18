@@ -15,6 +15,8 @@ import java.util.List;
 
 import io.gloop.Gloop;
 import io.gloop.GloopLogger;
+import io.gloop.drawed.BoardDetailActivity;
+import io.gloop.drawed.BoardDetailFragment;
 import io.gloop.drawed.R;
 import io.gloop.drawed.SplashActivity;
 import io.gloop.drawed.model.Board;
@@ -33,6 +35,9 @@ import static io.gloop.permissions.GloopPermission.WRITE;
  * Created by Alex Untertrifaller on 09.05.17.
  */
 public class DeepLinkActivity extends Activity {
+
+    public static final String BASE_DEEP_LINK = "app://drawed.io/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,9 +46,8 @@ public class DeepLinkActivity extends Activity {
 
         if (Intent.ACTION_VIEW.equals(action)) {
             final List<String> segments = intent.getData().getPathSegments();
-            if (segments.size() > 1) {
-                String parameter1 = segments.get(1);
-//                Toast.makeText(this, "Received id: " + parameter1, Toast.LENGTH_LONG).show();
+            if (segments.size() >= 1) {
+                String parameter1 = segments.get(0);
                 showPopup(parameter1);
             }
         }
@@ -119,6 +123,10 @@ public class DeepLinkActivity extends Activity {
                                 }
                             }
 
+                            Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
+                            intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                            startActivity(intent);
+
                             Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "Could not find the board.", Toast.LENGTH_LONG).show();
@@ -133,5 +141,4 @@ public class DeepLinkActivity extends Activity {
 
         dialog.show();
     }
-
 }

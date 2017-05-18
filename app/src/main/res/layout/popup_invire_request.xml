@@ -10,10 +10,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="25dp"
         android:text="@string/board_access_request"
         android:textAlignment="center"
         android:textColor="@color/textColor"
-        android:paddingBottom="25dp"
         android:textSize="@dimen/text_size"/>
 
 
@@ -21,9 +21,9 @@
         android:id="@+id/pop_invite_request_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="lorem ipsum lorem ipsum"
-        android:textAlignment="center"
         android:paddingBottom="25dp"
+        android:text="@string/lorem_ipsum_lorem_ipsum"
+        android:textAlignment="center"
         android:textColor="@color/textColor"
         android:textSize="15sp"/>
 

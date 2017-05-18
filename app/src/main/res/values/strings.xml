@@ -31,5 +31,10 @@
     <string name="share">Share</string>
     <string name="accept">accept</string>
     <string name="board_access_request">Board Access Request</string>
+    <string name="allow_access_to_test_test_com_for_board_test">Allow access to test@test.com for board TEST</string>
+    <string name="choose_a_color">Choose a color</string>
+    <string name="lorem_ipsum_lorem_ipsum">lorem ipsum lorem ipsum</string>
+    <string name="boardname">BoardName</string>
+    <string name="dummy_boardname">BoardName</string>
 
 </resources>

@@ -53,7 +53,8 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:scheme="drawed"/>
+                    android:scheme="app"
+                    android:host="drawed.io"/>
             </intent-filter>
         </activity>
 

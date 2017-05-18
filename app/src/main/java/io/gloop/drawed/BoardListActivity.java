@@ -31,6 +31,7 @@ import io.gloop.Gloop;
 import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
+import io.gloop.drawed.deepLinks.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
@@ -128,8 +129,7 @@ public class BoardListActivity extends AppCompatActivity {
     private void share(String username, Board board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        // Todo change deep link to look nicer
-        String shareBody = username + " want's to share the board " + board.getName() + " with you. drawed://gloop.io/methodDeepLink/" + board.getName();
+        String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Drawed Board Invite");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -540,7 +540,7 @@ public class BoardListActivity extends AppCompatActivity {
                 }
             });
 
-            Button shareButton =(Button) dialog.findViewById(R.id.pop_stat_btn_share);
+            Button shareButton = (Button) dialog.findViewById(R.id.pop_stat_btn_share);
 //            if (owner.getName().equals(board.getGloopUser()))
 //                shareButton.setVisibility(View.VISIBLE);
 //            else

@@ -11,7 +11,7 @@
         android:id="@+id/pop_accept_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Allow access to test@test.com for board TEST"
+        android:text="@string/allow_access_to_test_test_com_for_board_test"
         android:textColor="@color/textColor"
         android:textSize="12sp"/>
 

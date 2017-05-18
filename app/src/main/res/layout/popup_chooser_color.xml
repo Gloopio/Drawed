@@ -12,7 +12,7 @@
         android:id="@+id/pop_stat_board_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Choose a color"
+        android:text="@string/choose_a_color"
         android:textAlignment="center"
         android:textColor="@color/textColor"
         android:paddingBottom="16dp"
