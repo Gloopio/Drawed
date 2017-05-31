@@ -19,12 +19,8 @@ import io.gloop.drawed.utils.ScreenUtil;
 
 public class SplashActivity extends Activity {
 
-    public static final String SHARED_PREFERENCES_NAME = "user";
-    public static final String SHARED_PREFERENCES_USER_NAME = "user_name";
-    public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
     public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
-    //    private static final String HOST_URL = "192.168.0.16:8080";
     public static final String HOST_URL = "52.169.152.13:8080";
     public static final String API_KEY = "f42db1ff-a23d-4921-b420-f1e6c9c03ee5";
     private static final boolean DEBUG = true;
@@ -40,9 +36,9 @@ public class SplashActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+//    TODO exclude Fabric.io for now because it is producing errors within ndk.
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_splashscreen);
-
     }
 
 
@@ -65,47 +61,21 @@ public class SplashActivity extends Activity {
                     // setup Gloop
                     new Gloop(SplashActivity.this, API_KEY, HOST_URL);
 
-                    if (!logInWithRememberedUser()) {
-
+                    if (!Gloop.loginWithRememberedUser()) {
                         // repeat register until user name does not exists
                         String username = NameUtil.randomUserName(getApplicationContext());
                         final String password = UUID.randomUUID().toString();
-                        while (!Gloop.register(username, password)) {
+                        while (!Gloop.register(username, password, true)) {
                             username = NameUtil.randomUserName(getApplicationContext());
                         }
-
-                        saveUserCredentialsToSharedPrefs(username, password);
                     }
+
                     Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
                     startActivity(i);
                     finish();
                 }
             }, SPLASH_DISPLAY_LENGTH);
         }
-    }
-
-    private boolean logInWithRememberedUser() {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-
-        final String username = pref.getString(SHARED_PREFERENCES_USER_NAME, "");
-        final String password = pref.getString(SHARED_PREFERENCES_USER_PASSWORD, "");
-
-        // TODO if server is not available do everything in local mode.
-        if (!username.isEmpty() && !password.isEmpty()) {
-            if (Gloop.login(username, password)) {
-                saveUserCredentialsToSharedPrefs(username, password);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void saveUserCredentialsToSharedPrefs(final String username, final String password) {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(SHARED_PREFERENCES_USER_NAME, username);
-        editor.putString(SHARED_PREFERENCES_USER_PASSWORD, password);
-        editor.apply();
     }
 
     private boolean isFirstStart() {
