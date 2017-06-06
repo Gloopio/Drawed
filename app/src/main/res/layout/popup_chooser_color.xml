@@ -35,8 +35,8 @@
 
             <ImageButton
                 android:id="@+id/color1"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF000000"
                 android:contentDescription="@string/paint"
@@ -45,8 +45,8 @@
 
             <ImageButton
                 android:id="@+id/color2"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FFFF0000"
                 android:contentDescription="@string/paint"
@@ -55,8 +55,8 @@
 
             <ImageButton
                 android:id="@+id/color3"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FFFF6600"
                 android:contentDescription="@string/paint"
@@ -65,8 +65,8 @@
 
             <ImageButton
                 android:id="@+id/color4"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FFFFCC00"
                 android:contentDescription="@string/paint"
@@ -75,8 +75,8 @@
 
             <ImageButton
                 android:id="@+id/color5"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF009900"
                 android:contentDescription="@string/paint"
@@ -85,8 +85,8 @@
 
             <ImageButton
                 android:id="@+id/color6"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF009999"
                 android:contentDescription="@string/paint"
@@ -103,8 +103,8 @@
 
             <ImageButton
                 android:id="@+id/color7"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF0000FF"
                 android:contentDescription="@string/paint"
@@ -113,8 +113,8 @@
 
             <ImageButton
                 android:id="@+id/color8"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF990099"
                 android:contentDescription="@string/paint"
@@ -123,8 +123,8 @@
 
             <ImageButton
                 android:id="@+id/color9"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FFFF6666"
                 android:contentDescription="@string/paint"
@@ -133,8 +133,8 @@
 
             <ImageButton
                 android:id="@+id/color10"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FFFFFFFF"
                 android:contentDescription="@string/paint"
@@ -143,8 +143,8 @@
 
             <ImageButton
                 android:id="@+id/color11"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF787878"
                 android:contentDescription="@string/paint"
@@ -153,8 +153,8 @@
 
             <ImageButton
                 android:id="@+id/color12"
-                android:layout_width="@dimen/large_brush"
-                android:layout_height="@dimen/large_brush"
+                android:layout_width="@dimen/color_chooser_color_size"
+                android:layout_height="@dimen/color_chooser_color_size"
                 android:layout_margin="2dp"
                 android:background="#FF660000"
                 android:contentDescription="@string/paint"

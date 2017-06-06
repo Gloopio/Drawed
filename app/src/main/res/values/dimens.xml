@@ -13,6 +13,8 @@
     <dimen name="large_brush">30dp</dimen>
     <integer name="large_size">30</integer>
 
+    <dimen name="color_chooser_color_size">40dp</dimen>
+
     <dimen name="text_size">30sp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>

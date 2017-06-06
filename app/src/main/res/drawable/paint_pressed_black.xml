@@ -33,6 +33,6 @@
     </item>
     <item
         android:gravity="center">
-        <bitmap android:src="@drawable/ic_done_white_24dp"/>
+        <bitmap android:src="@drawable/ic_done_black_24dp"/>
     </item>
 </layer-list>

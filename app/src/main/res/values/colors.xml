@@ -5,9 +5,13 @@
     <color name="colorAccent">#303F9F</color>
 
     <color name="popupBackground">#303f9f</color>
-    <color name="listBackground">#EEEEEE</color>
+    <!--<color name="listBackground">#EEEEEE</color>-->
+    <color name="listBackground">#ffffff</color>
 
     <color name="textColor">#ffffff</color>
+
+    <color name="background">#ffffff</color>
+    <color name="background_splash_screen">#ffffff</color>
 
     <color name="color1">#199AE4</color>
     <color name="color2">#8E31B5</color>
@@ -26,5 +30,5 @@
     <color name="Pink">#D52A6D</color>
     <color name="Violet">#6b0597</color>
 
-    <color name="background_splash_screen">#ffffff</color>
+
 </resources>

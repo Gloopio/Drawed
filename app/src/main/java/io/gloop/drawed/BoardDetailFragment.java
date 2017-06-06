@@ -181,7 +181,10 @@ public class BoardDetailFragment extends Fragment {
 
             // set currently selected color
             if (this.imgView.getTag().toString().equals(currentColor))
-                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
+                if (currentColor.equals("#FFFFFFFF"))   // white
+                    this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed_black));
+                else
+                    this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
         }
 
         @Override
@@ -198,7 +201,10 @@ public class BoardDetailFragment extends Fragment {
             changeColorButton.setImageDrawable(myIcon);
 
             // set button to selected
-            imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
+            if (currentColor.equals("#FFFFFFFF"))   // white
+                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed_black));
+            else
+                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
 
             // close dialog
             dialog.dismiss();
