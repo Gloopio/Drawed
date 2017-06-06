@@ -29,7 +29,7 @@ public class BoardDetailFragment extends Fragment {
 
     private DrawingView drawView;
     private String currentColor = "#FF000000";
-    private float smallBrush, mediumBrush, largeBrush;
+    private int smallBrush, mediumBrush, largeBrush;
     private ImageView changeColorButton;
 
     private Board board;
@@ -95,7 +95,6 @@ public class BoardDetailFragment extends Fragment {
     public void onPause() {
         worker.stopWorker();
         super.onPause();
-
     }
 
     // opens a dialog on long press on the list item

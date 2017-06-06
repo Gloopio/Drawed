@@ -79,15 +79,18 @@ public class DrawingView extends View {
                 List<Point> points = l.getPoints();
                 if (points.size() > 0) {
 
+                    Paint drawPaint = new Paint();
+                    drawPaint.setAntiAlias(true);
+                    drawPaint.setStyle(Paint.Style.STROKE);
+                    drawPaint.setStrokeJoin(Paint.Join.ROUND);
+                    drawPaint.setStrokeCap(Paint.Cap.ROUND);
+
+                    Path drawPath = new Path();
+
+
                     drawPaint.setColor(l.getColor());
                     float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
                     drawPaint.setStrokeWidth(lineThickness);
-//
-//                    int i = 1;
-//                    Point firstPoint;
-//                    do {
-//                        firstPoint = points.get(i++);
-//                    } while (((int) firstPoint.getX()) == 0 || ((int) firstPoint.getY()) == 0);
 
                     Point firstPoint = points.get(0);
                     drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
@@ -101,8 +104,6 @@ public class DrawingView extends View {
 
                         drawPath.lineTo(point.getX(), point.getY());
                     }
-//                    Point lastPoint = points.get(size-1);
-//                    drawPath.moveTo(lastPoint.getX(), lastPoint.getY());
 
                     drawCanvas.drawPath(drawPath, drawPaint);
                     drawPath.reset();
@@ -160,7 +161,7 @@ public class DrawingView extends View {
                     drawPath.reset();
 
                     // create new line and add to worker to save it in the background.
-                    worker.addItem(new Line(line, paintColor, (int) ScreenUtil.normalize(brushSize)));
+                    worker.addItem(line, paintColor, brushSize);
                     break;
                 default:
                     return false;

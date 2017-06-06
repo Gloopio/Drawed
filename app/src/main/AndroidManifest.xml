@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <uses-sdk android:minSdkVersion="19"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -66,9 +68,19 @@
                 <action android:name="STOP_ACTION"/>
             </intent-filter>
         </receiver>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab"/>
+
+        <meta-data
+            android:name="io.gloop.ApiKey"
+            android:value="f42db1ff-a23d-4921-b420-f1e6c9c03ee5"/>
+
+        <!--<meta-data-->
+            <!--android:name="io.gloop.Host"-->
+            <!--android:value="52.169.152.13:8080"/>-->
+
     </application>
 
 </manifest>

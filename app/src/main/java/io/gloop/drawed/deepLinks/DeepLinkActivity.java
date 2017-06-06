@@ -17,7 +17,6 @@ import io.gloop.GloopLogger;
 import io.gloop.drawed.BoardDetailActivity;
 import io.gloop.drawed.BoardDetailFragment;
 import io.gloop.drawed.R;
-import io.gloop.drawed.SplashActivity;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
@@ -26,10 +25,6 @@ import io.gloop.permissions.GloopGroup;
 import static io.gloop.permissions.GloopPermission.PUBLIC;
 import static io.gloop.permissions.GloopPermission.READ;
 import static io.gloop.permissions.GloopPermission.WRITE;
-
-//import static io.gloop.drawed.SplashActivity.SHARED_PREFERENCES_NAME;
-//import static io.gloop.drawed.SplashActivity.SHARED_PREFERENCES_USER_NAME;
-//import static io.gloop.drawed.SplashActivity.SHARED_PREFERENCES_USER_PASSWORD;
 
 /**
  * Created by Alex Untertrifaller on 09.05.17.
@@ -75,14 +70,8 @@ public class DeepLinkActivity extends Activity {
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Gloop(DeepLinkActivity.this, SplashActivity.API_KEY, SplashActivity.HOST_URL);
-//                SharedPreferences pref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-//
-//                final String username = pref.getString(SHARED_PREFERENCES_USER_NAME, "");
-//                final String password = pref.getString(SHARED_PREFERENCES_USER_PASSWORD, "");
-//
-//                if (!username.isEmpty() && !password.isEmpty()) {
-//                    if (Gloop.login(username, password)) {
+                new Gloop(DeepLinkActivity.this);
+
                 if (Gloop.loginWithRememberedUser()) {
                     Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
                     if (board != null) {
