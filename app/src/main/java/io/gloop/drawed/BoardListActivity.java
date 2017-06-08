@@ -31,10 +31,11 @@ import io.gloop.Gloop;
 import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
-import io.gloop.drawed.deepLinks.DeepLinkActivity;
+import io.gloop.drawed.deeplink.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
+import io.gloop.drawed.recivers.NotificationReceiver;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
@@ -125,6 +126,19 @@ public class BoardListActivity extends AppCompatActivity {
         setupRecyclerView();
         checkForPrivateBoardAccessRequests();
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        SaveInBackgroundWorker.getInstance().stopWorker();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        SaveInBackgroundWorker.getInstance().stopWorker();
+    }
+
 
     private void share(String username, Board board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);

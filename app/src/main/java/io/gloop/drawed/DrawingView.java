@@ -46,7 +46,6 @@ public class DrawingView extends View {
 
     private Board board;
     private List<Point> line;
-    private SaveInBackgroundWorker worker;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -161,7 +160,7 @@ public class DrawingView extends View {
                     drawPath.reset();
 
                     // create new line and add to worker to save it in the background.
-                    worker.addItem(line, paintColor, brushSize);
+                    SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
                     break;
                 default:
                     return false;
@@ -203,9 +202,8 @@ public class DrawingView extends View {
         invalidate();
     }
 
-    public void setBoard(final Board board, SaveInBackgroundWorker worker) {
+    public void setBoard(final Board board) {
         this.board = board;
-        this.worker = worker;
         this.readOnly = this.board.isFreezeBoard();
 
         final Activity host = (Activity) getContext();

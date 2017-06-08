@@ -1,4 +1,4 @@
-package io.gloop.drawed;
+package io.gloop.drawed.recivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

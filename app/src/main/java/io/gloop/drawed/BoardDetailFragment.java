@@ -51,9 +51,6 @@ public class BoardDetailFragment extends Fragment {
         smallBrush = getResources().getInteger(R.integer.small_size);
         mediumBrush = getResources().getInteger(R.integer.medium_size);
         largeBrush = getResources().getInteger(R.integer.large_size);
-
-        worker = new SaveInBackgroundWorker(board);
-        worker.start();
     }
 
     @Override
@@ -64,7 +61,7 @@ public class BoardDetailFragment extends Fragment {
         //get drawing view
         drawView = (DrawingView) rootView.findViewById(R.id.drawing);
         if (board != null)
-            drawView.setBoard(board, worker);
+            drawView.setBoard(board);
 
         // set default color
         drawView.setColor(currentColor);
@@ -93,7 +90,6 @@ public class BoardDetailFragment extends Fragment {
 
     @Override
     public void onPause() {
-        worker.stopWorker();
         super.onPause();
     }
 

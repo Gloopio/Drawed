@@ -1,5 +1,7 @@
 package io.gloop.drawed;
 
+import android.util.Pair;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -9,15 +11,27 @@ import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
 import io.gloop.drawed.utils.ScreenUtil;
 
-class SaveInBackgroundWorker extends Thread {
-    private final Queue<Line> queue;
-    private final Board board;
+public class SaveInBackgroundWorker extends Thread {
+    private final Queue<Pair<Board, Line>> queue;
 
     private boolean run = true;
 
-    SaveInBackgroundWorker(Board board) {
+    private static volatile SaveInBackgroundWorker instance = null;
+
+    public static SaveInBackgroundWorker getInstance() {
+        if (instance == null) {
+            synchronized (SaveInBackgroundWorker.class) {
+                if (instance == null)
+                    instance = new SaveInBackgroundWorker();
+            }
+        }
+        return instance;
+    }
+
+
+    private SaveInBackgroundWorker() {
         this.queue = new LinkedList<>();
-        this.board = board;
+        this.start();
     }
 
     void stopWorker() {
@@ -25,13 +39,14 @@ class SaveInBackgroundWorker extends Thread {
             run = false;
             queue.notifyAll();
         }
+        instance = null;
     }
 
     @Override
     public void run() {
         while (run) {
             try {
-                Line newLine;
+                Pair<Board, Line> pair;
 
                 synchronized (queue) {
                     while (queue.isEmpty() && run) {
@@ -42,9 +57,11 @@ class SaveInBackgroundWorker extends Thread {
                         break;
 
                     // Get the next work item off of the queue
-                    newLine = queue.poll();
+                    pair = queue.poll();
                 }
 
+                Line newLine = pair.second;
+                Board board = pair.first;
                 // Process the work item
                 if (newLine != null) {
                     newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
@@ -63,19 +80,19 @@ class SaveInBackgroundWorker extends Thread {
         }
     }
 
-    void addItem(Line newLine) {
+    void addItem(Board board, Line newLine) {
         synchronized (queue) {
-            queue.add(newLine);
+            queue.add(new Pair<>(board, newLine));
             queue.notifyAll();
         }
 
 
     }
 
-    void addItem(List<Point> points, int paintColor, float brushSize) {
+    void addItem(Board board, List<Point> points, int paintColor, float brushSize) {
         Line line = new Line(points, paintColor, (int) brushSize);
         synchronized (queue) {
-            queue.add(line);
+            queue.add(new Pair<>(board, line));
             queue.notifyAll();
         }
     }

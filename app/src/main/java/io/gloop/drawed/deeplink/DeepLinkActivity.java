@@ -1,4 +1,4 @@
-package io.gloop.drawed.deepLinks;
+package io.gloop.drawed.deeplink;
 
 import android.app.Activity;
 import android.app.Dialog;
