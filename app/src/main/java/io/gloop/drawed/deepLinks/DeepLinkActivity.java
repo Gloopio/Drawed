@@ -48,6 +48,12 @@ public class DeepLinkActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setVisible(true);
+    }
+
     // opens a dialog on long press on the list item
     private void showPopup(final String boardName) {
         final Dialog dialog = new Dialog(this, R.style.AppTheme_PopupTheme);
