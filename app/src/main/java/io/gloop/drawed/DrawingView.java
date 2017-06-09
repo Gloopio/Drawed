@@ -213,8 +213,6 @@ public class DrawingView extends View {
 
             @Override
             public void onChange() {
-
-                // TODO slows down the drawing on the app
                 DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                 host.runOnUiThread(new Runnable() {
                     @Override

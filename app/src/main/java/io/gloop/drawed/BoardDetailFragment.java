@@ -88,11 +88,6 @@ public class BoardDetailFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
     // opens a dialog on long press on the list item
     private void showChangeColorPopup() {
         final Dialog dialog = new Dialog(getActivity(), R.style.AppTheme_PopupTheme);

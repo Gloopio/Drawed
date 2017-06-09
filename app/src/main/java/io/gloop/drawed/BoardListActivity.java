@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -32,18 +32,13 @@ import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
+import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
+import io.gloop.drawed.dialogs.NewBoardDialog;
+import io.gloop.drawed.dialogs.SearchDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
-import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.drawed.recivers.NotificationReceiver;
-import io.gloop.drawed.utils.ColorUtil;
-import io.gloop.drawed.utils.NameUtil;
-import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
-
-import static io.gloop.permissions.GloopPermission.PUBLIC;
-import static io.gloop.permissions.GloopPermission.READ;
-import static io.gloop.permissions.GloopPermission.WRITE;
 
 /**
  * An activity representing a list of Items. This activity
@@ -78,8 +73,6 @@ public class BoardListActivity extends AppCompatActivity {
             username.setText(name);
 
 
-        setupRecyclerView();
-
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts (res/values-w900dp).
             // If this view is present, then the activity should be in two-pane mode.
@@ -92,7 +85,7 @@ public class BoardListActivity extends AppCompatActivity {
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showSearchPopup();
+                SearchDialog.show(BoardListActivity.this ,owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager());
                 floatingActionMenu.close(false);
             }
         });
@@ -101,7 +94,7 @@ public class BoardListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNewBoardPopup(view);
+                NewBoardDialog.show(BoardListActivity.this ,owner, view, mTwoPane, BoardListActivity.this.getSupportFragmentManager());
                 floatingActionMenu.close(false);
             }
         });
@@ -115,8 +108,18 @@ public class BoardListActivity extends AppCompatActivity {
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
 
-        checkForPrivateBoardAccessRequests();
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setupRecyclerView();
+                checkForPrivateBoardAccessRequests();
+            }
+        }).start();
     }
 
     @Override
@@ -171,7 +174,7 @@ public class BoardListActivity extends AppCompatActivity {
                 GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
 //                    showNotification(accessRequest);
-                    showAcceptAccessToBoardPopup(accessRequest);
+                    AcceptBoardAccessDialog.show(BoardListActivity.this, accessRequest);
                 }
             }
         });
@@ -215,226 +218,6 @@ public class BoardListActivity extends AppCompatActivity {
 
         NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1, b.build());
-    }
-
-    private void showSearchPopup() {
-        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_search);
-
-        final EditText tvBoardName = (EditText) dialog.findViewById(R.id.pop_search_board_name);
-
-
-        Button dialogButton = (Button) dialog.findViewById(R.id.pop_search_btn);
-        dialogButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String boardName = tvBoardName.getText().toString();
-
-                Board board = Gloop
-                        .all(Board.class)
-                        .where()
-                        .equalsTo("name", boardName)
-                        .first();
-
-                if (board != null) {
-                    GloopLogger.i("Found board.");
-
-                    // if PUBLIC board add your self to the group.
-                    GloopGroup group = Gloop
-                            .all(GloopGroup.class)
-                            .where()
-                            .equalsTo("objectId", board.getOwner())
-                            .first();
-
-                    if (group != null) {
-                        GloopLogger.i("GloopGroup found add myself to group and save");
-                        group.addMember(owner.getUserId());
-                        group.save();
-                    } else {
-                        GloopLogger.e("GloopGroup not found!");
-                    }
-
-                    // save public object to local db.
-                    board.save();
-
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
-                        BoardDetailFragment fragment = new BoardDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.item_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, BoardDetailActivity.class);
-                        intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-
-                        context.startActivity(intent);
-                    }
-                } else {
-
-                    // if the board is not public check the PrivateBoardRequest objects.
-
-                    PrivateBoardRequest privateBoard = Gloop
-                            .all(PrivateBoardRequest.class)
-                            .where()
-                            .equalsTo("boardName", boardName)
-                            .first();
-
-                    if (privateBoard != null) {
-                        // request access to private board with the BoardAccessRequest object.
-                        BoardAccessRequest request = new BoardAccessRequest();
-                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
-                        request.setBoardName(boardName);
-                        request.setBoardCreator(privateBoard.getBoardCreator());
-                        request.setUserId(owner.getUserId());
-                        request.setBoardGroupId(privateBoard.getGroupId());
-                        request.save();
-                    } else {
-                        GloopLogger.i("Could not find public board with name: " + boardName);
-                    }
-                }
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void showNewBoardPopup(final View view) {
-        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_new_board);
-
-        final String colorName = NameUtil.randomColor(getApplicationContext());
-        final String randomName = NameUtil.randomAdjective(getApplicationContext()) + colorName + NameUtil.randomObject(getApplicationContext());
-
-        final EditText etBoardName = (EditText) dialog.findViewById(R.id.pop_new_board_board_name);
-        etBoardName.setText(randomName);
-
-
-        Button saveButton = (Button) dialog.findViewById(R.id.pop_new_board_btn_save);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                final Board board = new Board();
-
-                // test to grant additional permission to another user
-//                board.addPermission("test", 1000);
-
-                // set name and color
-                board.setName(etBoardName.getText().toString());
-                board.setColor(ColorUtil.getColorByName(getApplicationContext(), colorName));
-
-                // set board private
-                Switch switchPrivate = (Switch) dialog.findViewById(R.id.pop_new_board_switch_private);
-                board.setPrivateBoard(switchPrivate.isChecked());
-
-                // set board freeze
-                Switch switchFreeze = (Switch) dialog.findViewById(R.id.pop_new_board_switch_freeze);
-                board.setFreezeBoard(switchFreeze.isChecked());
-
-                GloopGroup group = new GloopGroup();
-                group.setUser(owner.getUserId(), PUBLIC | READ | WRITE);
-
-                // set permissions depending on the selection.
-                if (board.isPrivateBoard()) {
-                    group.setUser(owner.getUserId(), READ | WRITE);
-                    if (board.isFreezeBoard())
-                        board.setUser(group.getObjectId(), READ);
-                    else
-                        board.setUser(group.getObjectId(), READ | WRITE);
-                } else if (board.isFreezeBoard()) {
-                    if (board.isPrivateBoard()) {
-                        group.setUser(owner.getUserId(), READ | WRITE);
-                        board.setUser(group.getObjectId(), READ);
-                    } else
-                        board.setUser(group.getObjectId(), READ | PUBLIC);
-                } else {
-                    board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
-                }
-
-                group.save();
-
-                if (board.isPrivateBoard()) {
-                    // this is used to discover private boards and request access to it.
-                    PrivateBoardRequest privateBoard = new PrivateBoardRequest();
-                    privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
-                    privateBoard.setBoardName(board.getName());
-                    privateBoard.setBoardCreator(owner.getUserId());
-                    privateBoard.setGroupId(group.getObjectId());
-                    privateBoard.save();
-                }
-
-
-                // save the created board
-                board.save();
-
-                // open the board in detail fragment
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
-                    BoardDetailFragment fragment = new BoardDetailFragment();
-                    fragment.setArguments(arguments);
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, BoardDetailActivity.class);
-                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-
-                    context.startActivity(intent);
-                }
-
-                // close popup
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
-    }
-
-    private void showAcceptAccessToBoardPopup(final BoardAccessRequest request) {
-        GloopLogger.i("Show access user popup.");
-        final Dialog dialog = new Dialog(BoardListActivity.this, R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_acceped_board_access);
-
-        TextView textView = (TextView) dialog.findViewById(R.id.pop_accept_text);
-        textView.setText("Allow access to user " + request.getUserId() + " on board " + request.getBoardName());
-
-        //grant access
-        Button grantButton = (Button) dialog.findViewById(R.id.pop_accept_btn_grant);
-        grantButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GloopGroup group = Gloop
-                        .all(GloopGroup.class)
-                        .where()
-                        .equalsTo("objectId", request.getBoardGroupId())
-                        .first();
-                group.addMember(request.getUserId());
-                group.save();
-
-                request.delete();
-
-                dialog.dismiss();
-            }
-        });
-        // deny access
-        Button denyButton = (Button) dialog.findViewById(R.id.pop_accept_btn_deny);
-        denyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                request.delete();
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
     }
 
     private void setupRecyclerView() {
