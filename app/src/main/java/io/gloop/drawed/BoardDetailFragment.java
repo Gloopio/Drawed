@@ -10,10 +10,12 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import io.gloop.drawed.dialogs.ClearBoardDialog;
+import io.gloop.drawed.dialogs.ColorChooserDialog;
+import io.gloop.drawed.dialogs.LineThicknessChooserDialog;
 import io.gloop.drawed.model.Board;
 
 
@@ -29,7 +31,7 @@ public class BoardDetailFragment extends Fragment {
 
     private DrawingView drawView;
     private String currentColor = "#FF000000";
-    private int smallBrush, mediumBrush, largeBrush;
+    public static int smallBrush, mediumBrush, largeBrush;
     private ImageView changeColorButton;
 
     private Board board;
@@ -56,7 +58,7 @@ public class BoardDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.item_detail, container, false);
+        View rootView = inflater.inflate(R.layout.drawing_view, container, false);
 
         //get drawing view
         drawView = (DrawingView) rootView.findViewById(R.id.drawing);
@@ -73,7 +75,7 @@ public class BoardDetailFragment extends Fragment {
         changeColorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showChangeColorPopup();
+                new ColorChooserDialog(BoardDetailFragment.this).show();
             }
         });
 
@@ -81,92 +83,26 @@ public class BoardDetailFragment extends Fragment {
         changeLineThickness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showChangeLineThicknessPopup();
+                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
+            }
+        });
+
+        ImageView deleteImage = (ImageView) rootView.findViewById(R.id.draw_view_btn_delete_lines);
+        deleteImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
             }
         });
 
         return rootView;
     }
 
-    // opens a dialog on long press on the list item
-    private void showChangeColorPopup() {
-        final Dialog dialog = new Dialog(getActivity(), R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_chooser_color);
-
-        //color buttons
-        ImageButton color1Btn = (ImageButton) dialog.findViewById(R.id.color1);
-        color1Btn.setOnClickListener(new ColorChangeListener(color1Btn, dialog));
-        ImageButton color2Btn = (ImageButton) dialog.findViewById(R.id.color2);
-        color2Btn.setOnClickListener(new ColorChangeListener(color2Btn, dialog));
-        ImageButton color3Btn = (ImageButton) dialog.findViewById(R.id.color3);
-        color3Btn.setOnClickListener(new ColorChangeListener(color3Btn, dialog));
-        ImageButton color4Btn = (ImageButton) dialog.findViewById(R.id.color4);
-        color4Btn.setOnClickListener(new ColorChangeListener(color4Btn, dialog));
-        ImageButton color5Btn = (ImageButton) dialog.findViewById(R.id.color5);
-        color5Btn.setOnClickListener(new ColorChangeListener(color5Btn, dialog));
-        ImageButton color6Btn = (ImageButton) dialog.findViewById(R.id.color6);
-        color6Btn.setOnClickListener(new ColorChangeListener(color6Btn, dialog));
-        ImageButton color7Btn = (ImageButton) dialog.findViewById(R.id.color7);
-        color7Btn.setOnClickListener(new ColorChangeListener(color7Btn, dialog));
-        ImageButton color8Btn = (ImageButton) dialog.findViewById(R.id.color8);
-        color8Btn.setOnClickListener(new ColorChangeListener(color8Btn, dialog));
-        ImageButton color9Btn = (ImageButton) dialog.findViewById(R.id.color9);
-        color9Btn.setOnClickListener(new ColorChangeListener(color9Btn, dialog));
-        ImageButton color10Btn = (ImageButton) dialog.findViewById(R.id.color10);
-        color10Btn.setOnClickListener(new ColorChangeListener(color10Btn, dialog));
-        ImageButton color11Btn = (ImageButton) dialog.findViewById(R.id.color11);
-        color11Btn.setOnClickListener(new ColorChangeListener(color11Btn, dialog));
-        ImageButton color12Btn = (ImageButton) dialog.findViewById(R.id.color12);
-        color12Btn.setOnClickListener(new ColorChangeListener(color12Btn, dialog));
-
-        dialog.show();
-    }
-
-    private void showChangeLineThicknessPopup() {
-        final Dialog dialog = new Dialog(getContext());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_chooser_line_thickness);
-
-        //listen for clicks on size buttons
-        ImageButton smallBtn = (ImageButton) dialog.findViewById(R.id.small_brush);
-        smallBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(smallBrush);
-                dialog.dismiss();
-            }
-        });
-
-        ImageButton mediumBtn = (ImageButton) dialog.findViewById(R.id.medium_brush);
-        mediumBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(mediumBrush);
-                dialog.dismiss();
-            }
-        });
-        ImageButton largeBtn = (ImageButton) dialog.findViewById(R.id.large_brush);
-        largeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawView.setErase(false);
-                drawView.setBrushSize(largeBrush);
-                dialog.dismiss();
-            }
-        });
-
-        //show and wait for user interaction
-        dialog.show();
-    }
-
-    private class ColorChangeListener implements View.OnClickListener {
+    public class ColorChangeListener implements View.OnClickListener {
         private final ImageButton imgView;
         private final Dialog dialog;
 
-        ColorChangeListener(ImageButton imgView, Dialog dialog) {
+        public ColorChangeListener(ImageButton imgView, Dialog dialog) {
             this.imgView = imgView;
             this.dialog = dialog;
 

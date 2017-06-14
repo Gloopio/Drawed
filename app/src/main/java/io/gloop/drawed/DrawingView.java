@@ -69,50 +69,12 @@ public class DrawingView extends View {
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
-    private void drawLines() {
-        for (Line line : board.getLines()) {
-
-            Line l = ScreenUtil.scale(line);
-
-            if (l != null) {
-                List<Point> points = l.getPoints();
-                if (points.size() > 0) {
-
-                    Paint drawPaint = new Paint();
-                    drawPaint.setAntiAlias(true);
-                    drawPaint.setStyle(Paint.Style.STROKE);
-                    drawPaint.setStrokeJoin(Paint.Join.ROUND);
-                    drawPaint.setStrokeCap(Paint.Cap.ROUND);
-
-                    Path drawPath = new Path();
-
-
-                    drawPaint.setColor(l.getColor());
-                    float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
-                    drawPaint.setStrokeWidth(lineThickness);
-
-                    Point firstPoint = points.get(0);
-                    drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
-
-                    int size = points.size();
-                    for (int i = 1; i < size; i++) {
-                        Point point = points.get(i);
-
-                        if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
-                            continue;
-
-                        drawPath.lineTo(point.getX(), point.getY());
-                    }
-
-                    drawCanvas.drawPath(drawPath, drawPaint);
-                    drawPath.reset();
-                }
-            }
-        }
-        drawPaint.setColor(paintColor);
-        drawPaint.setStrokeWidth(brushSize);
-        invalidate();
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        this.board.removeOnChangeListeners();
     }
+
 
     //size assigned to view
     @Override
@@ -171,8 +133,53 @@ public class DrawingView extends View {
         return true;
     }
 
-    //update color
+    private void drawLines() {
+        for (Line line : board.getLines()) {
 
+            Line l = ScreenUtil.scale(line);
+
+            if (l != null) {
+                List<Point> points = l.getPoints();
+                if (points.size() > 0) {
+
+                    Paint drawPaint = new Paint();
+                    drawPaint.setAntiAlias(true);
+                    drawPaint.setStyle(Paint.Style.STROKE);
+                    drawPaint.setStrokeJoin(Paint.Join.ROUND);
+                    drawPaint.setStrokeCap(Paint.Cap.ROUND);
+
+                    Path drawPath = new Path();
+
+
+                    drawPaint.setColor(l.getColor());
+                    float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
+                    drawPaint.setStrokeWidth(lineThickness);
+
+                    Point firstPoint = points.get(0);
+                    drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
+
+                    int size = points.size();
+                    for (int i = 1; i < size; i++) {
+                        Point point = points.get(i);
+
+                        if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
+                            continue;
+
+                        drawPath.lineTo(point.getX(), point.getY());
+                    }
+
+                    drawCanvas.drawPath(drawPath, drawPaint);
+                    drawPath.reset();
+                }
+            }
+        }
+        drawPaint.setColor(paintColor);
+        drawPaint.setStrokeWidth(brushSize);
+        invalidate();
+    }
+
+
+    //update color
     public void setColor(String newColor) {
         invalidate();
         paintColor = Color.parseColor(newColor);
@@ -229,9 +236,5 @@ public class DrawingView extends View {
         }
     }
 
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        this.board.removeOnChangeListeners();
-    }
+
 }

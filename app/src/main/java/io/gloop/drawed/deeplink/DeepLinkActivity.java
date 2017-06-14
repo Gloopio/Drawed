@@ -58,12 +58,12 @@ public class DeepLinkActivity extends Activity {
     private void showPopup(final String boardName) {
         final Dialog dialog = new Dialog(this, R.style.AppTheme_PopupTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_invire_request);
+        dialog.setContentView(R.layout.dialog_invire_request);
 
-        TextView tvBoardName = (TextView) dialog.findViewById(R.id.pop_invite_request_text);
+        TextView tvBoardName = (TextView) dialog.findViewById(R.id.dialog_invite_request_text);
         tvBoardName.setText(String.format("Do you want to access the board %s?", boardName));
 
-        Button buttonDeny = (Button) dialog.findViewById(R.id.pop_invite_request_deny);
+        Button buttonDeny = (Button) dialog.findViewById(R.id.dialog_invite_request_deny);
         buttonDeny.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +72,7 @@ public class DeepLinkActivity extends Activity {
             }
         });
 
-        Button acceptButton = (Button) dialog.findViewById(R.id.pop_invite_request_accept);
+        Button acceptButton = (Button) dialog.findViewById(R.id.dialog_invite_request_accept);
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

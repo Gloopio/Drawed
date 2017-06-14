@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.Window;
@@ -29,17 +30,17 @@ import static io.gloop.permissions.GloopPermission.WRITE;
  * Created by Alex Untertrifaller on 09.06.17.
  */
 
-public class SearchDialog {
+public class SearchDialog extends Dialog {
 
-    public static void show(final Context context, final GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
-        final Dialog dialog = new Dialog(context, R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_search);
+    public SearchDialog(final @NonNull Context context, final GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
+        super(context, R.style.AppTheme_PopupTheme);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.dialog_search);
 
-        final EditText tvBoardName = (EditText) dialog.findViewById(R.id.pop_search_board_name);
+        final EditText tvBoardName = (EditText) findViewById(R.id.dialog_search_board_name);
 
 
-        Button dialogButton = (Button) dialog.findViewById(R.id.pop_search_btn);
+        Button dialogButton = (Button) findViewById(R.id.dialog_search_btn);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,7 +92,6 @@ public class SearchDialog {
                 } else {
 
                     // if the board is not public check the PrivateBoardRequest objects.
-
                     PrivateBoardRequest privateBoard = Gloop
                             .all(PrivateBoardRequest.class)
                             .where()
@@ -111,10 +111,8 @@ public class SearchDialog {
                         GloopLogger.i("Could not find public board with name: " + boardName);
                     }
                 }
-                dialog.dismiss();
+                dismiss();
             }
         });
-
-        dialog.show();
     }
 }

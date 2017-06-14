@@ -36,5 +36,9 @@
     <string name="lorem_ipsum_lorem_ipsum">lorem ipsum lorem ipsum</string>
     <string name="boardname">BoardName</string>
     <string name="dummy_boardname">BoardName</string>
+    <string name="clear_lines_of_board">Do you want to clear all the lines of this board?</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="yes">yes</string>
 
 </resources>

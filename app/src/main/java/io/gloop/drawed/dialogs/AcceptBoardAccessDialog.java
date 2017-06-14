@@ -2,6 +2,7 @@ package io.gloop.drawed.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -17,19 +18,19 @@ import io.gloop.permissions.GloopGroup;
  * Created by Alex Untertrifaller on 09.06.17.
  */
 
-public class AcceptBoardAccessDialog {
+public class AcceptBoardAccessDialog extends Dialog {
 
-    public static void show(final Context context, final BoardAccessRequest request) {
+    public AcceptBoardAccessDialog(@NonNull Context context,  final BoardAccessRequest request) {
+        super(context, R.style.AppTheme_PopupTheme);
         GloopLogger.i("Show access user popup.");
-        final Dialog dialog = new Dialog(context, R.style.AppTheme_PopupTheme);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.popup_acceped_board_access);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.dialog_acceped_board_access);
 
-        TextView textView = (TextView) dialog.findViewById(R.id.pop_accept_text);
+        TextView textView = (TextView) findViewById(R.id.dialog_accept_text);
         textView.setText("Allow access to user " + request.getUserId() + " on board " + request.getBoardName());
 
         //grant access
-        Button grantButton = (Button) dialog.findViewById(R.id.pop_accept_btn_grant);
+        Button grantButton = (Button) findViewById(R.id.dialog_accept_btn_grant);
         grantButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,19 +44,18 @@ public class AcceptBoardAccessDialog {
 
                 request.delete();
 
-                dialog.dismiss();
+                dismiss();
             }
         });
         // deny access
-        Button denyButton = (Button) dialog.findViewById(R.id.pop_accept_btn_deny);
+        Button denyButton = (Button) findViewById(R.id.dialog_accept_btn_deny);
         denyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 request.delete();
-                dialog.dismiss();
+                dismiss();
             }
         });
-        dialog.show();
     }
 
 }

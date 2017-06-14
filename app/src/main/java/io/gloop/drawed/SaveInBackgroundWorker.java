@@ -11,14 +11,14 @@ import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
 import io.gloop.drawed.utils.ScreenUtil;
 
-public class SaveInBackgroundWorker extends Thread {
+class SaveInBackgroundWorker extends Thread {
     private final Queue<Pair<Board, Line>> queue;
 
     private boolean run = true;
 
     private static volatile SaveInBackgroundWorker instance = null;
 
-    public static SaveInBackgroundWorker getInstance() {
+    static SaveInBackgroundWorker getInstance() {
         if (instance == null) {
             synchronized (SaveInBackgroundWorker.class) {
                 if (instance == null)
@@ -68,7 +68,7 @@ public class SaveInBackgroundWorker extends Thread {
                     newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
                     newLine = ScreenUtil.normalize(newLine);
 
-                    synchronized (board) {
+                    synchronized (pair.first) {
                         board.addLine(newLine);
                         board.save();
                     }
@@ -80,14 +80,6 @@ public class SaveInBackgroundWorker extends Thread {
         }
     }
 
-    void addItem(Board board, Line newLine) {
-        synchronized (queue) {
-            queue.add(new Pair<>(board, newLine));
-            queue.notifyAll();
-        }
-
-
-    }
 
     void addItem(Board board, List<Point> points, int paintColor, float brushSize) {
         Line line = new Line(points, paintColor, (int) brushSize);
