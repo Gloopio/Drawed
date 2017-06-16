@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -25,6 +26,7 @@ import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.dialogs.NewBoardDialog;
 import io.gloop.drawed.dialogs.SearchDialog;
+import io.gloop.drawed.dialogs.UserDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.utils.ColorUtil;
@@ -97,6 +99,14 @@ public class BoardListActivity extends AppCompatActivity {
             public void onRefresh() {
                 Gloop.sync();
                 mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        LinearLayout footer = (LinearLayout) findViewById(R.id.footer);
+        footer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new UserDialog(BoardListActivity.this, owner).show();
             }
         });
     }

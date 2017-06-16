@@ -40,5 +40,7 @@
     <string name="cancel">Cancel</string>
     <string name="ok">Ok</string>
     <string name="yes">yes</string>
+    <string name="logout">logout</string>
+    <string name="dummy_username">Username</string>
 
 </resources>
