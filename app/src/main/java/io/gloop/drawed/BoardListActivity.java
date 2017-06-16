@@ -27,6 +27,7 @@ import io.gloop.drawed.dialogs.NewBoardDialog;
 import io.gloop.drawed.dialogs.SearchDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NotificationUtil;
 import io.gloop.permissions.GloopUser;
 
@@ -214,7 +215,16 @@ public class BoardListActivity extends AppCompatActivity {
             else
                 holder.mImageFreeze.setVisibility(View.GONE);
 
-            holder.mView.setBackgroundColor(holder.mItem.getColor());
+            int color = holder.mItem.getColor();
+
+            // check if previous color was the same
+            if (position > 0 && mValues.get(position - 1).getColor() == color) {
+                holder.mDivider.setBackgroundColor(ColorUtil.darkenColor(color));
+                holder.mDivider.setVisibility(View.VISIBLE);
+            } else
+                holder.mDivider.setVisibility(View.GONE);
+
+            holder.mView.setBackgroundColor(color);
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -257,6 +267,7 @@ public class BoardListActivity extends AppCompatActivity {
             final TextView mContentView;
             final ImageView mImagePrivate;
             final ImageView mImageFreeze;
+            final ImageView mDivider;
             Board mItem;
 
             ViewHolder(View view) {
@@ -265,6 +276,7 @@ public class BoardListActivity extends AppCompatActivity {
                 mContentView = (TextView) view.findViewById(R.id.content);
                 mImagePrivate = (ImageView) view.findViewById(R.id.list_item_private_image);
                 mImageFreeze = (ImageView) view.findViewById(R.id.list_item_freeze_image);
+                mDivider = (ImageView) view.findViewById(R.id.list_item_divider);
             }
 
             @Override
