@@ -23,6 +23,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
+import io.gloop.drawed.utils.LineUtil;
 import io.gloop.drawed.utils.ScreenUtil;
 
 public class DrawingView extends View {
@@ -46,6 +47,7 @@ public class DrawingView extends View {
 
     private Board board;
     private List<Point> line;
+    private Point erasePoint;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -97,43 +99,82 @@ public class DrawingView extends View {
     //register user touches as drawing action
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!this.readOnly) {
-            float touchX = event.getX();
-            float touchY = event.getY();
+        if (!erase) {
+            if (!this.readOnly) {
+                float touchX = event.getX();
+                float touchY = event.getY();
 
-            if (((int) touchX) == 0 || ((int) touchY) == 0)
-                return false;
+                if (((int) touchX) == 0 || ((int) touchY) == 0)
+                    return false;
 
-            //respond to down, move and up events
+                //respond to down, move and up events
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        line = new ArrayList<>();
+                        drawPath.moveTo(touchX, touchY);
+                        line.add(new Point(touchX, touchY));
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        drawPath.lineTo(touchX, touchY);
+                        line.add(new Point(touchX, touchY));
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        drawPath.lineTo(touchX, touchY);
+                        line.add(new Point(touchX, touchY));
+                        drawCanvas.drawPath(drawPath, drawPaint);
+                        drawPath.reset();
+
+                        // create new line and add to worker to save it in the background.
+                        SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+                        break;
+                    default:
+                        return false;
+                }
+                //redraw
+                invalidate();
+            }
+        }
+        else {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    line = new ArrayList<>();
-                    drawPath.moveTo(touchX, touchY);
-                    line.add(new Point(touchX, touchY));
+                    erasePoint = new Point(event.getX(), event.getY());
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    drawPath.lineTo(touchX, touchY);
-                    line.add(new Point(touchX, touchY));
+                    deleteIntersectedLine(board.getLines(), erasePoint, new Point(event.getX(), event.getY()));
+                    erasePoint = new Point(event.getX(), event.getY());
                     break;
                 case MotionEvent.ACTION_UP:
-                    drawPath.lineTo(touchX, touchY);
-                    line.add(new Point(touchX, touchY));
-                    drawCanvas.drawPath(drawPath, drawPaint);
-                    drawPath.reset();
-
-                    // create new line and add to worker to save it in the background.
-                    SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+                    deleteIntersectedLine(board.getLines(), erasePoint, new Point(event.getX(), event.getY()));
+                    erasePoint = new Point(event.getX(), event.getY());
                     break;
                 default:
                     return false;
             }
-            //redraw
             invalidate();
         }
         return true;
     }
 
+    public void deleteIntersectedLine(List<Line> lines, Point erasePoint, Point point) {
+        erasePoint = ScreenUtil.normalize(erasePoint);
+        point = ScreenUtil.normalize(point);
+        for (Line line : lines) {
+            if (line == null)
+                continue;
+            List<Point> points = line.getPoints();
+            for (int i = 0; i < points.size() - 1; i++) {
+                if (LineUtil.intersect(points.get(i), points.get(i + 1), erasePoint, point)) {
+                    line.delete();
+                    board.save();
+                    drawLines();
+                    break;
+                }
+            }
+        }
+    }
+
     private void drawLines() {
+        drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
         for (Line line : board.getLines()) {
 
             Line l = ScreenUtil.scale(line);

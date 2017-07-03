@@ -54,6 +54,14 @@ public class ScreenUtil {
         return line;
     }
 
+    public static Point normalize(Point point) {
+        if (point != null) {
+                point.setX(point.getX() / scaleFactor);
+                point.setY(point.getY() / scaleFactor);
+        }
+        return point;
+    }
+
     public static Line scale(Line line) {
         if (line != null) {
             Line l = new Line();

@@ -35,7 +35,6 @@ public class BoardDetailFragment extends Fragment {
     private ImageView changeColorButton;
 
     private Board board;
-    private SaveInBackgroundWorker worker;
 
     public BoardDetailFragment() {
         // Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -60,7 +59,7 @@ public class BoardDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.drawing_view, container, false);
 
-        //get drawing view
+        //get drawing viewl
         drawView = (DrawingView) rootView.findViewById(R.id.drawing);
         if (board != null)
             drawView.setBoard(board);
@@ -94,6 +93,29 @@ public class BoardDetailFragment extends Fragment {
                 new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
             }
         });
+
+        final ImageView brush = (ImageView) rootView.findViewById(R.id.draw_view_btn_brush);
+        brush.setVisibility(View.GONE);
+        final ImageView erase = (ImageView) rootView.findViewById(R.id.draw_view_btn_eraser);
+
+        erase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawView.setErase(true);
+                brush.setVisibility(View.VISIBLE);
+                erase.setVisibility(View.GONE);
+            }
+        });
+
+        brush.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawView.setErase(false);
+                erase.setVisibility(View.VISIBLE);
+                brush.setVisibility(View.GONE);
+            }
+        });
+
 
         return rootView;
     }
