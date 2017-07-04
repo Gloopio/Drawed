@@ -97,8 +97,18 @@ public class BoardListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Gloop.sync();
-                mSwipeRefreshLayout.setRefreshing(false);
+               new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gloop.sync();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                }).start();
             }
         });
 

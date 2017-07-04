@@ -53,7 +53,7 @@
             android:background="@drawable/circle"
             android:contentDescription="@string/freeze"
             android:padding="10dp"
-            app:srcCompat="@drawable/ic_edit_black_24dp"/>
+            app:srcCompat="@drawable/ic_line_weight_black_24dp"/>
 
         <ImageView
             android:id="@+id/draw_view_btn_change_color"

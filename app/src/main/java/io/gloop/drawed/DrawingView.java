@@ -133,8 +133,8 @@ public class DrawingView extends View {
                 //redraw
                 invalidate();
             }
-        }
-        else {
+
+        } else {    // delete lines
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     erasePoint = new Point(event.getX(), event.getY());
@@ -158,6 +158,7 @@ public class DrawingView extends View {
     public void deleteIntersectedLine(List<Line> lines, Point erasePoint, Point point) {
         erasePoint = ScreenUtil.normalize(erasePoint);
         point = ScreenUtil.normalize(point);
+
         for (Line line : lines) {
             if (line == null)
                 continue;
@@ -165,12 +166,12 @@ public class DrawingView extends View {
             for (int i = 0; i < points.size() - 1; i++) {
                 if (LineUtil.intersect(points.get(i), points.get(i + 1), erasePoint, point)) {
                     line.delete();
-                    board.save();
-                    drawLines();
                     break;
                 }
             }
         }
+        drawLines();
+        board.save();
     }
 
     private void drawLines() {
@@ -276,6 +277,4 @@ public class DrawingView extends View {
             snackbar.show();
         }
     }
-
-
 }

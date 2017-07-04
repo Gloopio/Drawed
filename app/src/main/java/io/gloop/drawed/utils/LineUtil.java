@@ -4,6 +4,8 @@ package io.gloop.drawed.utils;
 import io.gloop.drawed.model.Point;
 
 /**
+ * Util to check if a line intersects another line.
+ *
  * Created by Alex Untertrifaller on 03.07.17.
  */
 

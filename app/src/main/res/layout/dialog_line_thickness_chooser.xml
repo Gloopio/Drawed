@@ -29,6 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/sml"
+            android:padding="10dp"
+            android:background="@android:color/transparent"
             android:src="@drawable/small"/>
 
         <ImageButton
@@ -36,7 +38,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:padding="10dp"
             android:contentDescription="@string/med"
+            android:background="@android:color/transparent"
             android:src="@drawable/medium"/>
 
         <ImageButton
@@ -44,7 +48,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:padding="10dp"
             android:contentDescription="@string/lrg"
+            android:background="@android:color/transparent"
             android:src="@drawable/large"/>
 
     </LinearLayout>
