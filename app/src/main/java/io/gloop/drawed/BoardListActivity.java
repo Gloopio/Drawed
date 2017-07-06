@@ -2,11 +2,18 @@ package io.gloop.drawed;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +38,7 @@ import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NotificationUtil;
+import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 
 /**
@@ -47,6 +55,7 @@ public class BoardListActivity extends AppCompatActivity {
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
      */
     private boolean mTwoPane;
+    private RecyclerView recyclerView;
 
     private GloopUser owner;
 
@@ -56,6 +65,8 @@ public class BoardListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        recyclerView = (RecyclerView) findViewById(R.id.item_list);
+        initSwipe();
 
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
@@ -97,7 +108,7 @@ public class BoardListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-               new Thread(new Runnable() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         Gloop.sync();
@@ -153,6 +164,87 @@ public class BoardListActivity extends AppCompatActivity {
         SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
+    private void initSwipe() {
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public boolean isItemViewSwipeEnabled() {
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                Board board = ((SimpleItemRecyclerViewAdapter.ViewHolder) viewHolder).getItem();
+
+                if (direction == ItemTouchHelper.LEFT) {
+                    // TODO move this code to the sdk
+                    // delete element on swipe left
+                    if (!owner.getName().equals(board.getGloopUser())) {
+                        GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getGloopUser()).first();
+                        if (group != null) {
+                            // if the owner of the group
+                            if (group.getGloopUser().equals(owner.getName())) {
+                                group.delete();
+                                board.delete();
+                            } else {
+                                // if a member of a group
+                                if (group.getMembers() != null) {
+                                    group.getMembers().remove(owner.getName());
+                                    group.save();
+                                }
+                                board.deleteLocal();
+                            }
+                        } else {
+                            board.delete();
+                        }
+                    } else
+                        board.delete();
+
+//                    setupRecyclerView();
+                } else if (direction == ItemTouchHelper.RIGHT) {
+                    new BoardInfoDialog(BoardListActivity.this, owner, board).show();
+                }
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
+                Paint p = new Paint();
+                Bitmap icon;
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+
+                    View itemView = viewHolder.itemView;
+                    float height = (float) itemView.getBottom() - (float) itemView.getTop();
+                    float width = height / 3;
+
+                    if (dX > 0) {
+                        p.setColor(Color.parseColor("#388E3C"));
+                        RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+                        c.drawRect(background, p);
+                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_settings_white_24dp);
+                        RectF icon_dest = new RectF((float) itemView.getLeft() + width, (float) itemView.getTop() + width, (float) itemView.getLeft() + 2 * width, (float) itemView.getBottom() - width);
+                        c.drawBitmap(icon, null, icon_dest, p);
+                    } else {
+                        p.setColor(Color.parseColor("#D32F2F"));
+                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
+                        c.drawRect(background, p);
+                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white_24dp);
+                        RectF icon_dest = new RectF((float) itemView.getRight() - 2 * width, (float) itemView.getTop() + width, (float) itemView.getRight() - width, (float) itemView.getBottom() - width);
+                        c.drawBitmap(icon, null, icon_dest, p);
+                    }
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
 
     private void checkForPrivateBoardAccessRequests() {
         final GloopList<BoardAccessRequest> accessRequests = Gloop
@@ -186,7 +278,6 @@ public class BoardListActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         GloopList<Board> boards = Gloop.allLocal(Board.class);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.item_list);
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(boards));
     }
 
@@ -297,6 +388,10 @@ public class BoardListActivity extends AppCompatActivity {
                 mImagePrivate = (ImageView) view.findViewById(R.id.list_item_private_image);
                 mImageFreeze = (ImageView) view.findViewById(R.id.list_item_freeze_image);
                 mDivider = (ImageView) view.findViewById(R.id.list_item_divider);
+            }
+
+            public Board getItem() {
+                return mItem;
             }
 
             @Override

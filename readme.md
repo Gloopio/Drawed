@@ -120,7 +120,8 @@ board.delete();
 Lets say per example we want to query for all boards with the name "test" and that are private.
 
 ```java
-Gloop.where()
+Gloop.all(Board.class)
+     .where()
 	 .equalsTo("name", "Test")
 	 .and()
 	 .equalsTo("private", true)

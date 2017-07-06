@@ -43,7 +43,7 @@ public class SplashActivity extends Activity {
                 public void run() {
 
                     // setup Gloop
-                    // new Gloop(SplashActivity.this, API_KEY, HOST_URL);
+//                     new Gloop(SplashActivity.this, API_KEY, HOST_URL);
 
                     // or set apiKey and host in the AndroidManifest.xml file.
                     new Gloop(SplashActivity.this);
