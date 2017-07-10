@@ -138,7 +138,5 @@ public class NewBoardDialog extends Dialog {
                 dismiss();
             }
         });
-//        dialog.show();
     }
-
 }

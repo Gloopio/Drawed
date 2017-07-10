@@ -12,11 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import io.gloop.Gloop;
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
-import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 
 /**
@@ -82,29 +80,7 @@ public class BoardInfoDialog extends Dialog {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO move this code to the sdk
-                if (!owner.getName().equals(board.getGloopUser())) {
-                    GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getGloopUser()).first();
-                    if (group != null) {
-                        // if the owner of the group
-                        if (group.getGloopUser().equals(owner.getName())) {
-                            board.delete();
-                            group.delete();
-                        } else {
-                            // if a member of a group
-                            if (group.getMembers() != null) {
-                                group.getMembers().remove(owner.getName());
-                                group.save();
-                            }
-                            board.deleteLocal();
-                        }
-                    } else {
-                        board.delete();
-                    }
-                } else
-                    board.delete();
-
-
+                board.delete();
                 dismiss();
             }
         });

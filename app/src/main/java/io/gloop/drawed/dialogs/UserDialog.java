@@ -42,10 +42,11 @@ public class UserDialog extends Dialog {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                 Gloop.logout();
+                Gloop.logout();
                 dismiss();
 
-                doRestart(context);
+//                doRestart(context);
+                System.exit(0);
             }
         });
 
@@ -83,10 +84,10 @@ public class UserDialog extends Dialog {
                     GloopLogger.e("Was not able to restart application, PM null");
                 }
             } else {
-                GloopLogger.e( "Was not able to restart application, Context null");
+                GloopLogger.e("Was not able to restart application, Context null");
             }
         } catch (Exception ex) {
-            GloopLogger.e( "Was not able to restart application");
+            GloopLogger.e("Was not able to restart application");
         }
     }
 }

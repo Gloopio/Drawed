@@ -38,7 +38,6 @@ import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NotificationUtil;
-import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 
 /**
@@ -182,28 +181,29 @@ public class BoardListActivity extends AppCompatActivity {
                 Board board = ((SimpleItemRecyclerViewAdapter.ViewHolder) viewHolder).getItem();
 
                 if (direction == ItemTouchHelper.LEFT) {
-                    // TODO move this code to the sdk
-                    // delete element on swipe left
-                    if (!owner.getName().equals(board.getGloopUser())) {
-                        GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getGloopUser()).first();
-                        if (group != null) {
-                            // if the owner of the group
-                            if (group.getGloopUser().equals(owner.getName())) {
-                                group.delete();
-                                board.delete();
-                            } else {
-                                // if a member of a group
-                                if (group.getMembers() != null) {
-                                    group.getMembers().remove(owner.getName());
-                                    group.save();
-                                }
-                                board.deleteLocal();
-                            }
-                        } else {
-                            board.delete();
-                        }
-                    } else
-                        board.delete();
+                    // TODO delete all sub GloopObject within the sdk.
+                    board.delete();
+//                    // delete element on swipe left
+//                    if (!owner.getName().equals(board.getGloopUser())) {
+//                        GloopGroup group = Gloop.all(GloopGroup.class).where().equalsTo("objectId", board.getGloopUser()).first();
+//                        if (group != null) {
+//                            // if the owner of the group
+//                            if (group.getGloopUser().equals(owner.getName())) {
+//                                group.delete();
+//                                board.delete();
+//                            } else {
+//                                // if a member of a group
+//                                if (group.getMembers() != null) {
+//                                    group.getMembers().remove(owner.getName());
+//                                    group.save();
+//                                }
+//                                board.deleteLocal();
+//                            }
+//                        } else {
+//                            board.delete();
+//                        }
+//                    } else
+//                        board.delete();
 
 //                    setupRecyclerView();
                 } else if (direction == ItemTouchHelper.RIGHT) {

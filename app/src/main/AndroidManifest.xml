@@ -79,7 +79,7 @@
 
         <meta-data
             android:name="io.gloop.ApiKey"
-            android:value="811c6e6b-c2e2-4779-ad6b-82bee2452a05"/>
+            android:value="94cf9c8f-b6cb-4211-b650-072c63fdeae8"/>
         <meta-data
             android:name="io.gloop.Host"
             android:value="192.168.0.87:8080"/>
