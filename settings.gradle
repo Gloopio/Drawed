@@ -1,1 +1,3 @@
 include ':app'
+//include ':gloopSDK'
+//project(':gloopSDK').projectDir = new File('~/Development/Gloop/GloopSDK-Java')

@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.23.0'
     }
 }
 apply plugin: 'com.android.application'
@@ -33,6 +33,44 @@ android {
     }
 }
 
+// For copying and compiling the gloop sdk
+task copyGloop(type: Copy) {
+    group = 'gloop'
+
+//    doFirst {
+        delete fileTree('libs') {
+            include '**/*.jar'
+        }
+//    }
+    copy {
+        version = new File("../../GloopSDK-Java/version.txt").text.trim()
+        assert file("../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar").exists()
+
+        from "../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar"
+        from "../../../GloopSDK-Java/distribution/gloop/gloopSDK-${version}.jar"
+        into 'libs'
+    }
+}
+//task compileAndCopyGloop(type: GradleBuild) {
+//    group = 'gloop'
+//
+//    buildFile = '../../../GloopSDK-Java/gloopSDK/build.gradle'
+//    tasks = ['createDistributionPackage']
+//
+//    doLast {
+//        copy {
+//            from "../../../GloopSDK-Java/distribution/gloop/gloopProcessor-*.jar"
+//            from "../../../GloopSDK-Java/distribution/gloop/gloopSDK-*.jar"
+//            into 'libs'
+//        }
+//    }
+//    doFirst {
+//        delete fileTree('libs') {
+//            include '**/gloop*.jar'
+//        }
+//    }
+//}
+
 repositories {
     mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
@@ -40,6 +78,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['gloopSDK-*.jar'])
+
     annotationProcessor fileTree(dir: 'libs', include: ['gloopProcessor-*.jar'])
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
