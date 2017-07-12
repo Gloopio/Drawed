@@ -13,6 +13,9 @@
     <color name="background">#ffffff</color>
     <color name="background_splash_screen">#ffffff</color>
 
+    <color name="color_delete">#ff5722</color>
+    <color name="color_mark">#4caf50</color>
+
     <color name="color1">#199AE4</color>
     <color name="color2">#8E31B5</color>
     <color name="color3">#FDB22B</color>
