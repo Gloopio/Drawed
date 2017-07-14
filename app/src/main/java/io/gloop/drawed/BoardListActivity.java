@@ -60,11 +60,11 @@ public class BoardListActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         recyclerView = (RecyclerView) findViewById(R.id.item_list);
-//        initSwipe();
 
         //set username
         TextView username = (TextView) findViewById(R.id.user_name);
-        // at the moment name is randomly generated every time the app starts
+
+        // Load the currently logged in GloopUser of the app.
         this.owner = Gloop.getOwner();
         String name = this.owner.getName();
         if (name != null)
@@ -189,6 +189,7 @@ public class BoardListActivity extends AppCompatActivity {
 
 
     private void setupRecyclerView() {
+        // Load all locally saved boards to the boards list.
         GloopList<Board> boards = Gloop.allLocal(Board.class);
 
         recyclerView.setAdapter(new BoardAdapter(boards));
@@ -207,6 +208,7 @@ public class BoardListActivity extends AppCompatActivity {
 
         BoardAdapter(GloopList<Board> boards) {
             mValues = boards;
+            // GloopOnChangedListener can be set on GloopLists to get notifications on data changes in the background.
             onChangeListener = new GloopOnChangeListener() {
                 @Override
                 public void onChange() {

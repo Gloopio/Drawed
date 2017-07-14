@@ -116,7 +116,6 @@ public class BoardDetailFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 

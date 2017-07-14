@@ -43,14 +43,16 @@ public class SplashActivity extends Activity {
                 public void run() {
 
                     // setup Gloop
-//                     new Gloop(SplashActivity.this, API_KEY, HOST_URL);
+                    // set apiKey and host in the AndroidManifest.xml file.
+                    // It is also possible to pass them as parameters to the initialize method.
+                    Gloop.initialize(SplashActivity.this);
 
-                    // or set apiKey and host in the AndroidManifest.xml file.
-                    new Gloop(SplashActivity.this);
-
+                    // Gloop will login with the remembered user.
+                    // The login and register method both provide a parameter keepSignedIn which can be set to tre. By default it is set to false.
                     if (!Gloop.loginWithRememberedUser()) {
                         // repeat register until user name does not exists
                         final String password = UUID.randomUUID().toString();
+                        // Register a new user with the register method of gloop. By setting keepSignedIn to true the user can be logged in with the loginWithRememberedUser method.
                         while (!Gloop.register(NameUtil.randomUserName(getApplicationContext()), password, true)) {
                         }
                     }
