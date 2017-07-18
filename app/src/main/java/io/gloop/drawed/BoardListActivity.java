@@ -50,6 +50,7 @@ public class BoardListActivity extends AppCompatActivity {
      */
     private boolean mTwoPane;
     private RecyclerView recyclerView;
+    private BoardAdapter boardAdapter;
 
     private GloopUser owner;
 
@@ -83,7 +84,7 @@ public class BoardListActivity extends AppCompatActivity {
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new SearchDialog(BoardListActivity.this, owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager()).show();
+                new SearchDialog(BoardListActivity.this, owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager(), boardAdapter).show();
                 floatingActionMenu.close(false);
             }
         });
@@ -192,7 +193,8 @@ public class BoardListActivity extends AppCompatActivity {
         // Load all locally saved boards to the boards list.
         GloopList<Board> boards = Gloop.allLocal(Board.class);
 
-        recyclerView.setAdapter(new BoardAdapter(boards));
+        boardAdapter = new BoardAdapter(boards);
+        recyclerView.setAdapter(boardAdapter);
     }
 
     @Override
@@ -200,7 +202,7 @@ public class BoardListActivity extends AppCompatActivity {
         finish();
     }
 
-    class BoardAdapter extends SwipeAdapter {
+    public class BoardAdapter extends SwipeAdapter {
 
         private final GloopList<Board> mValues;
         private final GloopOnChangeListener onChangeListener;
@@ -270,7 +272,7 @@ public class BoardListActivity extends AppCompatActivity {
                         context.startActivity(intent);
                     }
 
-                    mValues.removeOnChangeListener(onChangeListener);
+                    removeOnChangeListener();
                 }
             });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -280,6 +282,10 @@ public class BoardListActivity extends AppCompatActivity {
                     return true;
                 }
             });
+        }
+
+        public void removeOnChangeListener() {
+            mValues.removeOnChangeListener(onChangeListener);
         }
 
         @Override

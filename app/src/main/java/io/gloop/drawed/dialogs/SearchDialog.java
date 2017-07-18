@@ -15,9 +15,11 @@ import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.BoardDetailActivity;
 import io.gloop.drawed.BoardDetailFragment;
+import io.gloop.drawed.BoardListActivity;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
@@ -32,7 +34,7 @@ import static io.gloop.permissions.GloopPermission.WRITE;
 
 public class SearchDialog extends Dialog {
 
-    public SearchDialog(final @NonNull Context context, final GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
+    public SearchDialog(final @NonNull Context context, final GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager, final BoardListActivity.BoardAdapter adapter) {
         super(context, R.style.AppTheme_PopupTheme);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_search);
@@ -73,6 +75,9 @@ public class SearchDialog extends Dialog {
 
                     // save public object to local db.
                     board.save();
+                    for (Line line : board.getLines()) {
+                        line.save();
+                    }
 
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
@@ -89,6 +94,7 @@ public class SearchDialog extends Dialog {
 
                         context.startActivity(intent);
                     }
+                    adapter.removeOnChangeListener();
                 } else {
 
                     // if the board is not public check the PrivateBoardRequest objects.

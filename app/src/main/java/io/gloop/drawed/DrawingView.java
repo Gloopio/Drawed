@@ -257,6 +257,8 @@ public class DrawingView extends View {
 
         final Activity host = (Activity) getContext();
 
+
+
         this.board.removeOnChangeListeners();
         this.board.addOnChangeListener(new GloopOnChangeListener() {
 

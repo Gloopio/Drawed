@@ -28,7 +28,6 @@ class SaveInBackgroundWorker extends Thread {
         return instance;
     }
 
-
     private SaveInBackgroundWorker() {
         this.queue = new LinkedList<>();
         this.start();
