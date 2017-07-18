@@ -77,4 +77,5 @@ public class Board extends GloopObject {
     public void setFreezeBoard(boolean freezeBoard) {
         this.freezeBoard = freezeBoard;
     }
+
 }

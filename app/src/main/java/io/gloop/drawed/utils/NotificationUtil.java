@@ -11,7 +11,7 @@ import io.gloop.GloopLogger;
 import io.gloop.drawed.R;
 import io.gloop.drawed.SplashActivity;
 import io.gloop.drawed.model.BoardAccessRequest;
-import io.gloop.drawed.recivers.NotificationReceiver;
+import io.gloop.drawed.receivers.NotificationReceiver;
 
 /**
  * Created by Alex Untertrifaller on 14.06.17.

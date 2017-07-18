@@ -64,7 +64,6 @@ class SaveInBackgroundWorker extends Thread {
                 Board board = pair.first;
                 // Process the work item
                 if (newLine != null) {
-                    newLine.setUser(board.getOwner(), board.getPermission());  // TODO find a way to do this in the sdk. (All objects inside another object need to have the same owner.)
                     newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
                     newLine = ScreenUtil.normalize(newLine);
 
