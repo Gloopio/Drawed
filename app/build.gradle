@@ -67,38 +67,19 @@ android {
 }
 
 // For copying and compiling the gloop sdk
-task copyGloop(type: Copy) {
-    group = 'gloop'
-
-    delete fileTree('libs') {
-        include '**/*.jar'
-    }
-    copy {
-        version = new File("../../GloopSDK-Java/version.txt").text.trim()
-        assert file("../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar").exists()
-
-        from "../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar"
-        from "../../../GloopSDK-Java/distribution/gloop/gloopSDK-${version}.jar"
-        into 'libs'
-    }
-}
-//task compileAndCopyGloop(type: GradleBuild) {
+//task copyGloop(type: Copy) {
 //    group = 'gloop'
 //
-//    buildFile = '../../../GloopSDK-Java/gloopSDK/build.gradle'
-//    tasks = ['createDistributionPackage']
-//
-//    doLast {
-//        copy {
-//            from "../../../GloopSDK-Java/distribution/gloop/gloopProcessor-*.jar"
-//            from "../../../GloopSDK-Java/distribution/gloop/gloopSDK-*.jar"
-//            into 'libs'
-//        }
+//    delete fileTree('libs') {
+//        include '**/*.jar'
 //    }
-//    doFirst {
-//        delete fileTree('libs') {
-//            include '**/gloop*.jar'
-//        }
+//    copy {
+//        version = new File("../../GloopSDK-Java/version.txt").text.trim()
+//        assert file("../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar").exists()
+//
+//        from "../../../GloopSDK-Java/distribution/gloop/gloopProcessor-${version}.jar"
+//        from "../../../GloopSDK-Java/distribution/gloop/gloopSDK-${version}.jar"
+//        into 'libs'
 //    }
 //}
 
