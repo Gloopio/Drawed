@@ -67,9 +67,11 @@ public class BoardListActivity extends AppCompatActivity {
 
         // Load the currently logged in GloopUser of the app.
         this.owner = Gloop.getOwner();
-        String name = this.owner.getName();
-        if (name != null)
-            username.setText(name);
+        if (owner != null) {
+            String name = this.owner.getName();
+            if (name != null)
+                username.setText(name);
+        }
 
 
         if (findViewById(R.id.item_detail_container) != null) {

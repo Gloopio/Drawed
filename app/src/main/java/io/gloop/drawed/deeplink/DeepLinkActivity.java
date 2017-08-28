@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -36,6 +37,14 @@ public class DeepLinkActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy =
+                    new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+
+
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
@@ -56,7 +65,9 @@ public class DeepLinkActivity extends Activity {
 
     // opens a dialog on long press on the list item
     private void showPopup(final String boardName) {
-        final Dialog dialog = new Dialog(this, R.style.AppTheme_PopupTheme);
+
+
+        final Dialog dialog = new Dialog(DeepLinkActivity.this, R.style.AppTheme_PopupTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_invire_request);
 
@@ -76,7 +87,8 @@ public class DeepLinkActivity extends Activity {
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Gloop(DeepLinkActivity.this);
+
+                Gloop.initialize(DeepLinkActivity.this);
 
                 if (Gloop.loginWithRememberedUser()) {
                     Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
@@ -129,11 +141,19 @@ public class DeepLinkActivity extends Activity {
 
                     }
                 }
-                dialog.dismiss();
-                DeepLinkActivity.this.finish();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        DeepLinkActivity.this.finish();
+                    }
+                });
+
+
             }
         });
 
         dialog.show();
+
     }
 }

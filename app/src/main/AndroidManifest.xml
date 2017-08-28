@@ -73,14 +73,14 @@
 
         <meta-data
             android:name="io.gloop.ApiKey"
-            android:value="f42db1ff-a23d-4921-b420-f1e6c9c03ee5"/>
+            android:value="8e962b49-3013-4ef3-8ac5-7fea1047fe4b"/>
 
         <!--<meta-data-->
             <!--android:name="io.gloop.ApiKey"-->
-            <!--android:value="94cf9c8f-b6cb-4211-b650-072c63fdeae8"/>-->
+            <!--android:value="324ea96e-a2eb-47af-92c6-060af6b58c9e"/>-->
         <!--<meta-data-->
             <!--android:name="io.gloop.Host"-->
-            <!--android:value="192.168.0.3:8080"/>-->
+            <!--android:value="192.168.0.87:8080"/>-->
 
     </application>
 
