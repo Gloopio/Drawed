@@ -14,7 +14,6 @@ import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
-import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.permissions.GloopGroup;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -23,7 +22,7 @@ import static io.gloop.permissions.GloopPermission.PUBLIC;
 import static io.gloop.permissions.GloopPermission.READ;
 import static io.gloop.permissions.GloopPermission.WRITE;
 
-public class SimpleScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
+public class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
 
     @Override
@@ -60,54 +59,56 @@ public class SimpleScannerActivity extends Activity implements ZXingScannerView.
             String boardName = segments.get(0);
 
             Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
-            if (board != null) {
-                if (!board.isPrivateBoard()) {
-                    GloopGroup group = Gloop
-                            .all(GloopGroup.class)
-                            .where()
-                            .equalsTo("objectId", board.getOwner())
-                            .first();
+            if (board != null && !board.isPrivateBoard()) {
+                GloopGroup group = Gloop
+                        .all(GloopGroup.class)
+                        .where()
+                        .equalsTo("objectId", board.getOwner())
+                        .first();
 
-                    if (group != null) {
-                        GloopLogger.i("GloopGroup found add myself to group and save");
-                        group.addMember(Gloop.getOwner().getUserId());
-                        group.save();
-                    } else {
-                        GloopLogger.e("GloopGroup not found!");
-                    }
-                    board.save();
-                    for (Line line : board.getLines()) {
-                        line.saveLocal();
-                    }
+                if (group != null) {
+                    GloopLogger.i("GloopGroup found add myself to group and save");
+                    group.addMember(Gloop.getOwner().getUserId());
+                    group.save();
                 } else {
-                    // if the board is not public check the PrivateBoardRequest objects.
-
-                    PrivateBoardRequest privateBoard = Gloop
-                            .all(PrivateBoardRequest.class)
-                            .where()
-                            .equalsTo("boardName", boardName)
-                            .first();
-
-                    if (privateBoard != null) {
-                        // request access to private board with the BoardAccessRequest object.
-                        BoardAccessRequest request = new BoardAccessRequest();
-                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
-                        request.setBoardName(boardName);
-                        request.setBoardCreator(privateBoard.getBoardCreator());
-                        request.setUserId(Gloop.getOwner().getUserId());
-                        request.setBoardGroupId(privateBoard.getGroupId());
-                        request.save();
-                    } else {
-                        GloopLogger.i("Could not find public board with name: " + boardName);
-                    }
+                    GloopLogger.e("GloopGroup not found!");
                 }
+                board.save();
 
                 Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
                 intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
                 startActivity(intent);
 
                 Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
+            } else {
+                // if the board is not public check the PrivateBoardRequest objects.
+
+                PrivateBoardRequest privateBoard = Gloop
+                        .all(PrivateBoardRequest.class)
+                        .where()
+                        .equalsTo("boardName", boardName)
+                        .first();
+
+                if (privateBoard != null) {
+                    // request access to private board with the BoardAccessRequest object.
+                    BoardAccessRequest request = new BoardAccessRequest();
+                    request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
+                    request.setBoardName(boardName);
+                    request.setBoardCreator(privateBoard.getBoardCreator());
+                    request.setUserId(Gloop.getOwner().getUserId());
+                    request.setBoardGroupId(privateBoard.getGroupId());
+                    request.save();
+
+                    Toast.makeText(getApplicationContext(), "Request access to board send!", Toast.LENGTH_LONG).show();
+                    mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
+                } else {
+                    GloopLogger.i("Could not find public board with name: " + boardName);
+                }
+
             }
+
+
+        }
 
 //        // Note:
 //        // * Wait 2 seconds to resume the preview.
@@ -117,9 +118,8 @@ public class SimpleScannerActivity extends Activity implements ZXingScannerView.
 //        handler.postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
-//                mScannerView.resumeCameraPreview(SimpleScannerActivity.this);
+//                mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
 //            }
 //        }, 2000);
-        }
     }
 }

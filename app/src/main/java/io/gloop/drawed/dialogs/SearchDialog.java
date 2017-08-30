@@ -19,7 +19,6 @@ import io.gloop.drawed.BoardListActivity;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
-import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
@@ -75,9 +74,6 @@ public class SearchDialog extends Dialog {
 
                     // save public object to local db.
                     board.save();
-                    for (Line line : board.getLines()) {
-                        line.save();
-                    }
 
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();

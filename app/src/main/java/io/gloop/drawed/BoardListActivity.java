@@ -109,7 +109,7 @@ public class BoardListActivity extends AppCompatActivity {
         fabScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                launchScanner(SimpleScannerActivity.class);
+                launchScanner(QRCodeScannerActivity.class);
                 floatingActionMenu.close(false);
             }
         });
@@ -223,11 +223,6 @@ public class BoardListActivity extends AppCompatActivity {
             @Override
             public void onChange() {
                 GloopLogger.i("Request access to a private board");
-//                GloopList<BoardAccessRequest> accessRequests = Gloop
-//                        .allLocal(BoardAccessRequest.class)
-//                        .where()
-//                        .equalsTo("boardCreator", Gloop.getOwner().getUserId())
-//                        .all();
                 GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
 //                    showNotification(accessRequest);
