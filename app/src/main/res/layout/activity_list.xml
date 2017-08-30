@@ -33,6 +33,17 @@
         fab:menu_colorRipple="@color/colorPrimaryDark">
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_menu_item_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_qr_code_24dp"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_label="Scan QR code of the board"
+            fab:fab_size="mini"/>
+
+
+        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_menu_item_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -73,9 +73,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:layout_weight="1"
+            android:layout_weight="4"
             android:background="@drawable/button"
             android:text="@string/share"
+            android:textColor="@color/textColor"/>
+
+        <ImageButton
+            android:id="@+id/dialog_info_btn_qr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
+            android:layout_margin="10dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:src="@drawable/ic_qr_code"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="@string/delete"
             android:textColor="@color/textColor"/>
     </LinearLayout>
 

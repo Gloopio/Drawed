@@ -1,9 +1,13 @@
 package io.gloop.drawed;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -100,6 +105,15 @@ public class BoardListActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton fabScan = (FloatingActionButton) findViewById(R.id.fab_menu_item_scan);
+        fabScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchScanner(SimpleScannerActivity.class);
+                floatingActionMenu.close(false);
+            }
+        });
+
         final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5, R.color.color6);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -127,6 +141,39 @@ public class BoardListActivity extends AppCompatActivity {
                 new UserDialog(BoardListActivity.this, owner).show();
             }
         });
+    }
+
+    private static final int ZBAR_CAMERA_PERMISSION = 1;
+    private Class<?> mClss;
+
+
+    public void launchScanner(Class<?> clss) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            mClss = clss;
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, ZBAR_CAMERA_PERMISSION);
+        } else {
+            Intent intent = new Intent(this, clss);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case ZBAR_CAMERA_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (mClss != null) {
+                        Intent intent = new Intent(this, mClss);
+//                        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.QRCODE});
+                        startActivity(intent);
+                    }
+                } else {
+                    Toast.makeText(this, "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
+                }
+                return;
+        }
     }
 
     @Override

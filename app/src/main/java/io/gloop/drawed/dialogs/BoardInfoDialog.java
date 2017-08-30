@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -60,6 +61,14 @@ public class BoardInfoDialog extends Dialog {
 //            else
 //                shareButton.setVisibility(View.GONE);
 
+        ImageButton qrCodeButton = (ImageButton) findViewById(R.id.dialog_info_btn_qr);
+        qrCodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new QRCodeDialog(context, board).show();
+            }
+        });
+
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,6 +96,15 @@ public class BoardInfoDialog extends Dialog {
     }
 
     private static void share(Context context, String username, Board board) {
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Drawed Board Invite");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
+    private static void qrCode(Context context, String username, Board board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
