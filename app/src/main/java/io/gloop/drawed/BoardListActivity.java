@@ -123,6 +123,7 @@ public class BoardListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Gloop.sync();
+                        checkForPrivateBoardAccessRequests();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

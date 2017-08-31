@@ -22,7 +22,7 @@ import static io.gloop.permissions.GloopPermission.PUBLIC;
 import static io.gloop.permissions.GloopPermission.READ;
 import static io.gloop.permissions.GloopPermission.WRITE;
 
-public class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
+class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
 
     @Override
@@ -47,10 +47,6 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
 
     @Override
     public void handleResult(Result rawResult) {
-        Toast.makeText(this, "Contents = " + rawResult.getText() +
-                ", Format = " + rawResult.getBarcodeFormat(), Toast.LENGTH_SHORT).show();
-
-
         String contents = rawResult.getText();
         Uri uri = Uri.parse(contents);
 
@@ -106,20 +102,6 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                 }
 
             }
-
-
         }
-
-//        // Note:
-//        // * Wait 2 seconds to resume the preview.
-//        // * On older devices continuously stopping and resuming camera preview can result in freezing the app.
-//        // * I don't know why this is the case but I don't have the time to figure out.
-//        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
-//            }
-//        }, 2000);
     }
 }

@@ -11,7 +11,7 @@
     <color name="textColor">#ffffff</color>
 
     <color name="background">#ffffff</color>
-    <color name="background_splash_screen">#ffffff</color>
+    <color name="background_splash_screen">#229CE1</color>
 
     <color name="color_delete">#ff5722</color>
     <color name="color_mark">#4caf50</color>

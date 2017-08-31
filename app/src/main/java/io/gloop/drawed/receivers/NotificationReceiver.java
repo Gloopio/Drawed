@@ -1,5 +1,6 @@
 package io.gloop.drawed.receivers;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +39,16 @@ public class NotificationReceiver extends BroadcastReceiver {
             Toast.makeText(context, "STOP CALLED", Toast.LENGTH_SHORT).show();
 
             request.delete();
+        }
+
+        closeNotification(context, intent);
+    }
+
+    private void closeNotification(Context context, Intent intent) {
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        final int NOTIFICATION_ID = intent.getIntExtra("notificationId", 0);
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(NOTIFICATION_ID);
         }
     }
 }

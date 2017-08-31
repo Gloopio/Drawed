@@ -16,6 +16,7 @@ import android.widget.TextView;
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
+import io.gloop.permissions.GloopPermission;
 import io.gloop.permissions.GloopUser;
 
 /**
@@ -36,6 +37,8 @@ public class BoardInfoDialog extends Dialog {
         tvBoardName.setText(board.getName());
 
         Switch switchPrivate = (Switch) findViewById(R.id.dialog_info_switch_private);
+        if (!GloopPermission.hasPermission(board, GloopPermission.WRITE))
+            switchPrivate.setEnabled(false);
         switchPrivate.setChecked(board.isPrivateBoard());
         switchPrivate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

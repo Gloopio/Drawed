@@ -84,7 +84,7 @@ public class NewBoardDialog extends Dialog {
 
                 // set permissions depending on the selection.
                 if (board.isPrivateBoard()) {
-                    group.setUser(owner.getUserId(), READ | WRITE);
+                    group.setUser(owner.getUserId(),  READ | WRITE);
                     if (board.isFreezeBoard())
                         board.setUser(group.getObjectId(), READ);
                     else
