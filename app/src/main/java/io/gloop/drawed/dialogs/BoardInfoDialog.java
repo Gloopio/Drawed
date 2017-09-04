@@ -37,9 +37,9 @@ public class BoardInfoDialog extends Dialog {
         tvBoardName.setText(board.getName());
 
         Switch switchPrivate = (Switch) findViewById(R.id.dialog_info_switch_private);
+        switchPrivate.setChecked(board.isPrivateBoard());
         if (!GloopPermission.hasPermission(board, GloopPermission.WRITE))
             switchPrivate.setEnabled(false);
-        switchPrivate.setChecked(board.isPrivateBoard());
         switchPrivate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -50,6 +50,8 @@ public class BoardInfoDialog extends Dialog {
 
         Switch switchFreeze = (Switch) findViewById(R.id.dialog_info_switch_freeze);
         switchFreeze.setChecked(board.isFreezeBoard());
+        if (!GloopPermission.hasPermission(board, GloopPermission.WRITE))
+            switchFreeze.setEnabled(false);
         switchFreeze.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {

@@ -22,7 +22,7 @@ import static io.gloop.permissions.GloopPermission.PUBLIC;
 import static io.gloop.permissions.GloopPermission.READ;
 import static io.gloop.permissions.GloopPermission.WRITE;
 
-class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
+public class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
 
     @Override

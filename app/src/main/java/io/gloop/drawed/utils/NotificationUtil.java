@@ -19,6 +19,8 @@ import io.gloop.drawed.receivers.NotificationReceiver;
 
 public class NotificationUtil {
 
+    public static int NOTIFICATION_ID = 100;
+
     public static void show(Context ctx, BoardAccessRequest accessRequest) {
         GloopLogger.i("Grant access to user via notification");
 
@@ -54,6 +56,6 @@ public class NotificationUtil {
 
 
         NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, b.build());
+        notificationManager.notify(NOTIFICATION_ID, b.build());
     }
 }
