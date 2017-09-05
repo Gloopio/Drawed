@@ -18,7 +18,7 @@ import io.gloop.drawed.utils.ScreenUtil;
 
 public class SplashActivity extends Activity {
 
-    private static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
+    public static final String SHARED_PREFERENCES_FIRST_START = "firstStart";
 
     @Override
     public void onCreate(Bundle icicle) {

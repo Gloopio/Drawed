@@ -21,9 +21,9 @@ public class IntroActivity extends AppIntro {
         // Just set a title, description, background and image. AppIntro will do the rest.
         // addSlide(AppIntroFragment.newInstance(title, description, image, backgroundColor));
         // TODO set real content
-        addSlide(AppIntroFragment.newInstance("Test1", "Hello user!", R.drawable.ic_slide1, Color.parseColor("#00BCD4")));
-        addSlide(AppIntroFragment.newInstance("Test2", "Hello user !!", R.drawable.ic_slide2, Color.parseColor("#4CAF50")));
-        addSlide(AppIntroFragment.newInstance("Test3", "Hello user !!!", R.drawable.ic_slide3, Color.parseColor("#5C6BC0")));
+        addSlide(AppIntroFragment.newInstance("Test1", "Hello user!", R.drawable.intro_1, Color.parseColor("#00BCD4")));
+        addSlide(AppIntroFragment.newInstance("Test2", "Hello user !!", R.drawable.intro_2, Color.parseColor("#4CAF50")));
+        addSlide(AppIntroFragment.newInstance("Test3", "Hello user !!!", R.drawable.intro_3, Color.parseColor("#5C6BC0")));
 
         // OPTIONAL METHODS
         // Override bar/separator color.

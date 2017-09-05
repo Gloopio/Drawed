@@ -159,59 +159,69 @@ public class DrawingView extends View {
         erasePoint = ScreenUtil.normalize(erasePoint);
         point = ScreenUtil.normalize(point);
 
+        List<Line> linesToRemove = new ArrayList<>();
+
         for (Line line : lines) {
             if (line == null)
                 continue;
             List<Point> points = line.getPoints();
             for (int i = 0; i < points.size() - 1; i++) {
                 if (LineUtil.intersect(points.get(i), points.get(i + 1), erasePoint, point)) {
-                    line.delete();
+                    linesToRemove.add(line);
                     break;
                 }
             }
         }
+
+        lines.removeAll(linesToRemove);
+
+        synchronized (board) {
+            board.save();
+        }
+
         drawLines();
-        board.save();
     }
 
     private void drawLines() {
         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-        for (Line line : board.getLines()) {
+        synchronized (board) {
+            for (Line line : board.getLines()) {
 
-            Line l = ScreenUtil.scale(line);
+                Line l = ScreenUtil.scale(line);
 
-            if (l != null) {
-                List<Point> points = l.getPoints();
-                if (points.size() > 0) {
+                if (l != null) {
+                    List<Point> points = l.getPoints();
+                    if (points.size() > 0) {
 
-                    Paint drawPaint = new Paint();
-                    drawPaint.setAntiAlias(true);
-                    drawPaint.setStyle(Paint.Style.STROKE);
-                    drawPaint.setStrokeJoin(Paint.Join.ROUND);
-                    drawPaint.setStrokeCap(Paint.Cap.ROUND);
+                        Paint drawPaint = new Paint();
+                        drawPaint.setAntiAlias(true);
+                        drawPaint.setStyle(Paint.Style.STROKE);
+                        drawPaint.setStrokeJoin(Paint.Join.ROUND);
+                        drawPaint.setStrokeCap(Paint.Cap.ROUND);
 
-                    Path drawPath = new Path();
+                        Path drawPath = new Path();
 
 
-                    drawPaint.setColor(l.getColor());
-                    float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
-                    drawPaint.setStrokeWidth(lineThickness);
+                        drawPaint.setColor(l.getColor());
+                        float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
+                        drawPaint.setStrokeWidth(lineThickness);
 
-                    Point firstPoint = points.get(0);
-                    drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
+                        Point firstPoint = points.get(0);
+                        drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
 
-                    int size = points.size();
-                    for (int i = 1; i < size; i++) {
-                        Point point = points.get(i);
+                        int size = points.size();
+                        for (int i = 1; i < size; i++) {
+                            Point point = points.get(i);
 
-                        if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
-                            continue;
+                            if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
+                                continue;
 
-                        drawPath.lineTo(point.getX(), point.getY());
+                            drawPath.lineTo(point.getX(), point.getY());
+                        }
+
+                        drawCanvas.drawPath(drawPath, drawPaint);
+                        drawPath.reset();
                     }
-
-                    drawCanvas.drawPath(drawPath, drawPaint);
-                    drawPath.reset();
                 }
             }
         }
@@ -256,7 +266,6 @@ public class DrawingView extends View {
         this.readOnly = this.board.isFreezeBoard();
 
         final Activity host = (Activity) getContext();
-
 
 
         this.board.removeOnChangeListeners();
