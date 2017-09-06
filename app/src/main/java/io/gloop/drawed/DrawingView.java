@@ -56,7 +56,6 @@ public class DrawingView extends View {
 
     //setup drawing
     private void setupDrawing() {
-
         //prepare for drawing and setup paint stroke properties
         brushSize = getResources().getInteger(R.integer.medium_size);
         drawPath = new Path();

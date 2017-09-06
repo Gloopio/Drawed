@@ -79,16 +79,16 @@
             android:name="io.fabric.ApiKey"
             android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab"/>
 
-        <meta-data
-            android:name="io.gloop.ApiKey"
-            android:value="8e962b49-3013-4ef3-8ac5-7fea1047fe4b"/>
-
         <!--<meta-data-->
             <!--android:name="io.gloop.ApiKey"-->
-            <!--android:value="18a2eb06-e0a8-4836-9ff0-bcb3c8ce3b8a"/>-->
-        <!--<meta-data-->
-            <!--android:name="io.gloop.Host"-->
-            <!--android:value="192.168.0.87:8080"/>-->
+            <!--android:value="8e962b49-3013-4ef3-8ac5-7fea1047fe4b"/>-->
+
+        <meta-data
+            android:name="io.gloop.ApiKey"
+            android:value="50ac6d59-8737-44e4-a09f-6fae0e7186dd"/>
+        <meta-data
+            android:name="io.gloop.Host"
+            android:value="192.168.0.87:8080"/>
 
     </application>
 

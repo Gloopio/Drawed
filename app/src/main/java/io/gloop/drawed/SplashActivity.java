@@ -2,9 +2,7 @@ package io.gloop.drawed;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.crashlytics.android.Crashlytics;
@@ -15,6 +13,7 @@ import io.fabric.sdk.android.Fabric;
 import io.gloop.Gloop;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.drawed.utils.ScreenUtil;
+import io.gloop.drawed.utils.SharedPreferencesStore;
 
 public class SplashActivity extends Activity {
 
@@ -25,6 +24,8 @@ public class SplashActivity extends Activity {
         super.onCreate(icicle);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_splashscreen);
+
+        SharedPreferencesStore.setContext(getBaseContext());
     }
 
 
@@ -35,7 +36,7 @@ public class SplashActivity extends Activity {
         // setup screen util at start
         ScreenUtil.setActivity(this);
 
-        if (isFirstStart())
+        if (SharedPreferencesStore.isFirstStart())
             showIntroOnFirstRun();
         else {
             new Thread(new Runnable() {
@@ -65,27 +66,19 @@ public class SplashActivity extends Activity {
         }
     }
 
-    private boolean isFirstStart() {
-        return PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(SHARED_PREFERENCES_FIRST_START, true);
-    }
-
     private void showIntroOnFirstRun() {
         //  Declare a new thread to do a preference check
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
                 //  If the activity has never started before...
-                if (isFirstStart()) {
+                if (SharedPreferencesStore.isFirstStart()) {
 
                     //  Launch app intro
                     Intent i = new Intent(SplashActivity.this, IntroActivity.class);
                     startActivity(i);
 
-                    SharedPreferences.Editor e = getPrefs.edit();
-                    e.putBoolean(SHARED_PREFERENCES_FIRST_START, false);
-                    e.apply();
+                    SharedPreferencesStore.setFirstRun(false);
                 }
             }
         }).start();

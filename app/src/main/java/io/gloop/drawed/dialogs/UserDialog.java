@@ -5,9 +5,7 @@ import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
@@ -17,9 +15,8 @@ import android.widget.TextView;
 import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.R;
+import io.gloop.drawed.utils.SharedPreferencesStore;
 import io.gloop.permissions.GloopUser;
-
-import static io.gloop.drawed.SplashActivity.SHARED_PREFERENCES_FIRST_START;
 
 /**
  * Created by Alex Untertrifaller on 09.06.17.
@@ -59,10 +56,7 @@ public class UserDialog extends Dialog {
     }
 
     private static void resetShowIntroOnNextStart(final @NonNull Context context) {
-        SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor e = getPrefs.edit();
-        e.putBoolean(SHARED_PREFERENCES_FIRST_START, false);
-        e.apply();
+        SharedPreferencesStore.setFirstRun(true);
     }
 
     private static void doRestart(Context c) {
