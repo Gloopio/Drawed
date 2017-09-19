@@ -1,68 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                        xmlns:app="http://schemas.android.com/apk/res-auto"
+                                        android:id="@+id/drawer_layout"
+                                        android:layout_height="match_parent"
+                                        android:layout_width="match_parent"
+                                        android:fitsSystemWindows="true">
 
-<merge
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="io.gloop.drawed.BoardListActivity">
+    <include layout="@layout/include_list_viewpager"/>
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <include layout="@layout/item_list"/>
-    </FrameLayout>
-
-
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/fab_menu"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="75dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_add_white_24dp"
-        fab:menu_colorNormal="@color/colorPrimaryDark"
-        fab:menu_colorPressed="@color/colorPrimaryDark"
-        fab:menu_colorRipple="@color/colorPrimaryDark">
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/drawer_view"/>
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_menu_item_scan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_qr_code_24dp"
-            fab:fab_colorNormal="@color/colorPrimary"
-            fab:fab_colorPressed="@color/colorPrimaryDark"
-            fab:fab_label="Scan QR code of the board"
-            fab:fab_size="mini"/>
-
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_menu_item_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_search_white_24dp"
-            fab:fab_colorNormal="@color/colorPrimary"
-            fab:fab_colorPressed="@color/colorPrimaryDark"
-            fab:fab_label="Search board by name"
-            fab:fab_size="mini"/>
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab_menu_item_new"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_white_24dp"
-            fab:fab_colorNormal="@color/colorPrimary"
-            fab:fab_colorPressed="@color/colorPrimaryDark"
-            fab:fab_label="Create new board"
-            fab:fab_size="mini"/>
-
-    </com.github.clans.fab.FloatingActionMenu>
-
-</merge>
+</android.support.v4.widget.DrawerLayout>

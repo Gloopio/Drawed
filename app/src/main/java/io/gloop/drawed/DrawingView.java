@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.media.ThumbnailUtils;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -49,6 +50,7 @@ public class DrawingView extends View {
     private List<Point> line;
     private Point erasePoint;
 
+
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
@@ -76,6 +78,12 @@ public class DrawingView extends View {
         this.board.removeOnChangeListeners();
     }
 
+
+    // TODO implement
+    public Bitmap createThumbnails() {
+        Bitmap bitmap = Bitmap.createBitmap(getDrawingCache());
+        return ThumbnailUtils.extractThumbnail(bitmap, 100, 80);
+    }
 
     //size assigned to view
     @Override
