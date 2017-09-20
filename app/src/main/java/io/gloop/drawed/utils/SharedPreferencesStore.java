@@ -14,6 +14,10 @@ public class SharedPreferencesStore {
 
     private static Context context;
 
+    public static final String SHARED_PREFERENCES_NAME = "user";
+    public static final String SHARED_PREFERENCES_USER_EMAIL = "user_email";
+    public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
+
     public static void setContext(Context c) {
         context = c;
     }
@@ -29,4 +33,29 @@ public class SharedPreferencesStore {
         e.apply();
     }
 
+    public static void setUser(String email, String password) {
+        SharedPreferences pref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(SHARED_PREFERENCES_USER_EMAIL, email);
+        editor.putString(SHARED_PREFERENCES_USER_PASSWORD, password);
+        editor.apply();
+    }
+
+    public static String getEmail() {
+        SharedPreferences pref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0); // 0 - for private mode
+        return pref.getString(SHARED_PREFERENCES_USER_EMAIL, "");
+    }
+
+    public static String getPassword() {
+        SharedPreferences pref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0); // 0 - for private mode
+        return pref.getString(SHARED_PREFERENCES_USER_PASSWORD, "");
+    }
+
+    public static void clearUser() {
+        SharedPreferences pref = context.getSharedPreferences(SHARED_PREFERENCES_NAME, 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString(SHARED_PREFERENCES_USER_EMAIL, "");
+        editor.putString(SHARED_PREFERENCES_USER_PASSWORD, "");
+        editor.apply();
+    }
 }

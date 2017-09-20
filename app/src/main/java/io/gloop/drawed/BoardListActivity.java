@@ -14,6 +14,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -44,6 +45,7 @@ import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.squareup.picasso.Picasso;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -59,7 +61,9 @@ import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.NewBoardDialog;
 import io.gloop.drawed.dialogs.SearchDialog;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.NotificationUtil;
+import io.gloop.drawed.utils.SharedPreferencesStore;
 import io.gloop.permissions.GloopUser;
 
 /**
@@ -70,7 +74,7 @@ import io.gloop.permissions.GloopUser;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class BoardListActivity extends AppCompatActivity {
+public class BoardListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
@@ -81,6 +85,7 @@ public class BoardListActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
 
     private CircleImageView userImage;
+    private TextView username;
 
 
     private GloopUser owner;
@@ -95,16 +100,16 @@ public class BoardListActivity extends AppCompatActivity {
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
+
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            setupDrawerContent(navigationView);
-        }
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         if (viewPager != null) {
@@ -117,15 +122,15 @@ public class BoardListActivity extends AppCompatActivity {
 //        recyclerView = (RecyclerView) findViewById(R.id.item_list);
 
 //        //set username
-        TextView username = (TextView) findViewById(R.id.username);
+        username = (TextView) findViewById(R.id.username);
 
         // Load the currently logged in GloopUser of the app.
         this.owner = Gloop.getOwner();
-        if (owner != null) {
-            String name = this.owner.getName();
-            if (name != null)
-                username.setText(name);
-        }
+//        if (owner != null) {
+//            String name = this.owner.getName();
+//            if (name != null)
+//                username.setText(name);
+//        }
 
 
         LinearLayout header = (LinearLayout) findViewById(R.id.header);
@@ -257,24 +262,33 @@ public class BoardListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_logout:
+                logout();
+                break;
+        }
+
+        item.setChecked(true);
+        mDrawerLayout.closeDrawers();
+        return true;
+    }
+
+    private void logout() {
+        Gloop.logout();
+        SharedPreferencesStore.clearUser();
+        finish();
+    }
+
+
     private void setNightMode(@AppCompatDelegate.NightMode int nightMode) {
         AppCompatDelegate.setDefaultNightMode(nightMode);
 
         if (Build.VERSION.SDK_INT >= 11) {
             recreate();
         }
-    }
-
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
-                        mDrawerLayout.closeDrawers();
-                        return true;
-                    }
-                });
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -371,9 +385,32 @@ public class BoardListActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                setUserInfo();
                 checkForPrivateBoardAccessRequests();
             }
         }).start();
+    }
+
+    private void setUserInfo() {
+        final UserInfo userInfo = Gloop.allLocal(UserInfo.class)
+                .where()
+                .equalsTo("email", owner.getName())
+                .first();
+
+        if (userInfo != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Picasso.with(getApplicationContext())
+                            .load(userInfo.getImageURL())
+//                            .resize(80, 80)
+//                            .centerCrop()
+                            .into(userImage);
+
+                    username.setText(userInfo.getUserName());
+                }
+            });
+        }
     }
 
     @Override
@@ -549,7 +586,7 @@ public class BoardListActivity extends AppCompatActivity {
                         final Uri imageUri = imageReturnedIntent.getData();
                         final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                         Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        selectedImage = ThumbnailUtils.extractThumbnail(selectedImage, 100, 80);
+                        selectedImage = ThumbnailUtils.extractThumbnail(selectedImage, 200, 200);
                         userImage.setImageBitmap(selectedImage);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();

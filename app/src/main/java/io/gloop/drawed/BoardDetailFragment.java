@@ -1,12 +1,8 @@
 package io.gloop.drawed;
 
 import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +13,7 @@ import io.gloop.drawed.dialogs.ClearBoardDialog;
 import io.gloop.drawed.dialogs.ColorChooserDialog;
 import io.gloop.drawed.dialogs.LineThicknessChooserDialog;
 import io.gloop.drawed.model.Board;
+import it.sephiroth.android.library.bottomnavigation.BottomNavigation;
 
 
 /**
@@ -25,7 +22,7 @@ import io.gloop.drawed.model.Board;
  * in two-pane mode (on tablets) or a {@link BoardDetailActivity}
  * on handsets.
  */
-public class BoardDetailFragment extends Fragment {
+public class BoardDetailFragment extends Fragment implements BottomNavigation.OnMenuItemSelectionListener {
 
     public static final String ARG_BOARD = "board";
 
@@ -70,53 +67,87 @@ public class BoardDetailFragment extends Fragment {
         //set initial size
         drawView.setBrushSize(smallBrush);
 
-        changeColorButton = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_color);
-        changeColorButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new ColorChooserDialog(BoardDetailFragment.this).show();
-            }
-        });
+//        changeColorButton = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_color);
+//        changeColorButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                new ColorChooserDialog(BoardDetailFragment.this).show();
+//            }
+//        });
+//
+//        ImageView changeLineThickness = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_line_thickness);
+//        changeLineThickness.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
+//            }
+//        });
+//
+//        ImageView deleteImage = (ImageView) rootView.findViewById(R.id.draw_view_btn_delete_lines);
+//        deleteImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
+//            }
+//        });
+//
+//        final ImageView brush = (ImageView) rootView.findViewById(R.id.draw_view_btn_brush);
+//        brush.setVisibility(View.GONE);
+//        final ImageView erase = (ImageView) rootView.findViewById(R.id.draw_view_btn_eraser);
+//
+//        erase.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                drawView.setErase(true);
+//                brush.setVisibility(View.VISIBLE);
+//                erase.setVisibility(View.GONE);
+//            }
+//        });
+//
+//        brush.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                drawView.setErase(false);
+//                erase.setVisibility(View.VISIBLE);
+//                brush.setVisibility(View.GONE);
+//            }
+//        });
 
-        ImageView changeLineThickness = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_line_thickness);
-        changeLineThickness.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
-            }
-        });
-
-        ImageView deleteImage = (ImageView) rootView.findViewById(R.id.draw_view_btn_delete_lines);
-        deleteImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
-            }
-        });
-
-        final ImageView brush = (ImageView) rootView.findViewById(R.id.draw_view_btn_brush);
-        brush.setVisibility(View.GONE);
-        final ImageView erase = (ImageView) rootView.findViewById(R.id.draw_view_btn_eraser);
-
-        erase.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawView.setErase(true);
-                brush.setVisibility(View.VISIBLE);
-                erase.setVisibility(View.GONE);
-            }
-        });
-
-        brush.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawView.setErase(false);
-                erase.setVisibility(View.VISIBLE);
-                brush.setVisibility(View.GONE);
-            }
-        });
+        BottomNavigation navigation = (BottomNavigation) rootView.findViewById(R.id.BottomNavigation);
+        navigation.setOnMenuItemClickListener(this);
+        navigation.setSelectedIndex(2, true);
 
         return rootView;
+    }
+
+    @Override
+    public void onMenuItemSelect(final int itemId, final int position, final boolean fromUser) {
+        onDrawingMenuSelected(itemId, position, fromUser);
+    }
+
+    @Override
+    public void onMenuItemReselect(final int itemId, final int position, final boolean fromUser) {
+        onDrawingMenuSelected(itemId, position, fromUser);
+    }
+
+    public void onDrawingMenuSelected(final int itemId, final int position, final boolean fromUser) {
+        switch (itemId) {
+            case R.id.nav_darwing_clear:
+                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
+                break;
+            case R.id.nav_darwing_brush:
+                drawView.setErase(false);
+                break;
+            case R.id.nav_darwing_delete_line:
+                drawView.setErase(true);
+                break;
+            case R.id.nav_darwing_line_thickness:
+                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
+                break;
+            case R.id.nav_drawing_color:
+                new ColorChooserDialog(BoardDetailFragment.this).show();
+                break;
+        }
     }
 
     public class ColorChangeListener implements View.OnClickListener {
@@ -142,17 +173,17 @@ public class BoardDetailFragment extends Fragment {
             drawView.setColor(currentColor);
 
             // change color of icon
-            Drawable myIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_color_lens_black_24dp, null);
-            if (myIcon != null)
-                myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
+//            Drawable myIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_color_lens_black_24dp, null);
+//            if (myIcon != null)
+//                myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
 
-            changeColorButton.setImageDrawable(myIcon);
+//            changeColorButton.setImageDrawable(myIcon);
 
             // set button to selected
-            if (currentColor.equals("#FFFFFFFF"))   // white
-                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed_black));
-            else
-                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
+//            if (currentColor.equals("#FFFFFFFF"))   // white
+//                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed_black));
+//            else
+//                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
 
             // close dialog
             dialog.dismiss();

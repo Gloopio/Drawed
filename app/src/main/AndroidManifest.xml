@@ -4,8 +4,8 @@
           package="io.gloop.drawed">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 
     <application
@@ -63,10 +63,15 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
-                    android:scheme="app"
-                    android:host="drawed.io"/>
+                    android:host="drawed.io"
+                    android:scheme="app"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <receiver
             android:name=".receivers.NotificationReceiver"
@@ -77,31 +82,16 @@
             </intent-filter>
         </receiver>
 
-        <!--<provider-->
-            <!--android:name="android.support.v4.content.FileProvider"-->
-            <!--android:authorities="${applicationId}.com.vansuita.pickimage.provider"-->
-            <!--android:exported="false"-->
-            <!--android:grantUriPermissions="true"-->
-            <!--tools:replace="android:authorities">-->
-            <!--&lt;!&ndash;<meta-data&ndash;&gt;-->
-                <!--&lt;!&ndash;android:name="android.support.FILE_PROVIDER_PATHS"&ndash;&gt;-->
-                <!--&lt;!&ndash;android:resource="@xml/picker_provider_paths" />&ndash;&gt;-->
-        <!--</provider>-->
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d0f1e70e1d5744ad206e0eff1cd3c02cb3a2e4ab"/>
-
-        <!--<meta-data-->
-            <!--android:name="io.gloop.ApiKey"-->
-            <!--android:value="8e962b49-3013-4ef3-8ac5-7fea1047fe4b"/>-->
 
         <meta-data
             android:name="io.gloop.ApiKey"
             android:value="66aa01d2-e73b-4a7f-9c89-ab468c6058b1"/>
         <!--<meta-data-->
-            <!--android:name="io.gloop.Host"-->
-            <!--android:value="192.168.0.87:8080"/>-->
+        <!--android:name="io.gloop.Host"-->
+        <!--android:value="192.168.0.87:8080"/>-->
 
     </application>
 

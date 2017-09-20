@@ -37,4 +37,10 @@
     <color name="window_background">#FFF5F5F5</color>
 
 
+    <color name="login_button_background">#0098f4</color>
+    <color name="login_button_text_color">#fff</color>
+    <color name="login_text_color">#0098f4</color>
+
+
+
 </resources>

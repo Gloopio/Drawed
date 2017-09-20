@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "807518302577",
+    "project_id": "drawed-9ff47"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807518302577:android:efc558b155762b08",
+        "android_client_info": {
+          "package_name": "io.gloop.board"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807518302577-qs150qlk0faid1l0gel5q39vutkib105.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "807518302577-s9tnan0icspi7l201dpjjonjb52sv9ti.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.gloop.board",
+            "certificate_hash": "cc1f6ad27b22fc00cc11855f1301d873b8074cda"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeXnilFqYrY0JnEbo_XtgaSfqUgRpsicU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,11 +7,8 @@ import android.support.annotation.Nullable;
 
 import com.crashlytics.android.Crashlytics;
 
-import java.util.UUID;
-
 import io.fabric.sdk.android.Fabric;
 import io.gloop.Gloop;
-import io.gloop.drawed.utils.NameUtil;
 import io.gloop.drawed.utils.ScreenUtil;
 import io.gloop.drawed.utils.SharedPreferencesStore;
 
@@ -48,22 +45,44 @@ public class SplashActivity extends Activity {
                     // It is also possible to pass them as parameters to the initialize method.
                     Gloop.initialize(SplashActivity.this);
 
-                    // Gloop will login with the remembered user.
-                    // The login and register method both provide a parameter keepSignedIn which can be set to tre. By default it is set to false.
-                    if (!Gloop.loginWithRememberedUser()) {
-                        // repeat register until user name does not exists
-                        final String password = UUID.randomUUID().toString();
-                        // Register a new user with the register method of gloop. By setting keepSignedIn to true the user can be logged in with the loginWithRememberedUser method.
-                        while (!Gloop.register(NameUtil.randomUserName(getApplicationContext()), password, true)) {
-                        }
-                    }
+//                    // Gloop will login with the remembered user.
+//                    // The login and register method both provide a parameter keepSignedIn which can be set to tre. By default it is set to false.
+//                    if (!Gloop.loginWithRememberedUser()) {
+//                        // repeat register until user name does not exists
+//                        final String password = UUID.randomUUID().toString();
+//                        // Register a new user with the register method of gloop. By setting keepSignedIn to true the user can be logged in with the loginWithRememberedUser method.
+//                        while (!Gloop.register(NameUtil.randomUserName(getApplicationContext()), password, true)) {
+//                        }
+//                    }
 
-                    Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                    startActivity(i);
-                    finish();
+
+                    if (!logInWithRememberedUser()) {
+                        Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
+                        SplashActivity.this.startActivity(mainIntent);
+//                        SplashActivity.this.finish();
+                    }
+//
+//                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+//                    startActivity(i);
+//                    finish();
                 }
             }).start();
         }
+    }
+
+    private boolean logInWithRememberedUser() {
+        String email = SharedPreferencesStore.getEmail();
+        String password = SharedPreferencesStore.getPassword();
+
+        if (!email.isEmpty() && !password.isEmpty()) {
+            if (Gloop.login(email, password)) {
+                Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                startActivity(i);
+                finish();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void showIntroOnFirstRun() {
