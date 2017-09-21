@@ -1,15 +1,10 @@
 package io.gloop.drawed;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
@@ -30,15 +25,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +50,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.NewBoardDialog;
 import io.gloop.drawed.dialogs.SearchDialog;
+import io.gloop.drawed.dialogs.UserProfileDialog;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.NotificationUtil;
@@ -89,6 +80,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
 
     private GloopUser owner;
+    private UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,14 +129,14 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         header.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDiag();
+                new UserProfileDialog(BoardListActivity.this, userImage, userInfo);
             }
         });
         userImage = (CircleImageView) findViewById(R.id.user_image);
         userImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDiag();
+                new UserProfileDialog(BoardListActivity.this, userImage, userInfo);
             }
         });
 
@@ -166,11 +158,12 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_menu_item_new);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_menu_item_new);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new NewBoardDialog(BoardListActivity.this, owner, view, mTwoPane, BoardListActivity.this.getSupportFragmentManager()).show();
+                new NewBoardDialog(BoardListActivity.this, owner, view, mTwoPane, BoardListActivity.this.getSupportFragmentManager(), floatingActionMenu);
+//                new UserProfileDialog(BoardListActivity.this, fab, userInfo);
                 floatingActionMenu.close(false);
             }
         });
@@ -381,7 +374,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-//        setupRecyclerView();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -392,7 +384,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
     private void setUserInfo() {
-        final UserInfo userInfo = Gloop.allLocal(UserInfo.class)
+        userInfo = Gloop.allLocal(UserInfo.class)
                 .where()
                 .equalsTo("email", owner.getName())
                 .first();
@@ -403,8 +395,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 public void run() {
                     Picasso.with(getApplicationContext())
                             .load(userInfo.getImageURL())
-//                            .resize(80, 80)
-//                            .centerCrop()
                             .into(userImage);
 
                     username.setText(userInfo.getUserName());
@@ -417,7 +407,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     public void onResume() {
         super.onResume();
 
-//        setupRecyclerView();
         checkForPrivateBoardAccessRequests();
     }
 
@@ -450,108 +439,19 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 GloopLogger.i("Request access to a private board");
                 GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
-//                    showNotification(accessRequest);
                     new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest);
                 }
             }
         });
     }
-
-
-//    private void setupRecyclerView() {
-//        // Load all locally saved boards to the boards list.
-//        GloopList<Board> boards = Gloop.allLocal(Board.class);
-//
-//        boardAdapter = new BoardAdapter(boards);
-//        recyclerView.setAdapter(boardAdapter);
-//    }
-
     @Override
     public void onBackPressed() {
         finish();
     }
 
-    private final int SELECT_PHOTO = 1;
+    public static final int SELECT_PHOTO = 1;
 
 
-    private void showDiag() {
-
-        final View dialogView = View.inflate(this, R.layout.dialog, null);
-
-        final Dialog dialog = new Dialog(this, R.style.MyAlertDialogStyle);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(dialogView);
-
-        Button button = (Button) dialog.findViewById(R.id.image_chooser);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, SELECT_PHOTO);
-//                PickImageDialog.build(new PickSetup())
-//                        .setOnPickResult(new IPickResult() {
-//                            @Override
-//                            public void onPickResult(PickResult r) {
-//                                if (r.getError() == null) {
-//                                    //If you want the Uri.
-//                                    //Mandatory to refresh image from Uri.
-//                                    //getImageView().setImageURI(null);
-//
-//                                    //Setting the real returned image.
-//                                    //getImageView().setImageURI(r.getUri());
-//
-//                                    //If you want the Bitmap.
-////                                    getImageView().setImageBitmap(r.getBitmap());
-//                                    userImage.setImageBitmap(r.getBitmap());
-//                                    revealShow(dialogView, false, dialog);
-//
-//                                    //Image path
-//                                    //r.getPath();
-//                                } else {
-//                                    //Handle possible errors
-//                                    //TODO: do what you have to do with r.getError();
-//                                    Toast.makeText(getApplicationContext(), r.getError().getMessage(), Toast.LENGTH_LONG).show();
-//                                }
-//                            }
-//                        }).show(BoardListActivity.this);
-            }
-        });
-
-        ImageView imageView = (ImageView) dialog.findViewById(R.id.closeDialogImg);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                revealShow(dialogView, false, dialog);
-            }
-        });
-
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                revealShow(dialogView, true, null);
-            }
-        });
-
-        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-                if (i == KeyEvent.KEYCODE_BACK) {
-
-                    revealShow(dialogView, false, dialog);
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-
-        dialog.show();
-    }
 
     private final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
 
@@ -597,45 +497,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
 
-    private void revealShow(View dialogView, boolean b, final Dialog dialog) {
-
-        final View view = dialogView.findViewById(R.id.dialog);
-
-        int w = view.getWidth();
-        int h = view.getHeight();
-
-        int endRadius = (int) Math.hypot(w, h);
-
-        int cx = (int) (userImage.getX() + (userImage.getWidth() / 2));
-        int cy = (int) (userImage.getY()) + userImage.getHeight() + 56;
-
-
-        if (b) {
-            Animator revealAnimator = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, endRadius);
-
-            view.setVisibility(View.VISIBLE);
-            revealAnimator.setDuration(700);
-            revealAnimator.start();
-
-        } else {
-
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
-
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    dialog.dismiss();
-                    view.setVisibility(View.INVISIBLE);
-
-                }
-            });
-            anim.setDuration(700);
-            anim.start();
-        }
-
-    }
 
 
 }

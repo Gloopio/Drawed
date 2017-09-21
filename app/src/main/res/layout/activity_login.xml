@@ -106,6 +106,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center"
                 android:layout_gravity="bottom"
                 android:orientation="vertical">
 
@@ -134,8 +135,17 @@
 
                 <com.google.android.gms.common.SignInButton
                     android:id="@+id/google_sign_in_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="200dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_height="50dp" />
+
+                <com.facebook.login.widget.LoginButton
+                    android:id="@+id/facebook_login_button"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="30dp" />
             </LinearLayout>
 
         </LinearLayout>

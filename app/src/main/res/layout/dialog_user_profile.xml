@@ -31,7 +31,7 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:orientation="vertical"
-            android:layout_height="150dp"
+            android:layout_height="250dp"
             android:gravity="center_horizontal"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
@@ -42,17 +42,36 @@
                 android:layout_marginBottom="5dp"
                 android:src="@drawable/user_with_background"/>
 
+            <!--<ImageView-->
+                <!--android:id="@+id/profile_change_image"-->
+                <!--android:layout_width="70dp"-->
+                <!--android:layout_height="70dp"-->
+                <!--android:layout_marginTop="-85dp"-->
+                <!--android:layout_marginBottom="5dp"-->
+                <!--android:src="@drawable/ic_edit_black_24dp"-->
+                <!--android:tint="@android:color/darker_gray"-->
+                <!--android:alpha="50"/>-->
+
+            <Button
+                android:id="@+id/image_chooser"
+                android:text="Change Image"
+                android:layout_width="200dp"
+                android:layout_marginBottom="20dp"
+                android:backgroundTint="@android:color/white"
+                android:foregroundTint="@color/colorPrimary"
+                android:layout_height="50dp"/>
+
+
             <TextView
+                android:id="@+id/profile_user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="This is my Dialog"
+                android:textColor="@android:color/white"
                 android:textSize="24dp"/>
 
-            <Button
-                android:id="@+id/image_chooser"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
+
 
         </LinearLayout>
 
