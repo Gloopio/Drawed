@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,6 +71,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
         // Set up the login form.
         mEmailView = (EditText) findViewById(R.id.email);
+        mEmailView.clearFocus();
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -94,6 +96,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         setUpGoogleAuthentication();
 
         setUpFacebookAuthentication();
+
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
     }
 
@@ -244,11 +248,6 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-//            Log.d("Gloop", "user name:" + acct.getDisplayName());
-//            Log.d("Gloop", "user name:" + acct.getEmail());
-//            Log.d("Gloop", "user name:" + acct.getId());
-//            Log.d("Gloop", "user name:" + acct.getIdToken());
-//            Log.d("Gloop", "user name:" + acct.getPhotoUrl());
 
             String email = acct.getEmail();
             String password = acct.getId();

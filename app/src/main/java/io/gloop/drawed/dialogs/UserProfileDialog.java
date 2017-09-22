@@ -37,7 +37,7 @@ public class UserProfileDialog {
     private CircleImageView userImage;
     private UserInfo userInfo;
 
-    public UserProfileDialog(Activity activity,  CircleImageView userImage, UserInfo userInfo) {
+    public UserProfileDialog(Activity activity, CircleImageView userImage, UserInfo userInfo) {
         this.activity = activity;
         this.userImage = userImage;
         this.userInfo = userInfo;
@@ -45,7 +45,7 @@ public class UserProfileDialog {
         showUserProfileDialog();
     }
 
-    private void showUserProfileDialog( ) {
+    private void showUserProfileDialog() {
 
         final View dialogView = View.inflate(activity, R.layout.dialog_user_profile, null);
 
@@ -126,8 +126,7 @@ public class UserProfileDialog {
 
         } else {
 
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
+            Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
 
             anim.addListener(new AnimatorListenerAdapter() {
                 @Override

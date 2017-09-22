@@ -57,7 +57,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/private_label"
                     android:textColor="@color/textColor"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp"
+                    android:theme="@style/Color1SwitchStyle"/>
 
                 <TextView
                     android:id="@+id/textView"
@@ -80,7 +81,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/freeze"
                     android:textColor="@color/textColor"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp"
+                    android:theme="@style/Color1SwitchStyle"/>
 
                 <TextView
                     android:id="@+id/textView2"

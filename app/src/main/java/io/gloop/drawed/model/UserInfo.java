@@ -2,6 +2,9 @@ package io.gloop.drawed.model;
 
 import android.net.Uri;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.gloop.GloopObject;
 
 /**
@@ -13,7 +16,7 @@ public class UserInfo extends GloopObject {
     private String email;
     private String imageURL;
     private String userName;
-
+    private List<String> favoriesBoardId = new ArrayList<>();
 
     public UserInfo() {
 
@@ -41,5 +44,21 @@ public class UserInfo extends GloopObject {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public void addFavoriteBoardId(String boardId) {
+        this.favoriesBoardId.add(boardId);
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public List<String> getFavoriesBoardId() {
+        return favoriesBoardId;
+    }
+
+    public void setFavoriesBoardId(List<String> favoriesBoardId) {
+        this.favoriesBoardId = favoriesBoardId;
     }
 }

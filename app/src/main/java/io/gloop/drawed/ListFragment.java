@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -46,19 +47,42 @@ public class ListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        RelativeLayout rv = (RelativeLayout) inflater.inflate(
+        final RelativeLayout rv = (RelativeLayout) inflater.inflate(
                 R.layout.fragment_list, container, false);
-        setupRecyclerView((RecyclerView) rv.findViewById(R.id.recyclerview));
+        final RecyclerView recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
+        setupRecyclerView(recyclerView);
 
         this.context = getContext();
 
         // Load the currently logged in GloopUser of the app.
         this.owner = Gloop.getOwner();
-        if (owner != null) {
-//            String name = this.owner.getName();
-//            if (name != null)
-//                username.setText(name);   TODO
-        }
+
+        final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) rv.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5, R.color.color6);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gloop.sync();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setupRecyclerView(recyclerView);
+                            }
+                        });
+//                        checkForPrivateBoardAccessRequests(); TODO
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
 
         return rv;
     }
@@ -70,77 +94,6 @@ public class ListFragment extends Fragment {
         boardAdapter = new BoardAdapter(boards);
         recyclerView.setAdapter(boardAdapter);
     }
-
-//    public static class SimpleStringRecyclerViewAdapter
-//            extends RecyclerView.Adapter<SimpleStringRecyclerViewAdapter.ViewHolder> {
-//
-//        private final TypedValue mTypedValue = new TypedValue();
-//        private int mBackground;
-//        private List<String> mValues;
-//
-//        public static class ViewHolder extends RecyclerView.ViewHolder {
-//            public String mBoundString;
-//
-//            public final View mView;
-//            public final ImageView mImageView;
-//            public final TextView mTextView;
-//
-//            public ViewHolder(View view) {
-//                super(view);
-//                mView = view;
-//                mImageView = (ImageView) view.findViewById(R.id.avatar);
-//                mTextView = (TextView) view.findViewById(android.R.id.text1);
-//            }
-//
-//            @Override
-//            public String toString() {
-//                return super.toString() + " '" + mTextView.getText();
-//            }
-//        }
-//
-//        public SimpleStringRecyclerViewAdapter(Context context, List<String> items) {
-//            context.getTheme().resolveAttribute(R.attr.selectableItemBackground, mTypedValue, true);
-//            mBackground = mTypedValue.resourceId;
-//            mValues = items;
-//        }
-//
-//        @Override
-//        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//            View view = LayoutInflater.from(parent.getContext())
-//                    .inflate(R.layout.list_item, parent, false);
-//            view.setBackgroundResource(mBackground);
-//            return new ViewHolder(view);
-//        }
-//
-//        @Override
-//        public void onBindViewHolder(final ViewHolder holder, int position) {
-//            holder.mBoundString = mValues.get(position);
-//            holder.mTextView.setText(mValues.get(position));
-//
-//            holder.mView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Context context = v.getContext();
-//                    Intent intent = new Intent(context, BoardDetailActivity.class);
-//                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-//
-//                    context.startActivity(intent);
-//                }
-//            });
-//
-//            Glide.with(holder.mImageView.getContext())
-//                    .load(R.drawable.cheese_1)
-//                    .fitCenter()
-//                    .into(holder.mImageView);
-//        }
-//
-//        @Override
-//        public int getItemCount() {
-//            return mValues.size();
-//        }
-//
-//
-//    }
 
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
 
@@ -167,7 +120,7 @@ public class ListFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(BoardViewHolder holder, int position) {
+        public void onBindViewHolder(final BoardViewHolder holder, int position) {
             final Board board = mValues.get(position);
 
             holder.mContentView.setText(board.getName());
@@ -213,6 +166,20 @@ public class ListFragment extends Fragment {
                     return true;
                 }
             });
+
+            holder.mFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO
+                    if (((String) holder.mFavorite.getTag()).equals("notSelected")) {
+                        holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
+                        holder.mFavorite.setTag("selected");
+                    } else {
+                        holder.mFavorite.setImageResource(R.drawable.ic_star_border_black_24dp);
+                        holder.mFavorite.setTag("notSelected");
+                    }
+                }
+            });
         }
 
         public void removeOnChangeListener() {
@@ -228,6 +195,7 @@ public class ListFragment extends Fragment {
             final View mView;
             final TextView mContentView;
             final ImageView mImage;
+            final ImageView mFavorite;
 //            final ImageView mImagePrivate;
 //            final ImageView mImageFreeze;
 //            final ImageView mDivider;
@@ -237,6 +205,7 @@ public class ListFragment extends Fragment {
                 mView = view.findViewById(R.id.card_view);
                 mContentView = (TextView) view.findViewById(R.id.board_name);
                 mImage = (ImageView) view.findViewById(R.id.avatar);
+                mFavorite = (ImageView) view.findViewById(R.id.board_favorite);
 //                mImagePrivate = (ImageView) view.findViewById(R.id.list_item_private_image);
 //                mImageFreeze = (ImageView) view.findViewById(R.id.list_item_freeze_image);
 //                mDivider = (ImageView) view.findViewById(R.id.list_item_divider);

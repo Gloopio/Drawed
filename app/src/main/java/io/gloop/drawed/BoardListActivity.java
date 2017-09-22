@@ -111,18 +111,10 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-//        recyclerView = (RecyclerView) findViewById(R.id.item_list);
-
-//        //set username
         username = (TextView) findViewById(R.id.username);
 
         // Load the currently logged in GloopUser of the app.
         this.owner = Gloop.getOwner();
-//        if (owner != null) {
-//            String name = this.owner.getName();
-//            if (name != null)
-//                username.setText(name);
-//        }
 
 
         LinearLayout header = (LinearLayout) findViewById(R.id.header);
@@ -163,7 +155,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             @Override
             public void onClick(View view) {
                 new NewBoardDialog(BoardListActivity.this, owner, view, mTwoPane, BoardListActivity.this.getSupportFragmentManager(), floatingActionMenu);
-//                new UserProfileDialog(BoardListActivity.this, fab, userInfo);
                 floatingActionMenu.close(false);
             }
         });
@@ -176,36 +167,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 floatingActionMenu.close(false);
             }
         });
-
-        // TODO
-//        final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-//        mSwipeRefreshLayout.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5, R.color.color6);
-//        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Gloop.sync();
-//                        checkForPrivateBoardAccessRequests();
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mSwipeRefreshLayout.setRefreshing(false);
-//                            }
-//                        });
-//                    }
-//                }).start();
-//            }
-//        });
-
-//        LinearLayout footer = (LinearLayout) findViewById(R.id.footer);
-//        footer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                new UserDialog(BoardListActivity.this, owner).show();
-//            }
-//        });
     }
 
     @Override
@@ -286,9 +247,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(new ListFragment(), "Category 1");
-        adapter.addFragment(new ListFragment(), "Category 2");
-        adapter.addFragment(new ListFragment(), "Category 3");
+        adapter.addFragment(new ListFragment(), "Favorites");
+        adapter.addFragment(new ListFragment(), "My Boards");
+        adapter.addFragment(new ListFragment(), "Browse");
         viewPager.setAdapter(adapter);
     }
 

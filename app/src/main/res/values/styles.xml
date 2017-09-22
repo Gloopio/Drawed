@@ -36,6 +36,10 @@
     </style>
 
 
+    <style name="Color1SwitchStyle">
+        <item name="colorControlActivated">@color/colorPrimary</item>
+    </style>
+
 
 
 
