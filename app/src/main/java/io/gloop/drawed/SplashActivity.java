@@ -47,26 +47,10 @@ public class SplashActivity extends Activity {
                     // It is also possible to pass them as parameters to the initialize method.
                     Gloop.initialize(SplashActivity.this);
 
-//                    // Gloop will login with the remembered user.
-//                    // The login and register method both provide a parameter keepSignedIn which can be set to tre. By default it is set to false.
-//                    if (!Gloop.loginWithRememberedUser()) {
-//                        // repeat register until user name does not exists
-//                        final String password = UUID.randomUUID().toString();
-//                        // Register a new user with the register method of gloop. By setting keepSignedIn to true the user can be logged in with the loginWithRememberedUser method.
-//                        while (!Gloop.register(NameUtil.randomUserName(getApplicationContext()), password, true)) {
-//                        }
-//                    }
-
-
                     if (!logInWithRememberedUser()) {
                         Intent mainIntent = new Intent(SplashActivity.this, LoginActivity.class);
                         SplashActivity.this.startActivity(mainIntent);
-//                        SplashActivity.this.finish();
                     }
-//
-//                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-//                    startActivity(i);
-//                    finish();
                 }
             }).start();
         }

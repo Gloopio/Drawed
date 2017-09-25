@@ -47,18 +47,28 @@ public class UserInfo extends GloopObject {
     }
 
     public void addFavoriteBoardId(String boardId) {
+        if (this.favoriesBoardId == null)
+            this.favoriesBoardId = new ArrayList<>();
         this.favoriesBoardId.add(boardId);
+    }
+
+    public void removeFavoriteBoardId(String boardId) {
+        if (this.favoriesBoardId != null)
+            this.favoriesBoardId.remove(boardId);
     }
 
     public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
     }
 
-    public List<String> getFavoriesBoardId() {
-        return favoriesBoardId;
+    public List<String> getFavoritesBoardId() {
+        if (favoriesBoardId == null)
+            return new ArrayList<>();
+        else
+            return favoriesBoardId;
     }
 
-    public void setFavoriesBoardId(List<String> favoriesBoardId) {
+    public void setFavoritesBoardId(List<String> favoriesBoardId) {
         this.favoriesBoardId = favoriesBoardId;
     }
 }

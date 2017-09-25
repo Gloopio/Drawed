@@ -57,6 +57,10 @@ import io.gloop.drawed.utils.NotificationUtil;
 import io.gloop.drawed.utils.SharedPreferencesStore;
 import io.gloop.permissions.GloopUser;
 
+import static io.gloop.drawed.ListFragment.VIEW_BROWSE;
+import static io.gloop.drawed.ListFragment.VIEW_FAVORITES;
+import static io.gloop.drawed.ListFragment.VIEW_MY_BOARDS;
+
 /**
  * An activity representing a list of Items. This activity
  * has different presentations for handset and tablet-size devices. On
@@ -101,6 +105,14 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
 
+        // Load the currently logged in GloopUser of the app.
+        this.owner = Gloop.getOwner();
+        // Load user info
+        userInfo = Gloop.allLocal(UserInfo.class)
+                .where()
+                .equalsTo("email", owner.getName())
+                .first();
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -113,8 +125,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
         username = (TextView) findViewById(R.id.username);
 
-        // Load the currently logged in GloopUser of the app.
-        this.owner = Gloop.getOwner();
+
 
 
         LinearLayout header = (LinearLayout) findViewById(R.id.header);
@@ -239,17 +250,16 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
     private void setNightMode(@AppCompatDelegate.NightMode int nightMode) {
         AppCompatDelegate.setDefaultNightMode(nightMode);
-
-        if (Build.VERSION.SDK_INT >= 11) {
-            recreate();
-        }
+        recreate();
     }
 
     private void setupViewPager(ViewPager viewPager) {
+
+
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(new ListFragment(), "Favorites");
-        adapter.addFragment(new ListFragment(), "My Boards");
-        adapter.addFragment(new ListFragment(), "Browse");
+        adapter.addFragment(ListFragment.newInstance(VIEW_FAVORITES, userInfo, owner), "Favorites");
+        adapter.addFragment(ListFragment.newInstance(VIEW_MY_BOARDS, userInfo, owner), "My Boards");
+        adapter.addFragment(ListFragment.newInstance(VIEW_BROWSE, userInfo, owner), "Browse");
         viewPager.setAdapter(adapter);
     }
 
@@ -305,7 +315,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (mClss != null) {
                         Intent intent = new Intent(this, mClss);
-//                        intent.putExtra(ZBarConstants.SCAN_MODES, new int[]{Symbol.QRCODE});
                         startActivity(intent);
                     }
                 } else {
@@ -345,10 +354,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
     private void setUserInfo() {
-        userInfo = Gloop.allLocal(UserInfo.class)
-                .where()
-                .equalsTo("email", owner.getName())
-                .first();
 
         if (userInfo != null) {
             runOnUiThread(new Runnable() {
@@ -384,7 +389,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
 
-    private void checkForPrivateBoardAccessRequests() {
+    public void checkForPrivateBoardAccessRequests() {
         final GloopList<BoardAccessRequest> accessRequests = Gloop
                 .all(BoardAccessRequest.class)
                 .where()
@@ -405,13 +410,13 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             }
         });
     }
+
     @Override
     public void onBackPressed() {
         finish();
     }
 
     public static final int SELECT_PHOTO = 1;
-
 
 
     private final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
@@ -456,8 +461,4 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 }
         }
     }
-
-
-
-
 }

@@ -41,6 +41,7 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 import io.gloop.Gloop;
+import io.gloop.GloopLogger;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.SharedPreferencesStore;
 
@@ -126,7 +127,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                                     String name = object.getString("name");
 
 
-                                    String password = loginResult.getAccessToken().getUserId();    // TODO
+                                    String password = loginResult.getAccessToken().getUserId();
 
                                     UserInfo userInfo = Gloop.all(UserInfo.class).where().equalsTo("email", email).first();
                                     if (userInfo != null) {
@@ -185,7 +186,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
             @Override
             public void onError(FacebookException e) {
-
+                GloopLogger.e(e);
             }
         });
     }

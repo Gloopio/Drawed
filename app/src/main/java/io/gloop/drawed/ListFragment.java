@@ -31,12 +31,16 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 import io.gloop.Gloop;
 import io.gloop.GloopList;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopUser;
+import io.gloop.query.GloopQuery;
 
 public class ListFragment extends Fragment {
 
@@ -44,20 +48,44 @@ public class ListFragment extends Fragment {
     private GloopUser owner;
     private BoardAdapter boardAdapter;
 
+    RecyclerView recyclerView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    public static final int VIEW_FAVORITES = 0;
+    public static final int VIEW_MY_BOARDS = 1;
+    public static final int VIEW_BROWSE = 2;
+
+    private int operation;
+    private UserInfo userInfo;
+
+    public static ListFragment newInstance(int operation, UserInfo userinfo, GloopUser owner) {
+        ListFragment f = new ListFragment();
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putInt("operation", operation);
+        args.putSerializable("userinfo", userinfo);
+        args.putSerializable("owner", owner);
+        f.setArguments(args);
+        return f;
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final RelativeLayout rv = (RelativeLayout) inflater.inflate(
-                R.layout.fragment_list, container, false);
-        final RecyclerView recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
-        setupRecyclerView(recyclerView);
+        final RelativeLayout rv = (RelativeLayout) inflater.inflate(R.layout.fragment_list, container, false);
+
+        Bundle args = getArguments();
+        operation = args.getInt("operation", 0);
+        userInfo = (UserInfo) args.getSerializable("userinfo");
+        this.owner = (GloopUser) args.getSerializable("owner");
+
+        recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
+        setupRecyclerView();
 
         this.context = getContext();
 
-        // Load the currently logged in GloopUser of the app.
-        this.owner = Gloop.getOwner();
-
-        final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) rv.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rv.findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3, R.color.color4, R.color.color5, R.color.color6);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -69,16 +97,11 @@ public class ListFragment extends Fragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                setupRecyclerView(recyclerView);
-                            }
-                        });
-//                        checkForPrivateBoardAccessRequests(); TODO
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                                setupRecyclerView();
                                 mSwipeRefreshLayout.setRefreshing(false);
                             }
                         });
+//                        checkForPrivateBoardAccessRequests();
                     }
                 }).start();
             }
@@ -87,12 +110,55 @@ public class ListFragment extends Fragment {
         return rv;
     }
 
-    private void setupRecyclerView(RecyclerView recyclerView) {
-        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        GloopList<Board> boards = Gloop.allLocal(Board.class);
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupRecyclerView();
+    }
 
-        boardAdapter = new BoardAdapter(boards);
-        recyclerView.setAdapter(boardAdapter);
+    private void setupRecyclerView() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwipeRefreshLayout.setRefreshing(true);
+                    }
+                });
+                // load boards
+                GloopList<Board> boards = null;
+
+                if (operation == VIEW_FAVORITES) {
+                    GloopQuery<Board> query = Gloop.allLocal(Board.class).where();
+
+                    List<String> favoritesBoardIds = userInfo.getFavoritesBoardId();
+                    if (favoritesBoardIds.size() > 0) {
+                        for (int i = 0; i < favoritesBoardIds.size() - 1; i++) {
+                            query = query.equalsTo("objectId", favoritesBoardIds.get(i)).or();
+                        }
+                        boards = query.equalsTo("objectId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
+                    } else {
+                        boards = Gloop.allLocal(Board.class).where().equalsTo("objectId", "").all(); // empty list
+                    }
+                } else if (operation == VIEW_MY_BOARDS) {
+                    boards = Gloop.allLocal(Board.class);
+                } else if (operation == VIEW_BROWSE) {
+                    boards = Gloop.all(Board.class);
+                }
+
+                boardAdapter = new BoardAdapter(boards);
+                // set ui
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+                        recyclerView.setAdapter(boardAdapter);
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+            }
+        }).start();
     }
 
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
@@ -124,24 +190,7 @@ public class ListFragment extends Fragment {
             final Board board = mValues.get(position);
 
             holder.mContentView.setText(board.getName());
-//            if (board.isPrivateBoard())
-//                holder.mImagePrivate.setVisibility(View.VISIBLE);
-//            else
-//                holder.mImagePrivate.setVisibility(View.GONE);
-//
-//            if (board.isFreezeBoard())
-//                holder.mImageFreeze.setVisibility(View.VISIBLE);
-//            else
-//                holder.mImageFreeze.setVisibility(View.GONE);
-//
             int color = board.getColor();
-//
-//            // check if previous color was the same
-//            if (position > 0 && mValues.get(position - 1).getColor() == color) {
-//                holder.mDivider.setBackgroundColor(ColorUtil.darkenColor(color));
-//                holder.mDivider.setVisibility(View.VISIBLE);
-//            } else
-//                holder.mDivider.setVisibility(View.GONE);
 
             holder.mImage.setBackgroundColor(color);
 
@@ -167,22 +216,31 @@ public class ListFragment extends Fragment {
                 }
             });
 
+            if (userInfo.getFavoritesBoardId().contains(board.getObjectId())) {
+                holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
+                holder.mFavorite.setTag("selected");
+            }
             holder.mFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // TODO
                     if (((String) holder.mFavorite.getTag()).equals("notSelected")) {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
                         holder.mFavorite.setTag("selected");
+                        userInfo.addFavoriteBoardId(board.getObjectId());
                     } else {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_border_black_24dp);
                         holder.mFavorite.setTag("notSelected");
+                        userInfo.removeFavoriteBoardId(board.getObjectId());
                     }
+                    if (operation == VIEW_FAVORITES) {
+                        setupRecyclerView();
+                    }
+                    userInfo.save();
                 }
             });
         }
 
-        public void removeOnChangeListener() {
+        void removeOnChangeListener() {
             mValues.removeOnChangeListener(onChangeListener);
         }
 
@@ -196,9 +254,7 @@ public class ListFragment extends Fragment {
             final TextView mContentView;
             final ImageView mImage;
             final ImageView mFavorite;
-//            final ImageView mImagePrivate;
-//            final ImageView mImageFreeze;
-//            final ImageView mDivider;
+
 
             BoardViewHolder(View view) {
                 super(view);
@@ -206,9 +262,6 @@ public class ListFragment extends Fragment {
                 mContentView = (TextView) view.findViewById(R.id.board_name);
                 mImage = (ImageView) view.findViewById(R.id.avatar);
                 mFavorite = (ImageView) view.findViewById(R.id.board_favorite);
-//                mImagePrivate = (ImageView) view.findViewById(R.id.list_item_private_image);
-//                mImageFreeze = (ImageView) view.findViewById(R.id.list_item_freeze_image);
-//                mDivider = (ImageView) view.findViewById(R.id.list_item_divider);
             }
 
             @Override
