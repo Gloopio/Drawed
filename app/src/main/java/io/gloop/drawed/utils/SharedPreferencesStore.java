@@ -3,6 +3,7 @@ package io.gloop.drawed.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatDelegate;
 
 import static io.gloop.drawed.SplashActivity.SHARED_PREFERENCES_FIRST_START;
 
@@ -17,6 +18,8 @@ public class SharedPreferencesStore {
     public static final String SHARED_PREFERENCES_NAME = "user";
     public static final String SHARED_PREFERENCES_USER_EMAIL = "user_email";
     public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
+
+    public static final String SHARED_PREFERENCES_NIGHT_MODE = "user_password";
 
     public static void setContext(Context c) {
         context = c;
@@ -57,5 +60,16 @@ public class SharedPreferencesStore {
         editor.putString(SHARED_PREFERENCES_USER_EMAIL, "");
         editor.putString(SHARED_PREFERENCES_USER_PASSWORD, "");
         editor.apply();
+    }
+
+    public static void setNightMode(int mode) {
+        SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor e = getPrefs.edit();
+        e.putInt(SHARED_PREFERENCES_NIGHT_MODE, mode);
+        e.apply();
+    }
+
+    public static int getNightMode() {
+        return PreferenceManager.getDefaultSharedPreferences(context).getInt(SHARED_PREFERENCES_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_AUTO);
     }
 }

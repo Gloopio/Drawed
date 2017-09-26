@@ -18,6 +18,7 @@ package io.gloop.drawed;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -75,13 +76,14 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final RelativeLayout rv = (RelativeLayout) inflater.inflate(R.layout.fragment_list, container, false);
 
+
         Bundle args = getArguments();
         operation = args.getInt("operation", 0);
         userInfo = (UserInfo) args.getSerializable("userinfo");
         this.owner = (GloopUser) args.getSerializable("owner");
 
         recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
-        setupRecyclerView();
+
 
         this.context = getContext();
 
@@ -98,10 +100,8 @@ public class ListFragment extends Fragment {
                             @Override
                             public void run() {
                                 setupRecyclerView();
-                                mSwipeRefreshLayout.setRefreshing(false);
                             }
                         });
-//                        checkForPrivateBoardAccessRequests();
                     }
                 }).start();
             }
@@ -111,54 +111,69 @@ public class ListFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         setupRecyclerView();
     }
 
-    private void setupRecyclerView() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSwipeRefreshLayout.setRefreshing(true);
-                    }
-                });
-                // load boards
-                GloopList<Board> boards = null;
+    private class LoadBoardsTask extends AsyncTask<Void, Integer, Void> {
 
-                if (operation == VIEW_FAVORITES) {
-                    GloopQuery<Board> query = Gloop.allLocal(Board.class).where();
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
 
-                    List<String> favoritesBoardIds = userInfo.getFavoritesBoardId();
-                    if (favoritesBoardIds.size() > 0) {
-                        for (int i = 0; i < favoritesBoardIds.size() - 1; i++) {
-                            query = query.equalsTo("objectId", favoritesBoardIds.get(i)).or();
-                        }
-                        boards = query.equalsTo("objectId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
-                    } else {
-                        boards = Gloop.allLocal(Board.class).where().equalsTo("objectId", "").all(); // empty list
+        @Override
+        protected Void doInBackground(Void... urls) {
+            // load boards
+            GloopList<Board> boards = null;
+
+            if (operation == VIEW_FAVORITES) {
+                GloopQuery<Board> query = Gloop.allLocal(Board.class).where();
+
+                List<String> favoritesBoardIds = userInfo.getFavoritesBoardId();
+                if (favoritesBoardIds.size() > 0) {
+                    for (int i = 0; i < favoritesBoardIds.size() - 1; i++) {
+                        query = query.equalsTo("objectId", favoritesBoardIds.get(i)).or();
                     }
-                } else if (operation == VIEW_MY_BOARDS) {
-                    boards = Gloop.allLocal(Board.class);
-                } else if (operation == VIEW_BROWSE) {
-                    boards = Gloop.all(Board.class);
+                    boards = query.equalsTo("objectId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
+                } else {
+                    boards = Gloop.allLocal(Board.class).where().equalsTo("objectId", "").all(); // empty list
                 }
-
-                boardAdapter = new BoardAdapter(boards);
-                // set ui
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-                        recyclerView.setAdapter(boardAdapter);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+            } else if (operation == VIEW_MY_BOARDS) {
+                boards = Gloop.allLocal(Board.class);
+            } else if (operation == VIEW_BROWSE) {
+                boards = Gloop.all(Board.class);
             }
-        }).start();
+
+            try {
+                boards.load();
+                boards.size();
+            } catch (Exception ignore) {
+            }
+
+            boardAdapter = new BoardAdapter(boards);
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+            recyclerView.setAdapter(boardAdapter);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void setupRecyclerView() {
+        new LoadBoardsTask().execute();
     }
 
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
@@ -223,7 +238,7 @@ public class ListFragment extends Fragment {
             holder.mFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (((String) holder.mFavorite.getTag()).equals("notSelected")) {
+                    if (holder.mFavorite.getTag().equals("notSelected")) {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
                         holder.mFavorite.setTag("selected");
                         userInfo.addFavoriteBoardId(board.getObjectId());

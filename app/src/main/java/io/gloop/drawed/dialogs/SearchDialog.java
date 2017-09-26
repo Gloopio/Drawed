@@ -1,15 +1,25 @@
 package io.gloop.drawed.dialogs;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+
+import com.github.clans.fab.FloatingActionMenu;
 
 import io.gloop.Gloop;
 import io.gloop.GloopLogger;
@@ -30,17 +40,37 @@ import static io.gloop.permissions.GloopPermission.WRITE;
  * Created by Alex Untertrifaller on 09.06.17.
  */
 
-public class SearchDialog extends Dialog {
+public class SearchDialog {
 
-    public SearchDialog(final @NonNull Context context, final GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
-        super(context, R.style.AppTheme_PopupTheme);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.dialog_search);
+    private Activity activity;
+    private FloatingActionMenu fab;
+    private GloopUser owner;
+    private boolean mTwoPane;
+    private FragmentManager fragmentManager;
 
-        final EditText tvBoardName = (EditText) findViewById(R.id.dialog_search_board_name);
+    public SearchDialog(Activity activity, FloatingActionMenu fab, GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
+        this.activity = activity;
+        this.fab = fab;
+        this.owner = owner;
+        this.mTwoPane = mTwoPane;
+        this.fragmentManager = fragmentManager;
+
+        show();
+    }
+
+    private void show() {
+        final View dialogView = View.inflate(activity, R.layout.dialog_search, null);
+
+        final Dialog dialog = new Dialog(activity, R.style.MyAlertDialogStyle);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(dialogView);
+
+        final EditText tvBoardName = (EditText) dialog.findViewById(R.id.dialog_search_board_name);
+        tvBoardName.getBackground().setColorFilter(activity.getResources().getColor(R.color.edit_text_color), PorterDuff.Mode.SRC_IN);
 
 
-        Button dialogButton = (Button) findViewById(R.id.dialog_search_btn);
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.dialog_search_btn);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,8 +142,78 @@ public class SearchDialog extends Dialog {
                         GloopLogger.i("Could not find public board with name: " + boardName);
                     }
                 }
-                dismiss();
+                dialog.dismiss();
             }
         });
+
+        ImageView imageView = (ImageView) dialog.findViewById(R.id.pop_search_closeDialogImg);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                revealShow(dialogView, false, dialog);
+            }
+        });
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                revealShow(dialogView, true, null);
+            }
+        });
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                if (i == KeyEvent.KEYCODE_BACK) {
+
+                    revealShow(dialogView, false, dialog);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+        dialog.show();
+    }
+
+    private void revealShow(View dialogView, boolean b, final Dialog dialog) {
+
+        final View view = dialogView.findViewById(R.id.pop_search);
+
+        int w = view.getWidth();
+        int h = view.getHeight();
+
+        int endRadius = (int) Math.hypot(w, h);
+
+        int cx = fab.getRight()- 100;
+        int cy = fab.getBottom() -500;
+
+        if (b) {
+            Animator revealAnimator = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, endRadius);
+
+            view.setVisibility(View.VISIBLE);
+            revealAnimator.setDuration(700);
+            revealAnimator.start();
+
+        } else {
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
+
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    dialog.dismiss();
+                    view.setVisibility(View.INVISIBLE);
+
+                }
+            });
+            anim.setDuration(700);
+            anim.start();
+        }
     }
 }

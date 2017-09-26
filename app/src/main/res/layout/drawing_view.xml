@@ -28,60 +28,6 @@
             android:layout_height="match_parent"
             android:background="#FFFFFFFF"/>
 
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="44dp"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--android:layout_alignParentEnd="true">-->
-
-
-            <!--<ImageView-->
-                <!--android:id="@+id/draw_view_btn_delete_lines"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/circle"-->
-                <!--android:contentDescription="@string/freeze"-->
-                <!--android:padding="10dp"-->
-                <!--app:srcCompat="@drawable/ic_delete_black_24dp"/>-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/draw_view_btn_eraser"-->
-                <!--android:layout_width="44dp"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/circle"-->
-                <!--android:contentDescription="@string/freeze"-->
-                <!--android:padding="10dp"-->
-                <!--app:srcCompat="@drawable/gummi"/>-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/draw_view_btn_brush"-->
-                <!--android:layout_width="44dp"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/circle"-->
-                <!--android:contentDescription="@string/freeze"-->
-                <!--android:padding="10dp"-->
-                <!--android:visibility="gone"-->
-                <!--app:srcCompat="@drawable/ic_brush_black_24dp"/>-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/draw_view_btn_change_line_thickness"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/circle"-->
-                <!--android:contentDescription="@string/freeze"-->
-                <!--android:padding="10dp"-->
-                <!--app:srcCompat="@drawable/ic_line_weight_black_24dp"/>-->
-
-            <!--<ImageView-->
-                <!--android:id="@+id/draw_view_btn_change_color"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:background="@drawable/circle"-->
-                <!--android:contentDescription="@string/private_label"-->
-                <!--android:padding="10dp"-->
-                <!--app:srcCompat="@drawable/ic_color_lens_black_24dp"/>-->
-
-        <!--</LinearLayout>-->
     </RelativeLayout>
 
     <it.sephiroth.android.library.bottomnavigation.BottomNavigation

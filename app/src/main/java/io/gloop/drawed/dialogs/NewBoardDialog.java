@@ -200,13 +200,6 @@ public class NewBoardDialog {
 
         int endRadius = (int) Math.hypot(w, h);
 
-//        int cx = (int) (fab.getX() + (fab.getWidth() / 2));
-//        int cy = (int) (fab.getY()) + fab.getHeight() + 56;
-
-        // get the center for the clipping circle
-//        int cx = (fab.getLeft() + fab.getRight()) / 2;
-//        int cy = (fab.getTop() + fab.getBottom()) / 2;
-
         int cx = fab.getRight()- 100;
         int cy = fab.getBottom() -300;
 

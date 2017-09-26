@@ -152,11 +152,11 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
         final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
 
-        FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_menu_item_search);
+        final FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_menu_item_search);
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new SearchDialog(BoardListActivity.this, owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager()).show();
+                new SearchDialog(BoardListActivity.this, floatingActionMenu, owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager());
                 floatingActionMenu.close(false);
             }
         });
@@ -178,6 +178,8 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 floatingActionMenu.close(false);
             }
         });
+
+        AppCompatDelegate.setDefaultNightMode(SharedPreferencesStore.getNightMode());
     }
 
     @Override
@@ -188,7 +190,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        switch (AppCompatDelegate.getDefaultNightMode()) {
+        switch (SharedPreferencesStore.getNightMode()) {
             case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
                 menu.findItem(R.id.menu_night_mode_system).setChecked(true);
                 break;
@@ -213,15 +215,19 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 return true;
             case R.id.menu_night_mode_system:
                 setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 break;
             case R.id.menu_night_mode_day:
                 setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
             case R.id.menu_night_mode_night:
                 setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 break;
             case R.id.menu_night_mode_auto:
                 setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
                 break;
         }
         return super.onOptionsItemSelected(item);

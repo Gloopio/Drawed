@@ -6,12 +6,12 @@
 
     <color name="popupBackground">#303f9f</color>
     <!--<color name="listBackground">#EEEEEE</color>-->
-    <color name="listBackground">#ffffff</color>
+    <color name="listBackground">#28292E</color>
 
     <color name="textColor">#ffffff</color>
 
-    <color name="background">#ffffff</color>
-    <color name="background_splash_screen">#ffffff</color>
+    <color name="background">#28292E</color>
+    <color name="background_splash_screen">#28292E</color>
 
     <color name="color_delete">#ff5722</color>
     <color name="color_mark">#4caf50</color>
@@ -34,14 +34,14 @@
     <color name="Violet">#6b0597</color>
 
 
-    <color name="window_background">#FFF5F5F5</color>
+    <color name="window_background">#28292E</color>
 
 
     <color name="login_button_background">#0098f4</color>
     <color name="login_button_text_color">#fff</color>
     <color name="login_text_color">#0098f4</color>
 
-    <color name="card_background_color">#fff</color>
+    <color name="card_background_color">#33343B</color>
     <color name="edit_text_color">#fff</color>
 
 
