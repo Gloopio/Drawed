@@ -1,43 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/pop_new_board_view"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:background="@color/popupBackground"
-              android:orientation="vertical"
-              android:padding="16dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pop_clear_lines"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/popupBackground"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/dialog_clear_lines_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/allow_access_to_test_test_com_for_board_test"
-        android:textColor="@color/textColor"
-        android:textSize="12sp"/>
+    <ImageView
+        android:id="@+id/pop_clear_lines_closeDialogImg"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/ic_clear_black_24dp"
+        android:tint="#fff"/>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/dialog_clear_lines_cancel"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/dialog_clear_lines_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/button"
-            android:text="@string/cancel"
-            android:textColor="@color/textColor"/>
+            android:text="@string/allow_access_to_test_test_com_for_board_test"
+            android:textColor="@color/textColor"
+            android:textSize="12sp"/>
 
-        <Button
-            android:id="@+id/dialog_clear_lines_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/button"
-            android:text="@string/yes"
-            android:textColor="@color/textColor"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/dialog_clear_lines_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/button"
+                android:text="@string/cancel"
+                android:textColor="@color/popupButtonForeground"/>
+
+            <Button
+                android:id="@+id/dialog_clear_lines_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/button"
+                android:text="@string/yes"
+                android:textColor="@color/popupButtonForeground"/>
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

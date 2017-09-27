@@ -46,8 +46,7 @@ public class BoardDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putSerializable(BoardDetailFragment.ARG_BOARD,
-                    getIntent().getSerializableExtra(BoardDetailFragment.ARG_BOARD));
+            arguments.putSerializable(BoardDetailFragment.ARG_BOARD, getIntent().getSerializableExtra(BoardDetailFragment.ARG_BOARD));
             BoardDetailFragment fragment = new BoardDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

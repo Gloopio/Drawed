@@ -31,11 +31,15 @@ public class UserInfo extends GloopObject {
     }
 
     public Uri getImageURL() {
-        return Uri.parse(imageURL);
+        if (imageURL != null)
+            return Uri.parse(imageURL);
+        else
+            return null;
     }
 
     public void setImageURL(Uri imageURL) {
-        this.imageURL = imageURL.toString();
+        if (imageURL != null)
+            this.imageURL = imageURL.toString();
     }
 
     public String getUserName() {

@@ -33,22 +33,9 @@
     </style>
 
 
-    <style name="Theme.DesignDemo" parent="Base.Theme.DesignDemo">
-    </style>
-
-    <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">#673AB7</item>
-        <item name="colorPrimaryDark">#512DA8</item>
-        <item name="colorAccent">#FF4081</item>
-    </style>
-
-
     <style name="Color1SwitchStyle">
-        <item name="colorControlActivated">@color/colorPrimary</item>
+        <item name="colorControlActivated">#ffffff</item>
     </style>
-
-
-
 
     <style name="Widget.CardContent" parent="android:Widget">
         <item name="android:paddingLeft">16dp</item>

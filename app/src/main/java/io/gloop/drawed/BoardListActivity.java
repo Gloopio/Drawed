@@ -71,16 +71,13 @@ import static io.gloop.drawed.ListFragment.VIEW_MY_BOARDS;
  */
 public class BoardListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
-     */
-    private boolean mTwoPane;
-    //    private RecyclerView recyclerView;
-//    private BoardAdapter boardAdapter;
     private DrawerLayout mDrawerLayout;
 
     private CircleImageView userImage;
     private TextView username;
+    private TextView navHeaderUsername;
+    private ViewPager viewPager;
+    private CircleImageView navHeaderUserImage;
 
 
     private GloopUser owner;
@@ -115,7 +112,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
         if (viewPager != null) {
             setupViewPager(viewPager);
         }
@@ -124,8 +121,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         tabLayout.setupWithViewPager(viewPager);
 
         username = (TextView) findViewById(R.id.username);
-
-
+        View navigationHeader = navigationView.getHeaderView(0);
+        navHeaderUsername = (TextView) navigationHeader.findViewById(R.id.nav_header_username);
+        navHeaderUserImage = (CircleImageView) navigationHeader.findViewById(R.id.nav_header_user_image);
 
 
         LinearLayout header = (LinearLayout) findViewById(R.id.header);
@@ -143,20 +141,13 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             }
         });
 
-
-        if (findViewById(R.id.item_detail_container) != null) {
-            // The detail container view will be present only in the large-screen layouts (res/values-w900dp).
-            // If this view is present, then the activity should be in two-pane mode.
-            mTwoPane = true;
-        }
-
         final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
 
         final FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_menu_item_search);
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new SearchDialog(BoardListActivity.this, floatingActionMenu, owner, mTwoPane, BoardListActivity.this.getSupportFragmentManager());
+                new SearchDialog(BoardListActivity.this, floatingActionMenu, owner, BoardListActivity.this.getSupportFragmentManager(), userInfo);
                 floatingActionMenu.close(false);
             }
         });
@@ -165,7 +156,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new NewBoardDialog(BoardListActivity.this, owner, view, mTwoPane, BoardListActivity.this.getSupportFragmentManager(), floatingActionMenu);
+                new NewBoardDialog(BoardListActivity.this, owner, view, BoardListActivity.this.getSupportFragmentManager(), floatingActionMenu, userInfo);
                 floatingActionMenu.close(false);
             }
         });
@@ -237,6 +228,18 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.nav_favorites:
+                viewPager.setCurrentItem(0);
+                break;
+            case R.id.nav_my_boards:
+                viewPager.setCurrentItem(1);
+                break;
+            case R.id.nav_brows:
+                viewPager.setCurrentItem(2);
+                break;
+            case R.id.nav_user:
+                new UserProfileDialog(BoardListActivity.this, userImage, userInfo);
+                break;
             case R.id.nav_logout:
                 logout();
                 break;
@@ -273,11 +276,11 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         private final List<Fragment> mFragments = new ArrayList<>();
         private final List<String> mFragmentTitles = new ArrayList<>();
 
-        public Adapter(FragmentManager fm) {
+        Adapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragments.add(fragment);
             mFragmentTitles.add(title);
         }
@@ -303,11 +306,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
 
     public void launchScanner(Class<?> clss) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             mClss = clss;
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, ZBAR_CAMERA_PERMISSION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ZBAR_CAMERA_PERMISSION);
         } else {
             Intent intent = new Intent(this, clss);
             startActivity(intent);
@@ -365,11 +366,19 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Picasso.with(getApplicationContext())
-                            .load(userInfo.getImageURL())
-                            .into(userImage);
+                    Uri imageURL = userInfo.getImageURL();
+                    if (imageURL != null) {
+                        Picasso.with(getApplicationContext())
+                                .load(imageURL)
+                                .into(userImage);
+
+                        Picasso.with(getApplicationContext())
+                                .load(imageURL)
+                                .into(navHeaderUserImage);
+                    }
 
                     username.setText(userInfo.getUserName());
+                    navHeaderUsername.setText(userInfo.getUserName());
                 }
             });
         }

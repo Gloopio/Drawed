@@ -1,57 +1,72 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/pop_stat_view"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:background="@color/popupBackground"
-              android:orientation="vertical"
-              android:padding="16dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pop_line_thickness"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/popupBackground"
+    android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/pop_line_thickness_closeDialogImg"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/ic_clear_black_24dp"
+        android:tint="#fff"/>
 
-    <TextView
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp"
-        android:text="@string/line_thickness"
-        android:textAlignment="center"
-        android:textColor="@color/textColor"
-        android:textSize="@dimen/text_size"/>
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:background="@color/popupBackground"
-                  android:gravity="center"
-                  android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/small_brush"
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:contentDescription="@string/sml"
-            android:padding="10dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/small"/>
+            android:paddingBottom="16dp"
+            android:text="@string/line_thickness"
+            android:textAlignment="center"
+            android:textColor="@color/textColor"
+            android:textSize="@dimen/text_size"/>
 
-        <ImageButton
-            android:id="@+id/medium_brush"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="10dp"
-            android:contentDescription="@string/med"
-            android:background="@android:color/transparent"
-            android:src="@drawable/medium"/>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:background="@color/popupBackground"
+                      android:gravity="center"
+                      android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/large_brush"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="10dp"
-            android:contentDescription="@string/lrg"
-            android:background="@android:color/transparent"
-            android:src="@drawable/large"/>
+            <ImageButton
+                android:id="@+id/small_brush"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/sml"
+                android:padding="10dp"
+                android:src="@drawable/small"/>
 
+            <ImageButton
+                android:id="@+id/medium_brush"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/med"
+                android:padding="10dp"
+                android:src="@drawable/medium"/>
+
+            <ImageButton
+                android:id="@+id/large_brush"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/lrg"
+                android:padding="10dp"
+                android:src="@drawable/large"/>
+
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

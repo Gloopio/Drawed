@@ -18,6 +18,7 @@ package io.gloop.drawed;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,10 +33,16 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.List;
+import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.gloop.Gloop;
 import io.gloop.GloopList;
+import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
@@ -146,6 +153,7 @@ public class ListFragment extends Fragment {
                 } else {
                     boards = Gloop.allLocal(Board.class).where().equalsTo("objectId", "").all(); // empty list
                 }
+
             } else if (operation == VIEW_MY_BOARDS) {
                 boards = Gloop.allLocal(Board.class);
             } else if (operation == VIEW_BROWSE) {
@@ -157,6 +165,11 @@ public class ListFragment extends Fragment {
                 boards.size();
             } catch (Exception ignore) {
             }
+
+//            // TEST
+//            for (Board board : boards) {
+//                getMembersOfBoard(board);
+//            }
 
             boardAdapter = new BoardAdapter(boards);
             return null;
@@ -172,6 +185,23 @@ public class ListFragment extends Fragment {
         }
     }
 
+//    private void getMembersOfBoard(Board board) {
+//        String owner = board.getOwner();
+//        GloopGroup group = Gloop.all(GloopGroup.toclass).where().equalsTo("objectId", owner).first();
+//        if (group != null) {
+//            List<String> members = group.getMembers();
+//            GloopLogger.i("Members of board " + members);
+//
+//            for (String member : members) {
+//                Uri userImage = Gloop.all(UserInfo.class).where().equalsTo("email", member).first().getImageURL();
+//                GloopLogger.i("Member user image " + userImage);
+//            }
+//
+//
+//        }
+//
+//    }
+
     private void setupRecyclerView() {
         new LoadBoardsTask().execute();
     }
@@ -180,6 +210,7 @@ public class ListFragment extends Fragment {
 
         private final GloopList<Board> mValues;
         private final GloopOnChangeListener onChangeListener;
+        private boolean longClickActive = false;
 
 
         BoardAdapter(GloopList<Board> boards) {
@@ -204,6 +235,17 @@ public class ListFragment extends Fragment {
         public void onBindViewHolder(final BoardViewHolder holder, int position) {
             final Board board = mValues.get(position);
 
+            if (operation == VIEW_MY_BOARDS) {
+                if (!board.getMembers().containsKey(userInfo.getEmail())) {
+                    if (userInfo.getImageURL() != null) {
+                        board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                    } else
+                        board.addMember(userInfo.getEmail(), null);
+
+                    board.save();
+                }
+            }
+
             holder.mContentView.setText(board.getName());
             int color = board.getColor();
 
@@ -223,10 +265,42 @@ public class ListFragment extends Fragment {
                     removeOnChangeListener();
                 }
             });
+//            holder.mView.setOnTouchListener(new View.OnTouchListener() {
+//                private static final int MIN_CLICK_DURATION = 1000;
+//                private long startClickTime;
+//
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//
+//                    switch (event.getAction()) {
+//                        case MotionEvent.ACTION_UP:
+//                            longClickActive = false;
+//                            break;
+//                        case MotionEvent.ACTION_DOWN:
+//                            if (longClickActive == false) {
+//                                longClickActive = true;
+//                                startClickTime = Calendar.getInstance().getTimeInMillis();
+//                            }
+//                            break;
+//                        case MotionEvent.ACTION_MOVE:
+//                            if (longClickActive == true) {
+//                                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+//                                if (clickDuration >= MIN_CLICK_DURATION) {
+////                                    GloopLogger.i("Long press position: " + event.getX() + " " + event.getY());
+//                                    new BoardInfoDialog(context, owner, board, userInfo, event.getX(), event.getY());
+//                                    longClickActive = false;
+//                                }
+//                            }
+//                            break;
+//                    }
+//                    return true;
+//                }
+//            });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    new BoardInfoDialog(context, owner, board).show();
+                    GloopLogger.i("Long press position: " + holder.mView.getX() + " " + holder.mView.getY());
+                    new BoardInfoDialog(context, owner, board, userInfo, 100.0, 100.0); // tODO
                     return true;
                 }
             });
@@ -253,6 +327,28 @@ public class ListFragment extends Fragment {
                     userInfo.save();
                 }
             });
+
+            setMemberImages(board, holder);
+        }
+
+        private void setMemberImages(Board board, BoardViewHolder holder) {
+            int count = 0;
+            for (Map.Entry<String, String> entry : board.getMembers().entrySet()) {
+                if (entry.getValue() != null)
+                    Picasso.with(context)
+                            .load(Uri.parse(entry.getValue()))
+                            .into(holder.memberImages.get(count++));
+                else {
+                    holder.memberImages.get(count++).setImageResource(R.drawable.user_with_background);
+                }
+                if (count >= 4)
+                    break;
+            }
+            if (count < 4) {
+                for (int i = count; i < 4; i++) {
+                    holder.memberImages.get(i).setVisibility(View.GONE);
+                }
+            }
         }
 
         void removeOnChangeListener() {
@@ -270,6 +366,8 @@ public class ListFragment extends Fragment {
             final ImageView mImage;
             final ImageView mFavorite;
 
+            final List<CircleImageView> memberImages = new ArrayList<>();
+
 
             BoardViewHolder(View view) {
                 super(view);
@@ -277,6 +375,11 @@ public class ListFragment extends Fragment {
                 mContentView = (TextView) view.findViewById(R.id.board_name);
                 mImage = (ImageView) view.findViewById(R.id.avatar);
                 mFavorite = (ImageView) view.findViewById(R.id.board_favorite);
+
+                memberImages.add((CircleImageView) view.findViewById(R.id.user_image1));
+                memberImages.add((CircleImageView) view.findViewById(R.id.user_image2));
+                memberImages.add((CircleImageView) view.findViewById(R.id.user_image3));
+                memberImages.add((CircleImageView) view.findViewById(R.id.user_image4));
             }
 
             @Override

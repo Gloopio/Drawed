@@ -8,6 +8,8 @@ import io.gloop.GloopObject;
 
 public class BoardAccessRequest extends GloopObject {
 
+    // TODO add image uri of requestor
+
     private String boardName;
     private String boardGroupId;
     private String boardCreator;

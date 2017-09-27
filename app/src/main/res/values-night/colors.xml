@@ -4,8 +4,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#303F9F</color>
 
-    <color name="popupBackground">#303f9f</color>
-    <!--<color name="listBackground">#EEEEEE</color>-->
+    <color name="popupBackground">#28292E</color>
+    <color name="popupButtonBackground">#ffffff</color>
+    <color name="popupButtonForeground">#28292E</color>
+
     <color name="listBackground">#28292E</color>
 
     <color name="textColor">#ffffff</color>

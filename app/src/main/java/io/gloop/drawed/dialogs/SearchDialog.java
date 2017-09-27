@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,6 +28,7 @@ import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 
@@ -45,15 +45,15 @@ public class SearchDialog {
     private Activity activity;
     private FloatingActionMenu fab;
     private GloopUser owner;
-    private boolean mTwoPane;
     private FragmentManager fragmentManager;
+    private UserInfo userInfo;
 
-    public SearchDialog(Activity activity, FloatingActionMenu fab, GloopUser owner, final boolean mTwoPane, final FragmentManager fragmentManager) {
+    public SearchDialog(Activity activity, FloatingActionMenu fab, GloopUser owner, final FragmentManager fragmentManager, UserInfo userInfo) {
         this.activity = activity;
         this.fab = fab;
         this.owner = owner;
-        this.mTwoPane = mTwoPane;
         this.fragmentManager = fragmentManager;
+        this.userInfo = userInfo;
 
         show();
     }
@@ -67,7 +67,6 @@ public class SearchDialog {
 
         final EditText tvBoardName = (EditText) dialog.findViewById(R.id.dialog_search_board_name);
         tvBoardName.getBackground().setColorFilter(activity.getResources().getColor(R.color.edit_text_color), PorterDuff.Mode.SRC_IN);
-
 
 
         Button dialogButton = (Button) dialog.findViewById(R.id.dialog_search_btn);
@@ -97,6 +96,8 @@ public class SearchDialog {
                         GloopLogger.i("GloopGroup found add myself to group and save");
                         group.addMember(owner.getUserId());
                         group.save();
+
+                        board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
                     } else {
                         GloopLogger.e("GloopGroup not found!");
                     }
@@ -104,22 +105,12 @@ public class SearchDialog {
                     // save public object to local db.
                     board.save();
 
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
-                        BoardDetailFragment fragment = new BoardDetailFragment();
-                        fragment.setArguments(arguments);
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.item_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, BoardDetailActivity.class);
-                        intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
 
-                        context.startActivity(intent);
-                    }
-//                    adapter.removeOnChangeListener();
+                    Context context = v.getContext();
+                    Intent intent = new Intent(context, BoardDetailActivity.class);
+                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+
+                    context.startActivity(intent);
                 } else {
 
                     // if the board is not public check the PrivateBoardRequest objects.
@@ -188,8 +179,8 @@ public class SearchDialog {
 
         int endRadius = (int) Math.hypot(w, h);
 
-        int cx = fab.getRight()- 100;
-        int cy = fab.getBottom() -500;
+        int cx = fab.getRight() - 100;
+        int cy = fab.getBottom() - 500;
 
         if (b) {
             Animator revealAnimator = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, endRadius);

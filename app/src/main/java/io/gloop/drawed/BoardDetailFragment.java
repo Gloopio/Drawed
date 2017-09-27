@@ -30,6 +30,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
     private String currentColor = "#FF000000";
     public static int smallBrush, mediumBrush, largeBrush;
     private ImageView changeColorButton;
+    BottomNavigation navigation;
 
     private Board board;
 
@@ -113,7 +114,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
 //            }
 //        });
 
-        BottomNavigation navigation = (BottomNavigation) rootView.findViewById(R.id.BottomNavigation);
+        navigation = (BottomNavigation) rootView.findViewById(R.id.BottomNavigation);
         navigation.setOnMenuItemClickListener(this);
         navigation.setSelectedIndex(2, true);
 
@@ -133,7 +134,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
     public void onDrawingMenuSelected(final int itemId, final int position, final boolean fromUser) {
         switch (itemId) {
             case R.id.nav_darwing_clear:
-                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
+                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView, navigation);
                 break;
             case R.id.nav_darwing_brush:
                 drawView.setErase(false);
@@ -142,10 +143,10 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
                 drawView.setErase(true);
                 break;
             case R.id.nav_darwing_line_thickness:
-                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
+                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView, navigation);
                 break;
             case R.id.nav_drawing_color:
-                new ColorChooserDialog(BoardDetailFragment.this).show();
+                new ColorChooserDialog(getContext(), BoardDetailFragment.this, navigation);
                 break;
         }
     }

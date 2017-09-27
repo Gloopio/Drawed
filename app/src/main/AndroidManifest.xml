@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DesignDemo">
+        android:theme="@style/AppTheme">
         <activity
             android:name="io.gloop.drawed.SplashActivity"
             android:label="@string/app_name"
@@ -97,7 +97,7 @@
 
         <meta-data
             android:name="io.gloop.ApiKey"
-            android:value="66aa01d2-e73b-4a7f-9c89-ab468c6058b1"/>
+            android:value="0fa4af5d-7d2c-4f72-b162-366e5c405f8c"/>
         <!--<meta-data-->
         <!--android:name="io.gloop.Host"-->
         <!--android:value="192.168.0.87:8080"/>-->

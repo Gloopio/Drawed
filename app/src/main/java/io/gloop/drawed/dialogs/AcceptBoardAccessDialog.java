@@ -42,6 +42,8 @@ public class AcceptBoardAccessDialog extends Dialog {
                 group.addMember(request.getUserId());
                 group.save();
 
+                // TODO add user email with image to boards member property
+
                 request.delete();
 
                 dismiss();

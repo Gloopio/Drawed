@@ -1,7 +1,9 @@
 package io.gloop.drawed.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.gloop.GloopObject;
 
@@ -16,6 +18,8 @@ public class Board extends GloopObject {
     private int color;
 
     private List<Line> lines = new ArrayList<>();
+
+    private Map<String, String> members = new HashMap<>();
 
     public Board() {
         super();
@@ -78,4 +82,23 @@ public class Board extends GloopObject {
         this.freezeBoard = freezeBoard;
     }
 
+    public Map<String, String> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Map<String, String> members) {
+        this.members = members;
+    }
+
+    public void addMember(String email, String imageUri) {
+        if (this.members == null) {
+            this.members = new HashMap<>();
+        }
+        this.members.put(email, imageUri);
+    }
+
+    public void removeMemeber(String email) {
+        if (this.members != null)
+            this.members.remove(email);
+    }
 }

@@ -7,8 +7,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
@@ -27,6 +27,7 @@ import io.gloop.drawed.BoardDetailFragment;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.PrivateBoardRequest;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.ColorUtil;
 import io.gloop.drawed.utils.NameUtil;
 import io.gloop.permissions.GloopGroup;
@@ -43,9 +44,7 @@ public class NewBoardDialog {
 
     private FloatingActionMenu fab;
 
-    public NewBoardDialog(@NonNull final Context context, final GloopUser owner, final View view, final boolean mTwoPane, final FragmentManager fragmentManager, FloatingActionMenu fab) {
-//        super(context, R.style.AppTheme_PopupTheme);
-
+    public NewBoardDialog(@NonNull final Context context, final GloopUser owner, final View view, final FragmentManager fragmentManager, FloatingActionMenu fab, final UserInfo userInfo) {
         this.fab = fab;
 
         final View dialogView = View.inflate(context, R.layout.dialog_new_board, null);
@@ -55,11 +54,11 @@ public class NewBoardDialog {
         dialog.setContentView(dialogView);
 
 
-
         final String colorName = NameUtil.randomColor(context);
         final String randomName = NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context);
 
         final EditText etBoardName = (EditText) dialog.findViewById(R.id.dialog_new_board_board_name);
+        etBoardName.getBackground().setColorFilter(context.getResources().getColor(R.color.edit_text_color), PorterDuff.Mode.SRC_IN);
         etBoardName.setText(randomName);
 
         Button closeButton = (Button) dialog.findViewById(R.id.dialog_new_board_btn_close);
@@ -103,7 +102,7 @@ public class NewBoardDialog {
 
                 // set permissions depending on the selection.
                 if (board.isPrivateBoard()) {
-                    group.setUser(owner.getUserId(),  READ | WRITE);
+                    group.setUser(owner.getUserId(), READ | WRITE);
                     if (board.isFreezeBoard())
                         board.setUser(group.getObjectId(), READ);
                     else
@@ -130,26 +129,17 @@ public class NewBoardDialog {
                     privateBoard.save();
                 }
 
+                // add members with image to show in list
+                board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
 
                 // save the created board
                 board.save();
 
-                // open the board in detail fragment
-                if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putSerializable(BoardDetailFragment.ARG_BOARD, board);
-                    BoardDetailFragment fragment = new BoardDetailFragment();
-                    fragment.setArguments(arguments);
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
-                } else {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, BoardDetailActivity.class);
-                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                Context context = view.getContext();
+                Intent intent = new Intent(context, BoardDetailActivity.class);
+                intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
 
-                    context.startActivity(intent);
-                }
+                context.startActivity(intent);
 
                 progress.dismiss();
 
@@ -200,8 +190,8 @@ public class NewBoardDialog {
 
         int endRadius = (int) Math.hypot(w, h);
 
-        int cx = fab.getRight()- 100;
-        int cy = fab.getBottom() -300;
+        int cx = fab.getRight() - 100;
+        int cy = fab.getBottom() - 300;
 
         if (b) {
             Animator revealAnimator = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, endRadius);
