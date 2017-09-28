@@ -15,6 +15,7 @@ import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopGroup;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -23,6 +24,7 @@ import static io.gloop.permissions.GloopPermission.READ;
 import static io.gloop.permissions.GloopPermission.WRITE;
 
 public class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
+
     private ZXingScannerView mScannerView;
 
     @Override
@@ -86,6 +88,12 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                         .first();
 
                 if (privateBoard != null) {
+
+                    UserInfo userInfo = Gloop.allLocal(UserInfo.class)
+                            .where()
+                            .equalsTo("email", Gloop.getOwner().getName())
+                            .first();
+
                     // request access to private board with the BoardAccessRequest object.
                     BoardAccessRequest request = new BoardAccessRequest();
                     request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
@@ -93,6 +101,8 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                     request.setBoardCreator(privateBoard.getBoardCreator());
                     request.setUserId(Gloop.getOwner().getUserId());
                     request.setBoardGroupId(privateBoard.getGroupId());
+                    if (userInfo != null)
+                        request.setUserImageUri(userInfo.getImageURL().toString());
                     request.save();
 
                     Toast.makeText(getApplicationContext(), "Request access to board send!", Toast.LENGTH_LONG).show();

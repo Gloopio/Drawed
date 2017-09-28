@@ -21,6 +21,7 @@ import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.PrivateBoardRequest;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopGroup;
 
 import static io.gloop.permissions.GloopPermission.PUBLIC;
@@ -91,6 +92,12 @@ public class DeepLinkActivity extends Activity {
                 Gloop.initialize(DeepLinkActivity.this);
 
                 if (Gloop.loginWithRememberedUser()) {
+
+                    UserInfo userInfo = Gloop.allLocal(UserInfo.class)
+                            .where()
+                            .equalsTo("email", Gloop.getOwner().getName())
+                            .first();
+
                     Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
                     if (board != null) {
                         if (!board.isPrivateBoard()) {
@@ -125,6 +132,8 @@ public class DeepLinkActivity extends Activity {
                                 request.setBoardCreator(privateBoard.getBoardCreator());
                                 request.setUserId(Gloop.getOwner().getUserId());
                                 request.setBoardGroupId(privateBoard.getGroupId());
+                                if (userInfo.getImageURL() != null)
+                                    request.setUserImageUri(userInfo.getImageURL().toString());
                                 request.save();
                             } else {
                                 GloopLogger.i("Could not find public board with name: " + boardName);

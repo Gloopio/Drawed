@@ -97,7 +97,11 @@ public class SearchDialog {
                         group.addMember(owner.getUserId());
                         group.save();
 
-                        board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                        if (userInfo.getImageURL() != null)
+                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                        else
+                            board.addMember(userInfo.getEmail(), null);
+
                     } else {
                         GloopLogger.e("GloopGroup not found!");
                     }
@@ -128,6 +132,8 @@ public class SearchDialog {
                         request.setBoardCreator(privateBoard.getBoardCreator());
                         request.setUserId(owner.getUserId());
                         request.setBoardGroupId(privateBoard.getGroupId());
+                        if (userInfo.getImageURL() != null)
+                            request.setUserImageUri(userInfo.getImageURL().toString());
                         request.save();
                     } else {
                         GloopLogger.i("Could not find public board with name: " + boardName);

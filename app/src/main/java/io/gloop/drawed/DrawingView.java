@@ -20,6 +20,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
@@ -280,6 +281,7 @@ public class DrawingView extends View {
 
             @Override
             public void onChange() {
+                GloopLogger.i("Board has changed");
                 DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                 host.runOnUiThread(new Runnable() {
                     @Override

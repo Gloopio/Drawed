@@ -47,6 +47,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
 
@@ -166,11 +167,6 @@ public class ListFragment extends Fragment {
             } catch (Exception ignore) {
             }
 
-//            // TEST
-//            for (Board board : boards) {
-//                getMembersOfBoard(board);
-//            }
-
             boardAdapter = new BoardAdapter(boards);
             return null;
         }
@@ -184,23 +180,6 @@ public class ListFragment extends Fragment {
             mSwipeRefreshLayout.setRefreshing(false);
         }
     }
-
-//    private void getMembersOfBoard(Board board) {
-//        String owner = board.getOwner();
-//        GloopGroup group = Gloop.all(GloopGroup.toclass).where().equalsTo("objectId", owner).first();
-//        if (group != null) {
-//            List<String> members = group.getMembers();
-//            GloopLogger.i("Members of board " + members);
-//
-//            for (String member : members) {
-//                Uri userImage = Gloop.all(UserInfo.class).where().equalsTo("email", member).first().getImageURL();
-//                GloopLogger.i("Member user image " + userImage);
-//            }
-//
-//
-//        }
-//
-//    }
 
     private void setupRecyclerView() {
         new LoadBoardsTask().execute();
@@ -242,6 +221,30 @@ public class ListFragment extends Fragment {
                     } else
                         board.addMember(userInfo.getEmail(), null);
 
+                    GloopLogger.i("Found board.");
+
+                    // if PUBLIC board add your self to the group.
+                    GloopGroup group = Gloop
+                            .all(GloopGroup.class)
+                            .where()
+                            .equalsTo("objectId", board.getOwner())
+                            .first();
+
+                    if (group != null) {
+                        GloopLogger.i("GloopGroup found add myself to group and save");
+                        group.addMember(owner.getUserId());
+                        group.save();
+
+                        if (userInfo.getImageURL() != null)
+                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                        else
+                            board.addMember(userInfo.getEmail(), null);
+
+                    } else {
+                        GloopLogger.e("GloopGroup not found!");
+                    }
+
+                    // save public object to local db.
                     board.save();
                 }
             }
@@ -265,42 +268,12 @@ public class ListFragment extends Fragment {
                     removeOnChangeListener();
                 }
             });
-//            holder.mView.setOnTouchListener(new View.OnTouchListener() {
-//                private static final int MIN_CLICK_DURATION = 1000;
-//                private long startClickTime;
-//
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//
-//                    switch (event.getAction()) {
-//                        case MotionEvent.ACTION_UP:
-//                            longClickActive = false;
-//                            break;
-//                        case MotionEvent.ACTION_DOWN:
-//                            if (longClickActive == false) {
-//                                longClickActive = true;
-//                                startClickTime = Calendar.getInstance().getTimeInMillis();
-//                            }
-//                            break;
-//                        case MotionEvent.ACTION_MOVE:
-//                            if (longClickActive == true) {
-//                                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
-//                                if (clickDuration >= MIN_CLICK_DURATION) {
-////                                    GloopLogger.i("Long press position: " + event.getX() + " " + event.getY());
-//                                    new BoardInfoDialog(context, owner, board, userInfo, event.getX(), event.getY());
-//                                    longClickActive = false;
-//                                }
-//                            }
-//                            break;
-//                    }
-//                    return true;
-//                }
-//            });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     GloopLogger.i("Long press position: " + holder.mView.getX() + " " + holder.mView.getY());
-                    new BoardInfoDialog(context, owner, board, userInfo, 100.0, 100.0); // tODO
+                    new BoardInfoDialog(context, owner, board, userInfo, 100.0, 100.0);
+                    setupRecyclerView();
                     return true;
                 }
             });
@@ -327,6 +300,8 @@ public class ListFragment extends Fragment {
                     userInfo.save();
                 }
             });
+
+            holder.mLines.setText("Lines: " + board.getLines().size());
 
             setMemberImages(board, holder);
         }
@@ -363,6 +338,7 @@ public class ListFragment extends Fragment {
         class BoardViewHolder extends RecyclerView.ViewHolder {
             final View mView;
             final TextView mContentView;
+            final TextView mLines;
             final ImageView mImage;
             final ImageView mFavorite;
 
@@ -373,6 +349,7 @@ public class ListFragment extends Fragment {
                 super(view);
                 mView = view.findViewById(R.id.card_view);
                 mContentView = (TextView) view.findViewById(R.id.board_name);
+                mLines = (TextView) view.findViewById(R.id.lines);
                 mImage = (ImageView) view.findViewById(R.id.avatar);
                 mFavorite = (ImageView) view.findViewById(R.id.board_favorite);
 

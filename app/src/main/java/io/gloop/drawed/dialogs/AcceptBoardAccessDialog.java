@@ -11,6 +11,7 @@ import android.widget.TextView;
 import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.R;
+import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.permissions.GloopGroup;
 
@@ -42,7 +43,10 @@ public class AcceptBoardAccessDialog extends Dialog {
                 group.addMember(request.getUserId());
                 group.save();
 
-                // TODO add user email with image to boards member property
+                Board board = Gloop.all(Board.class).where().equalsTo("name", request.getBoardName()).first();
+                if (board != null) {
+                    board.addMember(request.getUserId(), request.getUserImageUri());
+                }
 
                 request.delete();
 

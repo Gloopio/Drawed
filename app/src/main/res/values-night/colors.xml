@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#229CE1</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#303F9F</color>
+    <color name="colorPrimary">#1870A1</color>
+    <color name="colorPrimaryDark">#0F4461</color>
+    <color name="colorAccent">#0F4461</color>
 
-    <color name="popupBackground">#28292E</color>
+    <color name="popupBackground">#0F4461</color>
     <color name="popupButtonBackground">#ffffff</color>
-    <color name="popupButtonForeground">#28292E</color>
+    <color name="popupButtonForeground">#0F4461</color>
 
     <color name="listBackground">#28292E</color>
 

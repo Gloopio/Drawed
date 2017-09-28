@@ -22,6 +22,8 @@ import android.widget.Switch;
 
 import com.github.clans.fab.FloatingActionMenu;
 
+import java.util.Objects;
+
 import io.gloop.drawed.BoardDetailActivity;
 import io.gloop.drawed.BoardDetailFragment;
 import io.gloop.drawed.R;
@@ -55,11 +57,18 @@ public class NewBoardDialog {
 
 
         final String colorName = NameUtil.randomColor(context);
-        final String randomName = NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context);
 
         final EditText etBoardName = (EditText) dialog.findViewById(R.id.dialog_new_board_board_name);
         etBoardName.getBackground().setColorFilter(context.getResources().getColor(R.color.edit_text_color), PorterDuff.Mode.SRC_IN);
-        etBoardName.setText(randomName);
+//        etBoardName.setText(randomName);
+
+        Button generateButton = (Button) dialog.findViewById(R.id.dialog_new_board_btn_generate_name);
+        generateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                etBoardName.setText(NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context));
+            }
+        });
 
         Button closeButton = (Button) dialog.findViewById(R.id.dialog_new_board_btn_close);
         closeButton.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +95,11 @@ public class NewBoardDialog {
 //                board.addPermission("test", 1000);
 
                 // set name and color
-                board.setName(etBoardName.getText().toString());
+                if (!Objects.equals(etBoardName.getText().toString(), ""))
+                    board.setName(etBoardName.getText().toString());
+                else
+                    board.setName(NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context));
+
                 board.setColor(ColorUtil.getColorByName(context, colorName));
 
                 // set board private

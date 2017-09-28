@@ -8,12 +8,11 @@ import io.gloop.GloopObject;
 
 public class BoardAccessRequest extends GloopObject {
 
-    // TODO add image uri of requestor
-
     private String boardName;
     private String boardGroupId;
     private String boardCreator;
     private String userId;
+    private String userImageUri;
 
     public String getBoardName() {
         return boardName;
@@ -46,5 +45,13 @@ public class BoardAccessRequest extends GloopObject {
 
     public String getBoardCreator() {
         return boardCreator;
+    }
+
+    public String getUserImageUri() {
+        return userImageUri;
+    }
+
+    public void setUserImageUri(String userImageUri) {
+        this.userImageUri = userImageUri;
     }
 }

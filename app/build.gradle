@@ -28,7 +28,7 @@ android {
 
         defaultConfig {
             versionCode code
-            versionName "1.3"
+            versionName "1.4"
             applicationId "io.gloop.drawed"
             minSdkVersion 21
             targetSdkVersion 25

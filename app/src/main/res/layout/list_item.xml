@@ -26,7 +26,7 @@
 
             <ImageView
                 android:id="@+id/avatar"
-                android:layout_width="10dp"
+                android:layout_width="8dp"
                 android:layout_height="match_parent"
                 android:background="@color/colorPrimary"/>
 
@@ -72,11 +72,12 @@
                     android:paddingBottom="10dp">
 
                     <TextView
+                        android:id="@+id/lines"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
-                        android:text="Members"
+                        android:text="Lines: 0"
                         android:textAppearance="?attr/textAppearanceListItem"
                         android:textColor="@android:color/darker_gray"
                         android:textSize="15sp"/>
@@ -101,7 +102,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="-3dp"
+                            android:paddingStart="-3dp"
                             android:src="@drawable/user2"/>
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -109,7 +110,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="-3dp"
+                            android:paddingStart="-3dp"
                             android:src="@drawable/user3"/>
 
                         <de.hdodenhof.circleimageview.CircleImageView
@@ -117,7 +118,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_marginStart="-3dp"
+                            android:paddingStart="-3dp"
                             android:src="@drawable/user_with_background"/>
                     </LinearLayout>
 
