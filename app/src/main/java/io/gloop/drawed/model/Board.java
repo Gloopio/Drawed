@@ -1,10 +1,10 @@
 package io.gloop.drawed.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import io.gloop.Gloop;
+import io.gloop.GloopList;
 import io.gloop.GloopObject;
 
 /**
@@ -17,7 +17,8 @@ public class Board extends GloopObject {
     private String name;
     private int color;
 
-    private List<Line> lines = new ArrayList<>();
+//    @Ignore
+//    private GloopList<Line> lines;
 
     private Map<String, String> members = new HashMap<>();
 
@@ -34,23 +35,16 @@ public class Board extends GloopObject {
     }
 
     public void addLine(Line line) {
-        this.lines.add(line);
+        line.setBoardId(this.getObjectId());
+        line.setUser(getOwner(), getPermission());
+        line.save();
     }
 
-    public List<Line> getLines() {
-        return lines;
-    }
-
-    public void setLines(List<Line> lines) {
-        this.lines = lines;
-    }
-
-    @Override
-    public String toString() {
-        return "Board{" +
-                "name='" + name + '\'' +
-                ", lines=" + lines +
-                '}';
+    public GloopList<Line> getLines() {
+//        if (lines == null)
+//            lines = Gloop.all(Line.class).where().equalsTo("boardId", this.getObjectId()).all();
+//        return lines;
+        return Gloop.all(Line.class).where().equalsTo("boardId", this.getObjectId()).all();
     }
 
     public int getColor() {
@@ -62,8 +56,10 @@ public class Board extends GloopObject {
     }
 
     public void clear() {
-        this.lines = new ArrayList<>();
-        this.save();
+//        if (lines == null)
+//            lines = Gloop.all(Line.class).where().equalsTo("boardId", this.getObjectId()).all();
+//        lines.clear();
+        Gloop.all(Line.class).where().equalsTo("boardId", this.getObjectId()).all().clear();
     }
 
     public boolean isPrivateBoard() {

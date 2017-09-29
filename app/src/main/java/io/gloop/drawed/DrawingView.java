@@ -20,6 +20,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
@@ -51,6 +52,8 @@ public class DrawingView extends View {
     private List<Point> line;
     private Point erasePoint;
 
+    private GloopList<Line> lines;
+
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -71,12 +74,26 @@ public class DrawingView extends View {
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
+
+
+//        setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View v, int keyCode, KeyEvent event) {
+//
+//                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+//
+//                    if(you handled back press) return true;
+//                    else return false;
+//                }
+//            }
+//        });
     }
 
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        this.board.removeOnChangeListeners();
+//        this.board.removeOnChangeListeners();
+        lines.removeOnChangeListeners();
     }
 
 
@@ -93,8 +110,8 @@ public class DrawingView extends View {
         canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
 
-        if (board != null)
-            drawLines();
+        if (lines != null)
+            drawLines(lines.getLocalCopy());
     }
 
     //draw the view - will be called after touch event
@@ -133,7 +150,21 @@ public class DrawingView extends View {
                         drawPath.reset();
 
                         // create new line and add to worker to save it in the background.
+//                        SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+
+//                        new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Line newLine = new Line(board, line, paintColor, (int) brushSize);
+//                                newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
+//                                newLine = ScreenUtil.normalize(newLine);
+//                                newLine.save();
+//                            }
+//                        }).start();
+
                         SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+
+
                         break;
                     default:
                         return false;
@@ -148,11 +179,11 @@ public class DrawingView extends View {
                     erasePoint = new Point(event.getX(), event.getY());
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    deleteIntersectedLine(board.getLines(), erasePoint, new Point(event.getX(), event.getY()));
+                    deleteIntersectedLine(lines, erasePoint, new Point(event.getX(), event.getY()));
                     erasePoint = new Point(event.getX(), event.getY());
                     break;
                 case MotionEvent.ACTION_UP:
-                    deleteIntersectedLine(board.getLines(), erasePoint, new Point(event.getX(), event.getY()));
+                    deleteIntersectedLine(lines, erasePoint, new Point(event.getX(), event.getY()));
                     erasePoint = new Point(event.getX(), event.getY());
                     break;
                 default:
@@ -181,19 +212,25 @@ public class DrawingView extends View {
             }
         }
 
-        lines.removeAll(linesToRemove);
-
-        synchronized (board) {
-            board.save();
+        synchronized (lines) {
+            lines.removeAll(linesToRemove);
         }
 
-        drawLines();
+//        synchronized (board) {
+//            board.save();
+//        }
+
+        drawLines(lines);
     }
 
-    private void drawLines() {
-        drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-        synchronized (board) {
-            for (Line line : board.getLines()) {
+    private int lineSize =0;
+
+    private void drawLines(List<Line> lines) {
+
+        if (lineSize != lines.size()) {
+            drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+//        synchronized (lines) {
+            for (Line line : lines) {
 
                 Line l = ScreenUtil.scale(line);
 
@@ -232,10 +269,12 @@ public class DrawingView extends View {
                     }
                 }
             }
+//        }
+            drawPaint.setColor(paintColor);
+            drawPaint.setStrokeWidth(brushSize);
+            invalidate();
+            this.lineSize = lines.size();
         }
-        drawPaint.setColor(paintColor);
-        drawPaint.setStrokeWidth(brushSize);
-        invalidate();
     }
 
 
@@ -275,18 +314,18 @@ public class DrawingView extends View {
 
         final Activity host = (Activity) getContext();
 
-
-        this.board.removeOnChangeListeners();
-        this.board.addOnChangeListener(new GloopOnChangeListener() {
+        lines = this.board.getLines();
+        this.lineSize = -1;
+        lines.removeOnChangeListeners();
+        lines.addOnChangeListener(new GloopOnChangeListener() {
 
             @Override
             public void onChange() {
                 GloopLogger.i("Board has changed");
-                DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                 host.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        drawLines();
+                        drawLines(lines.getLocalCopy());
                     }
                 });
             }

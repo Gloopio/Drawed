@@ -65,6 +65,7 @@ public class ScreenUtil {
     public static Line scale(Line line) {
         if (line != null) {
             Line l = new Line();
+            l.setUser(line.getOwner(),line.getPermission());
             l.setColor(line.getColor());
             l.setBrushSize(line.getBrushSize());
 

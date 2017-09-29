@@ -47,6 +47,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
@@ -222,30 +223,6 @@ public class ListFragment extends Fragment {
                         board.addMember(userInfo.getEmail(), null);
 
                     GloopLogger.i("Found board.");
-
-                    // if PUBLIC board add your self to the group.
-                    GloopGroup group = Gloop
-                            .all(GloopGroup.class)
-                            .where()
-                            .equalsTo("objectId", board.getOwner())
-                            .first();
-
-                    if (group != null) {
-                        GloopLogger.i("GloopGroup found add myself to group and save");
-                        group.addMember(owner.getUserId());
-                        group.save();
-
-                        if (userInfo.getImageURL() != null)
-                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                        else
-                            board.addMember(userInfo.getEmail(), null);
-
-                    } else {
-                        GloopLogger.e("GloopGroup not found!");
-                    }
-
-                    // save public object to local db.
-                    board.save();
                 }
             }
 
@@ -257,6 +234,36 @@ public class ListFragment extends Fragment {
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    if (operation == VIEW_BROWSE) {
+                        // if PUBLIC board add your self to the group.
+                        GloopGroup group = Gloop
+                                .all(GloopGroup.class)
+                                .where()
+                                .equalsTo("objectId", board.getOwner())
+                                .first();
+
+                        if (group != null) {
+                            GloopLogger.i("GloopGroup found add myself to group and save");
+                            if (!group.getMembers().contains(owner.getUserId())) {
+                                group.addMember(owner.getUserId());
+                                group.save();
+                            }
+                        } else {
+                            GloopLogger.e("GloopGroup not found!");
+                        }
+
+                        if (!board.getMembers().containsKey(userInfo.getEmail())) {
+                            if (userInfo.getImageURL() != null) {
+                                board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                            } else
+                                board.addMember(userInfo.getEmail(), null);
+
+                            GloopLogger.i("Found board.");
+                        }
+                        // save public object to local db.
+                        board.save();
+                    }
 
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BoardDetailActivity.class);
@@ -301,7 +308,10 @@ public class ListFragment extends Fragment {
                 }
             });
 
-            holder.mLines.setText("Lines: " + board.getLines().size());
+            try {
+                holder.mLines.setText("Lines: " + board.getLines().size());
+            }catch (GloopLoadException ignore) {
+            }
 
             setMemberImages(board, holder);
         }

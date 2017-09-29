@@ -60,16 +60,11 @@ class SaveInBackgroundWorker extends Thread {
                 }
 
                 Line newLine = pair.second;
-                Board board = pair.first;
                 // Process the work item
                 if (newLine != null) {
                     newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
                     newLine = ScreenUtil.normalize(newLine);
-
-                    synchronized (pair.first) {
-                        board.addLine(newLine);
-                        board.save();
-                    }
+                    newLine.save();
                 }
 
             } catch (InterruptedException ie) {
@@ -80,7 +75,7 @@ class SaveInBackgroundWorker extends Thread {
 
 
     void addItem(Board board, List<Point> points, int paintColor, float brushSize) {
-        Line line = new Line(points, paintColor, (int) brushSize);
+        Line line = new Line(board, points, paintColor, (int) brushSize);
         synchronized (queue) {
             queue.add(new Pair<>(board, line));
             queue.notifyAll();

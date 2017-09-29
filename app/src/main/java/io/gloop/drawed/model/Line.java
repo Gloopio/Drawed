@@ -13,6 +13,7 @@ import io.gloop.drawed.serializers.PointsSerializer;
  */
 public class Line extends GloopObject {
 
+    private String boardId;
     private int color;
     private int brushSize;
 
@@ -23,8 +24,10 @@ public class Line extends GloopObject {
         super();
     }
 
-    public Line(List<Point> line, int color, int brushSize) {
+    public Line(Board board, List<Point> line, int color, int brushSize) {
         super();
+        this.setUser(board.getOwner(), board.getPermission());
+        this.boardId = board.getObjectId();
         this.points = line;
         this.color = color;
         this.brushSize = brushSize;
@@ -65,5 +68,13 @@ public class Line extends GloopObject {
 
     public void setBrushSize(int brushSize) {
         this.brushSize = brushSize;
+    }
+
+    public String getBoardId() {
+        return boardId;
+    }
+
+    public void setBoardId(String boardId) {
+        this.boardId = boardId;
     }
 }
