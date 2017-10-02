@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 
 import io.gloop.drawed.dialogs.ClearBoardDialog;
 import io.gloop.drawed.dialogs.ColorChooserDialog;
@@ -29,8 +28,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
     private DrawingView drawView;
     private String currentColor = "#FF000000";
     public static int smallBrush, mediumBrush, largeBrush;
-    private ImageView changeColorButton;
-    BottomNavigation navigation;
+    private BottomNavigation navigation;
 
     private Board board;
 
@@ -67,52 +65,6 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
 
         //set initial size
         drawView.setBrushSize(smallBrush);
-
-//        changeColorButton = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_color);
-//        changeColorButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                new ColorChooserDialog(BoardDetailFragment.this).show();
-//            }
-//        });
-//
-//        ImageView changeLineThickness = (ImageView) rootView.findViewById(R.id.draw_view_btn_change_line_thickness);
-//        changeLineThickness.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                new LineThicknessChooserDialog(BoardDetailFragment.this.getContext(), drawView).show();
-//            }
-//        });
-//
-//        ImageView deleteImage = (ImageView) rootView.findViewById(R.id.draw_view_btn_delete_lines);
-//        deleteImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                new ClearBoardDialog(BoardDetailFragment.this.getContext(), drawView).show();
-//            }
-//        });
-//
-//        final ImageView brush = (ImageView) rootView.findViewById(R.id.draw_view_btn_brush);
-//        brush.setVisibility(View.GONE);
-//        final ImageView erase = (ImageView) rootView.findViewById(R.id.draw_view_btn_eraser);
-//
-//        erase.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                drawView.setErase(true);
-//                brush.setVisibility(View.VISIBLE);
-//                erase.setVisibility(View.GONE);
-//            }
-//        });
-//
-//        brush.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                drawView.setErase(false);
-//                erase.setVisibility(View.VISIBLE);
-//                brush.setVisibility(View.GONE);
-//            }
-//        });
 
         navigation = (BottomNavigation) rootView.findViewById(R.id.BottomNavigation);
         navigation.setOnMenuItemClickListener(this);
@@ -172,21 +124,6 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
             // get selected color and set to drawView
             currentColor = view.getTag().toString();
             drawView.setColor(currentColor);
-
-            // change color of icon
-//            Drawable myIcon = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_color_lens_black_24dp, null);
-//            if (myIcon != null)
-//                myIcon.setColorFilter(Color.parseColor(currentColor), PorterDuff.Mode.SRC_ATOP);
-
-//            changeColorButton.setImageDrawable(myIcon);
-
-            // set button to selected
-//            if (currentColor.equals("#FFFFFFFF"))   // white
-//                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed_black));
-//            else
-//                this.imgView.setImageDrawable(getResources().getDrawable(R.drawable.paint_pressed));
-
-            // close dialog
             dialog.dismiss();
         }
     }

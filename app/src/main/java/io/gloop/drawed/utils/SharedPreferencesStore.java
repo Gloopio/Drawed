@@ -19,7 +19,7 @@ public class SharedPreferencesStore {
     public static final String SHARED_PREFERENCES_USER_EMAIL = "user_email";
     public static final String SHARED_PREFERENCES_USER_PASSWORD = "user_password";
 
-    public static final String SHARED_PREFERENCES_NIGHT_MODE = "user_password";
+    public static final String SHARED_PREFERENCES_NIGHT_MODE = "night_mode";
 
     public static void setContext(Context c) {
         context = c;

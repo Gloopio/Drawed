@@ -47,6 +47,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
@@ -57,7 +58,7 @@ public class ListFragment extends Fragment {
     private GloopUser owner;
     private BoardAdapter boardAdapter;
 
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     public static final int VIEW_FAVORITES = 0;
@@ -91,6 +92,7 @@ public class ListFragment extends Fragment {
         this.owner = (GloopUser) args.getSerializable("owner");
 
         recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 
 
         this.context = getContext();
@@ -175,7 +177,6 @@ public class ListFragment extends Fragment {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
             recyclerView.setAdapter(boardAdapter);
             mSwipeRefreshLayout.setRefreshing(false);
         }
@@ -189,7 +190,6 @@ public class ListFragment extends Fragment {
 
         private final GloopList<Board> mValues;
         private final GloopOnChangeListener onChangeListener;
-        private boolean longClickActive = false;
 
 
         BoardAdapter(GloopList<Board> boards) {
@@ -301,7 +301,12 @@ public class ListFragment extends Fragment {
                 }
             });
 
-            holder.mLines.setText("Lines: " + board.getLines().size());
+            try {
+                if (board.getLines() != null)
+                    holder.mLines.setText(getString(R.string.line_size, board.getLines().size()));
+            } catch (Exception ignore) {
+
+            }
 
             setMemberImages(board, holder);
         }
@@ -332,7 +337,11 @@ public class ListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return mValues.size();
+            try {
+                return mValues.size();
+            } catch (GloopLoadException e) {
+                return mValues.size();
+            }
         }
 
         class BoardViewHolder extends RecyclerView.ViewHolder {

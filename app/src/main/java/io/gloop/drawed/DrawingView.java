@@ -19,6 +19,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
@@ -51,10 +52,17 @@ public class DrawingView extends View {
     private List<Point> line;
     private Point erasePoint;
 
+    private boolean isSelfChanging = false;
+
+//    private Goro goro;
+
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
+
+//        goro = Goro.create();
+
     }
 
     //setup drawing
@@ -132,8 +140,34 @@ public class DrawingView extends View {
                         drawCanvas.drawPath(drawPath, drawPaint);
                         drawPath.reset();
 
+                        Line newLine = new Line(line, paintColor, (int) brushSize);
+                        newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
+                        newLine = ScreenUtil.normalize(newLine);
+                        board.addLine(newLine);
+
                         // create new line and add to worker to save it in the background.
-                        SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+//                        SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
+                        BackgroundService.schedule(new Callable<Object>() {
+                            @Override
+                            public Object call() throws Exception {
+//                                Line newLine = new Line(new ArrayList<Point>(line), paintColor, (int) brushSize);
+//                                newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
+//                                newLine = ScreenUtil.normalize(newLine);
+
+                                synchronized (board) {
+//                                    board.addLine(newLine);
+                                    isSelfChanging = true;
+                                    board.save();
+
+                                    GloopLogger.i("Object saved");
+                                    isSelfChanging = false;
+                                }
+
+                                return null;
+                            }
+                        });
+
+
                         break;
                     default:
                         return false;
@@ -275,7 +309,16 @@ public class DrawingView extends View {
 
     public void setBoard(final Board board) {
         this.board = board;
+//        board.loadLocal();
         this.readOnly = this.board.isFreezeBoard();
+//        new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                board.loadLocal();
+//            }
+//        }).start();
+
 
         final Activity host = (Activity) getContext();
 
@@ -285,14 +328,16 @@ public class DrawingView extends View {
 
             @Override
             public void onChange() {
-                GloopLogger.i("Board has changed");
-                DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
-                host.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawLines();
-                    }
-                });
+                if (!isSelfChanging) {
+                    GloopLogger.i("Board has changed");
+                    DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
+                    host.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawLines();
+                        }
+                    });
+                }
             }
         });
 

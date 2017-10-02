@@ -61,14 +61,7 @@ import static io.gloop.drawed.ListFragment.VIEW_BROWSE;
 import static io.gloop.drawed.ListFragment.VIEW_FAVORITES;
 import static io.gloop.drawed.ListFragment.VIEW_MY_BOARDS;
 
-/**
- * An activity representing a list of Items. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link BoardDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- */
+
 public class BoardListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout mDrawerLayout;
@@ -171,6 +164,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         });
 
         AppCompatDelegate.setDefaultNightMode(SharedPreferencesStore.getNightMode());
+
+//        Goro goro = Goro.create();
+//        GoroService.setup(this, goro);
     }
 
     @Override
@@ -394,13 +390,19 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     @Override
     public void onStop() {
         super.onStop();
-        SaveInBackgroundWorker.getInstance().stopWorker();
+//        SaveInBackgroundWorker.getInstance().stopWorker();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        SaveInBackgroundWorker.getInstance().stopWorker();
+//        SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
 

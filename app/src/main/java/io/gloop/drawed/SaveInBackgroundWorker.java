@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
@@ -33,12 +34,20 @@ class SaveInBackgroundWorker extends Thread {
         this.start();
     }
 
+//    void startWorker() {
+//        synchronized (queue) {
+//            run = true;
+//            queue.notifyAll();
+//        }
+//    }
+
     void stopWorker() {
         synchronized (queue) {
             run = false;
             queue.notifyAll();
         }
         instance = null;
+        GloopLogger.i("stopWorker");
     }
 
     @Override
@@ -49,7 +58,9 @@ class SaveInBackgroundWorker extends Thread {
 
                 synchronized (queue) {
                     while (queue.isEmpty() && run) {
+                        GloopLogger.i("wait");
                         queue.wait();
+                        GloopLogger.i("wake up");
                     }
 
                     if (!run && queue.isEmpty())
@@ -66,24 +77,35 @@ class SaveInBackgroundWorker extends Thread {
                     newLine.setBrushSize((int) ScreenUtil.normalize(newLine.getBrushSize()));
                     newLine = ScreenUtil.normalize(newLine);
 
-                    synchronized (pair.first) {
-                        board.addLine(newLine);
-                        board.save();
-                    }
+//                    synchronized (pair.first) {
+                    board.addLine(newLine);
+                    board.save();
+                    GloopLogger.i("object saved");
+//                    }
                 }
 
             } catch (InterruptedException ie) {
                 break;  // Terminate
             }
         }
+        GloopLogger.i("stop");
     }
 
 
     void addItem(Board board, List<Point> points, int paintColor, float brushSize) {
+//        if (!isAlive())
+//            instance.start();
+
+        run = true;
         Line line = new Line(points, paintColor, (int) brushSize);
         synchronized (queue) {
             queue.add(new Pair<>(board, line));
+
+            if (!isAlive())
+                instance = new SaveInBackgroundWorker();
+
             queue.notifyAll();
+            GloopLogger.i("object added");
         }
     }
 }
