@@ -309,15 +309,7 @@ public class DrawingView extends View {
 
     public void setBoard(final Board board) {
         this.board = board;
-//        board.loadLocal();
         this.readOnly = this.board.isFreezeBoard();
-//        new Thread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                board.loadLocal();
-//            }
-//        }).start();
 
 
         final Activity host = (Activity) getContext();

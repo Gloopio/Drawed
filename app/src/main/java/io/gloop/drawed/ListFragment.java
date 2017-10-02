@@ -214,39 +214,37 @@ public class ListFragment extends Fragment {
         public void onBindViewHolder(final BoardViewHolder holder, int position) {
             final Board board = mValues.get(position);
 
-            if (operation == VIEW_MY_BOARDS) {
-                if (!board.getMembers().containsKey(userInfo.getEmail())) {
-                    if (userInfo.getImageURL() != null) {
+            if (!board.getMembers().containsKey(userInfo.getEmail())) {
+                if (userInfo.getImageURL() != null) {
+                    board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                } else
+                    board.addMember(userInfo.getEmail(), null);
+
+                GloopLogger.i("Found board.");
+
+                // if PUBLIC board add your self to the group.
+                GloopGroup group = Gloop
+                        .all(GloopGroup.class)
+                        .where()
+                        .equalsTo("objectId", board.getOwner())
+                        .first();
+
+                if (group != null) {
+                    GloopLogger.i("GloopGroup found add myself to group and save");
+                    group.addMember(owner.getUserId());
+                    group.save();
+
+                    if (userInfo.getImageURL() != null)
                         board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                    } else
+                    else
                         board.addMember(userInfo.getEmail(), null);
 
-                    GloopLogger.i("Found board.");
-
-                    // if PUBLIC board add your self to the group.
-                    GloopGroup group = Gloop
-                            .all(GloopGroup.class)
-                            .where()
-                            .equalsTo("objectId", board.getOwner())
-                            .first();
-
-                    if (group != null) {
-                        GloopLogger.i("GloopGroup found add myself to group and save");
-                        group.addMember(owner.getUserId());
-                        group.save();
-
-                        if (userInfo.getImageURL() != null)
-                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                        else
-                            board.addMember(userInfo.getEmail(), null);
-
-                    } else {
-                        GloopLogger.e("GloopGroup not found!");
-                    }
-
-                    // save public object to local db.
-                    board.save();
+                } else {
+                    GloopLogger.e("GloopGroup not found!");
                 }
+
+                // save public object to local db.
+                board.save();
             }
 
             holder.mContentView.setText(board.getName());
