@@ -425,6 +425,15 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                     new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest);
                 }
             }
+
+//            @Override
+//            public void onRemoteChange() {
+//                GloopLogger.i("Request access to a private board");
+//                GloopLogger.i(accessRequests);
+//                for (BoardAccessRequest accessRequest : accessRequests) {
+//                    new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest);
+//                }
+//            }
         });
     }
 

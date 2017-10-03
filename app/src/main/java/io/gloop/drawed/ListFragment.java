@@ -47,7 +47,6 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
-import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
@@ -200,7 +199,13 @@ public class ListFragment extends Fragment {
                 public void onChange() {
                     notifyDataSetChanged();
                 }
+//
+//                @Override
+//                public void onRemoteChange() {
+//                    notifyDataSetChanged();
+//                }
             };
+            mValues.removeOnChangeListeners();
             mValues.addOnChangeListener(onChangeListener);
         }
 
@@ -335,11 +340,14 @@ public class ListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            try {
+//            try {
                 return mValues.size();
-            } catch (GloopLoadException e) {
-                return mValues.size();
-            }
+//            } catch (GloopLoadException e) {
+//                e.printStackTrace();
+////                setupRecyclerView();
+//                notifyDataSetChanged();
+//                return 0;
+//            }
         }
 
         class BoardViewHolder extends RecyclerView.ViewHolder {
