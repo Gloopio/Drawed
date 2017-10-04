@@ -23,13 +23,16 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
+import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.LineUtil;
 import io.gloop.drawed.utils.ScreenUtil;
+import io.gloop.permissions.GloopGroup;
 
 public class DrawingView extends View {
 
@@ -52,6 +55,7 @@ public class DrawingView extends View {
 
     private int lineSize;
 
+    private UserInfo userInfo;
     private Board board;
     private List<Point> line;
     private Point erasePoint;
@@ -145,6 +149,37 @@ public class DrawingView extends View {
                                 synchronized (board) {
 //                                    board.addLine(newLine);
                                     isSelfChanging = true;
+
+                                    if (!board.getMembers().containsKey(userInfo.getEmail())) {
+                                        if (userInfo.getImageURL() != null) {
+                                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                                        } else
+                                            board.addMember(userInfo.getEmail(), null);
+
+                                        GloopLogger.i("Found board.");
+
+                                        // if PUBLIC board add your self to the group.
+                                        GloopGroup group = Gloop
+                                                .all(GloopGroup.class)
+                                                .where()
+                                                .equalsTo("objectId", board.getOwner())
+                                                .first();
+
+                                        if (group != null) {
+                                            GloopLogger.i("GloopGroup found add myself to group and save");
+                                            group.addMember(Gloop.getOwner().getUserId());
+                                            group.save();
+
+                                            if (userInfo.getImageURL() != null)
+                                                board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                                            else
+                                                board.addMember(userInfo.getEmail(), null);
+
+                                        } else {
+                                            GloopLogger.e("GloopGroup not found!");
+                                        }
+                                    }
+
                                     board.save();
 
                                     GloopLogger.i("Object saved");
@@ -329,14 +364,15 @@ public class DrawingView extends View {
         invalidate();
     }
 
-    public void setBoard(final Board board) {
+    public void setBoard(final Board board, UserInfo userInfo) {
         this.board = board;
+        this.userInfo = userInfo;
         this.readOnly = this.board.isFreezeBoard();
 
 
         final Activity host = (Activity) getContext();
 
-        isSelfChanging = false;
+        this.isSelfChanging = false;
         this.lineSize = -1;
         this.board.removeOnChangeListeners();
         this.board.addOnChangeListener(new GloopOnChangeListener() {

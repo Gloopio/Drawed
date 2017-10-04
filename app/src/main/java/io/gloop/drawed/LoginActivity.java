@@ -186,6 +186,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
             @Override
             public void onError(FacebookException e) {
+                e.printStackTrace();
                 GloopLogger.e(e);
             }
         });

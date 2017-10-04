@@ -15,7 +15,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,7 +22,6 @@ import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.gloop.GloopLogger;
-import io.gloop.drawed.BoardListActivity;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.UserInfo;
 
@@ -53,15 +51,15 @@ public class UserProfileDialog {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(dialogView);
 
-        Button button = (Button) dialog.findViewById(R.id.image_chooser);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                activity.startActivityForResult(photoPickerIntent, BoardListActivity.SELECT_PHOTO);
-            }
-        });
+//        Button button = (Button) dialog.findViewById(R.id.image_chooser);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//                photoPickerIntent.setType("image/*");
+//                activity.startActivityForResult(photoPickerIntent, BoardListActivity.SELECT_PHOTO);
+//            }
+//        });
 
         ImageView imageView = (ImageView) dialog.findViewById(R.id.closeDialogImg);
         imageView.setOnClickListener(new View.OnClickListener() {

@@ -47,7 +47,7 @@ import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
-import io.gloop.permissions.GloopGroup;
+import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
 
@@ -161,12 +161,13 @@ public class ListFragment extends Fragment {
             } else if (operation == VIEW_BROWSE) {
                 boards = Gloop.all(Board.class);
             }
-
+//
             try {
                 boards.load();
-                boards.size();
+//                boards.size();
             } catch (Exception ignore) {
             }
+
 
             boardAdapter = new BoardAdapter(boards);
             return null;
@@ -176,8 +177,12 @@ public class ListFragment extends Fragment {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            recyclerView.setAdapter(boardAdapter);
-            mSwipeRefreshLayout.setRefreshing(false);
+            try {
+                recyclerView.setAdapter(boardAdapter);
+                mSwipeRefreshLayout.setRefreshing(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -192,6 +197,7 @@ public class ListFragment extends Fragment {
 
 
         BoardAdapter(GloopList<Board> boards) {
+
             mValues = boards;
             // GloopOnChangedListener can be set on GloopLists to get notifications on data changes in the background.
             onChangeListener = new GloopOnChangeListener() {
@@ -205,8 +211,10 @@ public class ListFragment extends Fragment {
 //                    notifyDataSetChanged();
 //                }
             };
-            mValues.removeOnChangeListeners();
-            mValues.addOnChangeListener(onChangeListener);
+            synchronized (mValues) {
+                mValues.removeOnChangeListeners();
+                mValues.addOnChangeListener(onChangeListener);
+            }
         }
 
         @Override
@@ -218,39 +226,6 @@ public class ListFragment extends Fragment {
         @Override
         public void onBindViewHolder(final BoardViewHolder holder, int position) {
             final Board board = mValues.get(position);
-
-            if (!board.getMembers().containsKey(userInfo.getEmail())) {
-                if (userInfo.getImageURL() != null) {
-                    board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                } else
-                    board.addMember(userInfo.getEmail(), null);
-
-                GloopLogger.i("Found board.");
-
-                // if PUBLIC board add your self to the group.
-                GloopGroup group = Gloop
-                        .all(GloopGroup.class)
-                        .where()
-                        .equalsTo("objectId", board.getOwner())
-                        .first();
-
-                if (group != null) {
-                    GloopLogger.i("GloopGroup found add myself to group and save");
-                    group.addMember(owner.getUserId());
-                    group.save();
-
-                    if (userInfo.getImageURL() != null)
-                        board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                    else
-                        board.addMember(userInfo.getEmail(), null);
-
-                } else {
-                    GloopLogger.e("GloopGroup not found!");
-                }
-
-                // save public object to local db.
-                board.save();
-            }
 
             holder.mContentView.setText(board.getName());
             int color = board.getColor();
@@ -264,6 +239,7 @@ public class ListFragment extends Fragment {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BoardDetailActivity.class);
                     intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                    intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
 
                     context.startActivity(intent);
 
@@ -340,14 +316,15 @@ public class ListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-//            try {
-                return mValues.size();
-//            } catch (GloopLoadException e) {
-//                e.printStackTrace();
-////                setupRecyclerView();
-//                notifyDataSetChanged();
-//                return 0;
-//            }
+            try {
+                synchronized (mValues) {
+                    return mValues.size();
+                }
+            } catch (GloopLoadException e) {
+                e.printStackTrace();
+
+                return 0;
+            }
         }
 
         class BoardViewHolder extends RecyclerView.ViewHolder {

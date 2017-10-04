@@ -20,10 +20,12 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import io.gloop.Gloop;
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopPermission;
 import io.gloop.permissions.GloopUser;
 
@@ -107,6 +109,16 @@ public class BoardInfoDialog {
                 // remove user from members and save changes.
                 board.removeMemeber(userInfo.getEmail());
                 board.save();
+
+                GloopGroup group = Gloop
+                        .all(GloopGroup.class)
+                        .where()
+                        .equalsTo("objectId", board.getOwner())
+                        .first();
+                group.getMembers().remove(owner.getUserId());
+                group.save();
+
+
                 // delete board
                 board.delete();
                 revealShow(dialogView, false, dialog);

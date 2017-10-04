@@ -12,6 +12,7 @@ import io.gloop.drawed.dialogs.ClearBoardDialog;
 import io.gloop.drawed.dialogs.ColorChooserDialog;
 import io.gloop.drawed.dialogs.LineThicknessChooserDialog;
 import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.UserInfo;
 import it.sephiroth.android.library.bottomnavigation.BottomNavigation;
 
 
@@ -24,6 +25,7 @@ import it.sephiroth.android.library.bottomnavigation.BottomNavigation;
 public class BoardDetailFragment extends Fragment implements BottomNavigation.OnMenuItemSelectionListener {
 
     public static final String ARG_BOARD = "board";
+    public static final String ARG_USER_INFO = "userInfo";
 
     private DrawingView drawView;
     private String currentColor = "#FF000000";
@@ -31,6 +33,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
     private BottomNavigation navigation;
 
     private Board board;
+    private UserInfo userInfo;
 
     public BoardDetailFragment() {
         // Mandatory empty constructor for the fragment manager to instantiate the fragment
@@ -42,6 +45,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
 
         if (getArguments().containsKey(ARG_BOARD)) {
             board = (Board) getArguments().getSerializable(ARG_BOARD);
+            userInfo = (UserInfo) getArguments().getSerializable(ARG_USER_INFO);
         }
 
         //sizes from dimensions
@@ -58,7 +62,7 @@ public class BoardDetailFragment extends Fragment implements BottomNavigation.On
         //get drawing viewl
         drawView = (DrawingView) rootView.findViewById(R.id.drawing);
         if (board != null)
-            drawView.setBoard(board);
+            drawView.setBoard(board, userInfo);
 
         // set default color
         drawView.setColor(currentColor);
