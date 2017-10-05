@@ -151,6 +151,7 @@ public class NewBoardDialog {
                 Context context = view.getContext();
                 Intent intent = new Intent(context, BoardDetailActivity.class);
                 intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
 
                 context.startActivity(intent);
 

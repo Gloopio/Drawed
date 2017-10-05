@@ -1,4 +1,4 @@
-package io.gloop.drawed;
+package io.gloop.drawed.utils;
 
 import com.stanfy.enroscar.goro.Goro;
 
@@ -10,7 +10,11 @@ import java.util.concurrent.Callable;
 
 public class BackgroundService {
 
-    private static Goro goro = Goro.create();
+    private static Goro goro;
+
+    public static void init() {
+        goro = Goro.create();
+    }
 
     public static void schedule(Callable callable) {
         goro.schedule(callable);

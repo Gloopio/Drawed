@@ -113,6 +113,7 @@ public class SearchDialog {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, BoardDetailActivity.class);
                     intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                    intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
 
                     context.startActivity(intent);
                 } else {
@@ -134,6 +135,7 @@ public class SearchDialog {
                         request.setBoardGroupId(privateBoard.getGroupId());
                         if (userInfo.getImageURL() != null)
                             request.setUserImageUri(userInfo.getImageURL().toString());
+//                        request.setPermission();
                         request.save();
                     } else {
                         GloopLogger.i("Could not find public board with name: " + boardName);

@@ -53,7 +53,6 @@ import io.gloop.drawed.dialogs.SearchDialog;
 import io.gloop.drawed.dialogs.UserProfileDialog;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.UserInfo;
-import io.gloop.drawed.utils.NotificationUtil;
 import io.gloop.drawed.utils.SharedPreferencesStore;
 import io.gloop.permissions.GloopUser;
 
@@ -165,8 +164,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
         AppCompatDelegate.setDefaultNightMode(SharedPreferencesStore.getNightMode());
 
-//        Goro goro = Goro.create();
-//        GoroService.setup(this, goro);
     }
 
     @Override
@@ -351,7 +348,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             @Override
             public void run() {
                 setUserInfo();
-                checkForPrivateBoardAccessRequests();
+//                checkForPrivateBoardAccessRequests();
             }
         }).start();
     }
@@ -384,25 +381,22 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     public void onResume() {
         super.onResume();
 
-        checkForPrivateBoardAccessRequests();
+//        checkForPrivateBoardAccessRequests();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-//        SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        SaveInBackgroundWorker.getInstance().stopWorker();
     }
 
 
@@ -412,28 +406,30 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 .where()
                 .equalsTo("boardCreator", owner.getUserId())
                 .all();
-        for (BoardAccessRequest accessRequest : accessRequests) {
-            NotificationUtil.show(BoardListActivity.this, accessRequest);
+        for (final BoardAccessRequest accessRequest : accessRequests) {
+//            NotificationUtil.show(BoardListActivity.this, accessRequest);
+            runOnUiThread(new Runnable() {
+                              @Override
+                              public void run() {
+                                  new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest).show();
+                              }
+                          }
+            );
         }
 
+
+//        GloopList<BoardAccessRequest> all = Gloop.all(BoardAccessRequest.class);
+        accessRequests.removeOnChangeListeners();
         accessRequests.addOnChangeListener(new GloopOnChangeListener() {
             @Override
             public void onChange() {
                 GloopLogger.i("Request access to a private board");
                 GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
-                    new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest);
+//                    if (accessRequest.getBoardCreator().equals(owner.getUserId()))
+                    new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest).show();
                 }
             }
-
-//            @Override
-//            public void onRemoteChange() {
-//                GloopLogger.i("Request access to a private board");
-//                GloopLogger.i(accessRequests);
-//                for (BoardAccessRequest accessRequest : accessRequests) {
-//                    new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest);
-//                }
-//            }
         });
     }
 
@@ -448,7 +444,8 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     private final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 2;
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent
+            imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
         switch (requestCode) {

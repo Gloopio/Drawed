@@ -30,6 +30,7 @@ import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.drawed.utils.BackgroundService;
 import io.gloop.drawed.utils.LineUtil;
 import io.gloop.drawed.utils.ScreenUtil;
 import io.gloop.permissions.GloopGroup;
@@ -146,7 +147,7 @@ public class DrawingView extends View {
                         BackgroundService.schedule(new Callable<Object>() {
                             @Override
                             public Object call() throws Exception {
-                                synchronized (board) {
+//                                synchronized (board) {
 //                                    board.addLine(newLine);
                                     isSelfChanging = true;
 
@@ -184,7 +185,7 @@ public class DrawingView extends View {
 
                                     GloopLogger.i("Object saved");
                                     isSelfChanging = false;
-                                }
+//                                }
 
                                 return null;
                             }

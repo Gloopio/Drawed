@@ -23,6 +23,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,9 +44,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import io.gloop.Gloop;
 import io.gloop.GloopList;
 import io.gloop.GloopLogger;
-import io.gloop.GloopOnChangeListener;
+import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopUser;
@@ -109,6 +111,7 @@ public class ListFragment extends Fragment {
                             @Override
                             public void run() {
                                 setupRecyclerView();
+                                checkForPrivateBoardAccessRequests();
                             }
                         });
                     }
@@ -128,6 +131,31 @@ public class ListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         setupRecyclerView();
+        checkForPrivateBoardAccessRequests();
+    }
+
+    public void checkForPrivateBoardAccessRequests() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final GloopList<BoardAccessRequest> accessRequests = Gloop
+                        .all(BoardAccessRequest.class)
+                        .where()
+                        .equalsTo("boardCreator", owner.getUserId())
+                        .all();
+                for (final BoardAccessRequest accessRequest : accessRequests) {
+                    final FragmentActivity activity = getActivity();
+                    activity.runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    new AcceptBoardAccessDialog(activity, accessRequest).show();
+                                }
+                            }
+                    );
+                }
+            }
+        }).start();
     }
 
     private class LoadBoardsTask extends AsyncTask<Void, Integer, Void> {
@@ -161,10 +189,9 @@ public class ListFragment extends Fragment {
             } else if (operation == VIEW_BROWSE) {
                 boards = Gloop.all(Board.class);
             }
-//
             try {
                 boards.load();
-//                boards.size();
+                boards.size();
             } catch (Exception ignore) {
             }
 
@@ -193,27 +220,27 @@ public class ListFragment extends Fragment {
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
 
         private final GloopList<Board> mValues;
-        private final GloopOnChangeListener onChangeListener;
+//        private final GloopOnChangeListener onChangeListener;
 
 
         BoardAdapter(GloopList<Board> boards) {
 
             mValues = boards;
             // GloopOnChangedListener can be set on GloopLists to get notifications on data changes in the background.
-            onChangeListener = new GloopOnChangeListener() {
-                @Override
-                public void onChange() {
-                    notifyDataSetChanged();
-                }
-//
+//            onChangeListener = new GloopOnChangeListener() {
 //                @Override
-//                public void onRemoteChange() {
+//                public void onChange() {
 //                    notifyDataSetChanged();
 //                }
-            };
+////
+////                @Override
+////                public void onRemoteChange() {
+////                    notifyDataSetChanged();
+////                }
+//            };
             synchronized (mValues) {
                 mValues.removeOnChangeListeners();
-                mValues.addOnChangeListener(onChangeListener);
+//                mValues.addOnChangeListener(onChangeListener);
             }
         }
 
@@ -276,7 +303,7 @@ public class ListFragment extends Fragment {
                     if (operation == VIEW_FAVORITES) {
                         setupRecyclerView();
                     }
-                    userInfo.save();
+                    userInfo.saveInBackground();
                 }
             });
 
@@ -311,7 +338,7 @@ public class ListFragment extends Fragment {
         }
 
         void removeOnChangeListener() {
-            mValues.removeOnChangeListener(onChangeListener);
+//            mValues.removeOnChangeListener(onChangeListener);
         }
 
         @Override

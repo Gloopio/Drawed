@@ -10,6 +10,7 @@ import com.facebook.FacebookSdk;
 
 import io.fabric.sdk.android.Fabric;
 import io.gloop.Gloop;
+import io.gloop.drawed.utils.BackgroundService;
 import io.gloop.drawed.utils.ScreenUtil;
 import io.gloop.drawed.utils.SharedPreferencesStore;
 
@@ -34,6 +35,7 @@ public class SplashActivity extends Activity {
 
         // setup screen util at start
         ScreenUtil.setActivity(this);
+        BackgroundService.init();
 
         if (SharedPreferencesStore.isFirstStart())
             showIntroOnFirstRun();
@@ -57,18 +59,24 @@ public class SplashActivity extends Activity {
     }
 
     private boolean logInWithRememberedUser() {
-        String email = SharedPreferencesStore.getEmail();
-        String password = SharedPreferencesStore.getPassword();
+        try {
+            String email = SharedPreferencesStore.getEmail();
+            String password = SharedPreferencesStore.getPassword();
 
-        if (!email.isEmpty() && !password.isEmpty()) {
-            if (Gloop.login(email, password)) {
-                Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                startActivity(i);
-                finish();
-                return true;
+            if (!email.isEmpty() && !password.isEmpty()) {
+                if (Gloop.login(email, password)) {
+                    Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                    startActivity(i);
+                    finish();
+                    return true;
+                }
+
             }
+            return false;
+        } catch (Exception e) {
+            logInWithRememberedUser();
+            return false;
         }
-        return false;
     }
 
     private void showIntroOnFirstRun() {

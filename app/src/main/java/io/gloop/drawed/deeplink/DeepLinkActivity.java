@@ -134,6 +134,7 @@ public class DeepLinkActivity extends Activity {
                                 request.setBoardGroupId(privateBoard.getGroupId());
                                 if (userInfo.getImageURL() != null)
                                     request.setUserImageUri(userInfo.getImageURL().toString());
+//                                request.setPermission();
                                 request.save();
                             } else {
                                 GloopLogger.i("Could not find public board with name: " + boardName);
@@ -142,6 +143,7 @@ public class DeepLinkActivity extends Activity {
 
                         Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
                         intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                        intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
                         startActivity(intent);
 
                         Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();

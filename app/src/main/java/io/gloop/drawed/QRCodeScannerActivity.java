@@ -73,14 +73,19 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                 }
                 board.save();
 
+                UserInfo userInfo = Gloop.allLocal(UserInfo.class)
+                        .where()
+                        .equalsTo("email", Gloop.getOwner().getName())
+                        .first();
+
                 Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
                 intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
                 startActivity(intent);
 
                 Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
             } else {
                 // if the board is not public check the PrivateBoardRequest objects.
-
                 PrivateBoardRequest privateBoard = Gloop
                         .all(PrivateBoardRequest.class)
                         .where()
@@ -94,19 +99,29 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                             .equalsTo("email", Gloop.getOwner().getName())
                             .first();
 
-                    // request access to private board with the BoardAccessRequest object.
-                    BoardAccessRequest request = new BoardAccessRequest();
-                    request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
-                    request.setBoardName(boardName);
-                    request.setBoardCreator(privateBoard.getBoardCreator());
-                    request.setUserId(Gloop.getOwner().getUserId());
-                    request.setBoardGroupId(privateBoard.getGroupId());
-                    if (userInfo != null)
-                        request.setUserImageUri(userInfo.getImageURL().toString());
-                    request.save();
 
-                    Toast.makeText(getApplicationContext(), "Request access to board send!", Toast.LENGTH_LONG).show();
-                    mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
+                    BoardAccessRequest o = Gloop.all(BoardAccessRequest.class).where()
+                            .equalsTo("boardName", boardName)
+                            .and()
+                            .equalsTo("userId", Gloop.getOwner().getUserId())
+                            .first();
+                    if (o == null) {
+
+                        // request access to private board with the BoardAccessRequest object.
+                        BoardAccessRequest request = new BoardAccessRequest();
+                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
+                        request.setBoardName(boardName);
+                        request.setBoardCreator(privateBoard.getBoardCreator());
+                        request.setUserId(Gloop.getOwner().getUserId());
+                        request.setBoardGroupId(privateBoard.getGroupId());
+                        if (userInfo != null)
+                            request.setUserImageUri(userInfo.getImageURL().toString());
+                        request.save();
+                        Toast.makeText(getApplicationContext(), "Request access to board send!", Toast.LENGTH_LONG).show();
+                    }
+                    mScannerView.stopCamera();
+                    finish();
+//                    mScannerView.resumeCameraPreview(QRCodeScannerActivity.this);
                 } else {
                     GloopLogger.i("Could not find public board with name: " + boardName);
                 }

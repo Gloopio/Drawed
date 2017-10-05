@@ -33,7 +33,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             group.addMember(request.getUserId());
             group.save();
 
-            request.delete();
+            Gloop.all(BoardAccessRequest.class).where().equalsTo("objectId", request.getObjectId()).first().delete();
+//            request.delete();
 
             Toast.makeText(context, "Successfully grant access to user " + request.getUserId(), Toast.LENGTH_SHORT).show();
 
