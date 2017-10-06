@@ -21,7 +21,7 @@ import net.glxn.qrgen.android.QRCode;
 
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
-import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.BoardInfo;
 
 /**
  * Created by Alex Untertrifaller on 09.06.17.
@@ -31,7 +31,7 @@ public class QRCodeDialog {
 
     private ImageButton trigger;
 
-    public QRCodeDialog(final @NonNull Context context, Board board, ImageButton trigger) {
+    public QRCodeDialog(final @NonNull Context context, BoardInfo boardInfo, ImageButton trigger) {
         this.trigger = trigger;
         final View dialogView = View.inflate(context, R.layout.dialog_qr_code, null);
 
@@ -40,9 +40,9 @@ public class QRCodeDialog {
         dialog.setContentView(dialogView);
 
         RelativeLayout layout = (RelativeLayout) dialog.findViewById(R.id.pop_qr_code);
-        layout.setBackgroundColor(board.getColor());
+        layout.setBackgroundColor(boardInfo.getColor());
 
-        Bitmap myBitmap = QRCode.from(DeepLinkActivity.BASE_DEEP_LINK + board.getName()).withSize(500, 500).withColor(Color.WHITE, board.getColor()).bitmap();
+        Bitmap myBitmap = QRCode.from(DeepLinkActivity.BASE_DEEP_LINK + boardInfo.getName()).withSize(500, 500).withColor(Color.WHITE, boardInfo.getColor()).bitmap();
         ImageView myImage = (ImageView) dialog.findViewById(R.id.dialog_qr_image_view);
         myImage.setImageBitmap(myBitmap);
 

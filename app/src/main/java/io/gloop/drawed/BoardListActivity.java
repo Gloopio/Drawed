@@ -256,8 +256,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
     private void setupViewPager(ViewPager viewPager) {
-
-
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(ListFragment.newInstance(VIEW_FAVORITES, userInfo, owner), "Favorites");
         adapter.addFragment(ListFragment.newInstance(VIEW_MY_BOARDS, userInfo, owner), "My Boards");
@@ -309,7 +307,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case ZBAR_CAMERA_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

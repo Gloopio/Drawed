@@ -24,6 +24,7 @@ import io.gloop.Gloop;
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
 import io.gloop.drawed.model.Board;
+import io.gloop.drawed.model.BoardInfo;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopGroup;
 import io.gloop.permissions.GloopPermission;
@@ -37,7 +38,7 @@ public class BoardInfoDialog {
 
     private double x, y;
 
-    public BoardInfoDialog(final @NonNull Context context, final GloopUser owner, final Board board, final UserInfo userInfo, double x, double y) {
+    public BoardInfoDialog(final @NonNull Context context, final GloopUser owner, final BoardInfo boardInfo, final UserInfo userInfo, double x, double y) {
         this.x = x;
         this.y = y;
 
@@ -49,32 +50,32 @@ public class BoardInfoDialog {
 
 
         RelativeLayout layout = (RelativeLayout) dialog.findViewById(R.id.pop_stat_view);
-        layout.setBackgroundColor(board.getColor());
+        layout.setBackgroundColor(boardInfo.getColor());
 
         TextView tvBoardName = (TextView) dialog.findViewById(R.id.dialog_info_board_name);
-        tvBoardName.setText(board.getName());
+        tvBoardName.setText(boardInfo.getName());
 
         Switch switchPrivate = (Switch) dialog.findViewById(R.id.dialog_info_switch_private);
-        switchPrivate.setChecked(board.isPrivateBoard());
-        if (!GloopPermission.hasPermission(board, GloopPermission.WRITE))
+        switchPrivate.setChecked(boardInfo.isPrivateBoard());
+        if (!GloopPermission.hasPermission(boardInfo, GloopPermission.WRITE))
             switchPrivate.setEnabled(false);
         switchPrivate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                board.setPrivateBoard(isChecked);
-                board.saveInBackground();
+                boardInfo.setPrivateBoard(isChecked);
+                boardInfo.saveInBackground();
             }
         });
 
         Switch switchFreeze = (Switch) dialog.findViewById(R.id.dialog_info_switch_freeze);
-        switchFreeze.setChecked(board.isFreezeBoard());
-        if (!GloopPermission.hasPermission(board, GloopPermission.WRITE))
+        switchFreeze.setChecked(boardInfo.isFreezeBoard());
+        if (!GloopPermission.hasPermission(boardInfo, GloopPermission.WRITE))
             switchFreeze.setEnabled(false);
         switchFreeze.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                board.setFreezeBoard(isChecked);
-                board.saveInBackground();
+                boardInfo.setFreezeBoard(isChecked);
+                boardInfo.saveInBackground();
             }
         });
 
@@ -88,7 +89,7 @@ public class BoardInfoDialog {
         qrCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new QRCodeDialog(context, board, qrCodeButton);
+                new QRCodeDialog(context, boardInfo, qrCodeButton);
                 revealShow(dialogView, false, dialog);
             }
         });
@@ -96,7 +97,7 @@ public class BoardInfoDialog {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                share(context, owner.getName(), board);
+                share(context, owner.getName(), boardInfo);
                 revealShow(dialogView, false, dialog);
             }
         });
@@ -107,19 +108,22 @@ public class BoardInfoDialog {
             @Override
             public void onClick(View view) {
                 // remove user from members and save changes.
-                board.removeMemeber(userInfo.getEmail());
-                board.save();
+                boardInfo.removeMemeber(userInfo.getEmail());
+                boardInfo.save();
+
+                Board board = Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
 
                 GloopGroup group = Gloop
                         .all(GloopGroup.class)
                         .where()
-                        .equalsTo("objectId", board.getOwner())
+                        .equalsTo("objectId", boardInfo.getOwner())
                         .first();
                 group.getMembers().remove(owner.getUserId());
                 group.save();
 
 
                 // delete board
+                boardInfo.delete();
                 board.delete();
                 revealShow(dialogView, false, dialog);
             }
@@ -196,7 +200,7 @@ public class BoardInfoDialog {
         }
     }
 
-    private static void share(Context context, String username, Board board) {
+    private static void share(Context context, String username, BoardInfo board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();

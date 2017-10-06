@@ -28,6 +28,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -48,6 +49,7 @@ import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.BoardInfo;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopUser;
@@ -85,7 +87,7 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final RelativeLayout rv = (RelativeLayout) inflater.inflate(R.layout.fragment_list, container, false);
-
+        setHasOptionsMenu(true);
 
         Bundle args = getArguments();
         operation = args.getInt("operation", 0);
@@ -134,6 +136,28 @@ public class ListFragment extends Fragment {
         checkForPrivateBoardAccessRequests();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Gloop.sync();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                setupRecyclerView();
+                                checkForPrivateBoardAccessRequests();
+                            }
+                        });
+                    }
+                }).start();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void checkForPrivateBoardAccessRequests() {
         new Thread(new Runnable() {
             @Override
@@ -168,35 +192,35 @@ public class ListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... urls) {
-            // load boards
-            GloopList<Board> boards = null;
+            // load boardInfos
+            GloopList<BoardInfo> boardInfos = null;
 
             if (operation == VIEW_FAVORITES) {
-                GloopQuery<Board> query = Gloop.allLocal(Board.class).where();
+                GloopQuery<BoardInfo> query = Gloop.allLocal(BoardInfo.class).where();
 
                 List<String> favoritesBoardIds = userInfo.getFavoritesBoardId();
                 if (favoritesBoardIds.size() > 0) {
                     for (int i = 0; i < favoritesBoardIds.size() - 1; i++) {
-                        query = query.equalsTo("objectId", favoritesBoardIds.get(i)).or();
+                        query = query.equalsTo("boardId", favoritesBoardIds.get(i)).or();
                     }
-                    boards = query.equalsTo("objectId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
+                    boardInfos = query.equalsTo("boardId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
                 } else {
-                    boards = Gloop.allLocal(Board.class).where().equalsTo("objectId", "").all(); // empty list
+                    boardInfos = Gloop.allLocal(BoardInfo.class).where().equalsTo("objectId", "").all(); // empty list
                 }
 
             } else if (operation == VIEW_MY_BOARDS) {
-                boards = Gloop.allLocal(Board.class);
+                boardInfos = Gloop.allLocal(BoardInfo.class);
             } else if (operation == VIEW_BROWSE) {
-                boards = Gloop.all(Board.class);
+                boardInfos = Gloop.all(BoardInfo.class);
             }
             try {
-                boards.load();
-                boards.size();
+                boardInfos.load();
+//                boardInfos.size();
             } catch (Exception ignore) {
             }
 
 
-            boardAdapter = new BoardAdapter(boards);
+            boardAdapter = new BoardAdapter(boardInfos);
             return null;
         }
 
@@ -219,11 +243,11 @@ public class ListFragment extends Fragment {
 
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
 
-        private final GloopList<Board> mValues;
+        private final GloopList<BoardInfo> mValues;
 //        private final GloopOnChangeListener onChangeListener;
 
 
-        BoardAdapter(GloopList<Board> boards) {
+        BoardAdapter(GloopList<BoardInfo> boards) {
 
             mValues = boards;
             // GloopOnChangedListener can be set on GloopLists to get notifications on data changes in the background.
@@ -232,16 +256,9 @@ public class ListFragment extends Fragment {
 //                public void onChange() {
 //                    notifyDataSetChanged();
 //                }
-////
-////                @Override
-////                public void onRemoteChange() {
-////                    notifyDataSetChanged();
-////                }
 //            };
-            synchronized (mValues) {
                 mValues.removeOnChangeListeners();
 //                mValues.addOnChangeListener(onChangeListener);
-            }
         }
 
         @Override
@@ -252,16 +269,18 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final BoardViewHolder holder, int position) {
-            final Board board = mValues.get(position);
+            final BoardInfo boardInfo = mValues.get(position);
 
-            holder.mContentView.setText(board.getName());
-            int color = board.getColor();
+            holder.mContentView.setText(boardInfo.getName());
+            int color = boardInfo.getColor();
 
             holder.mImage.setBackgroundColor(color);
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    removeOnChangeListener();
+                    Board board = Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
 
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BoardDetailActivity.class);
@@ -269,22 +288,19 @@ public class ListFragment extends Fragment {
                     intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
 
                     context.startActivity(intent);
-
-
-                    removeOnChangeListener();
                 }
             });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     GloopLogger.i("Long press position: " + holder.mView.getX() + " " + holder.mView.getY());
-                    new BoardInfoDialog(context, owner, board, userInfo, 100.0, 100.0);
+                    new BoardInfoDialog(context, owner, boardInfo, userInfo, 100.0, 100.0);
                     setupRecyclerView();
                     return true;
                 }
             });
 
-            if (userInfo.getFavoritesBoardId().contains(board.getObjectId())) {
+            if (userInfo.getFavoritesBoardId().contains(boardInfo.getBoardId())) {
                 holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
                 holder.mFavorite.setTag("selected");
             }
@@ -294,11 +310,11 @@ public class ListFragment extends Fragment {
                     if (holder.mFavorite.getTag().equals("notSelected")) {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
                         holder.mFavorite.setTag("selected");
-                        userInfo.addFavoriteBoardId(board.getObjectId());
+                        userInfo.addFavoriteBoardId(boardInfo.getBoardId());
                     } else {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_border_black_24dp);
                         holder.mFavorite.setTag("notSelected");
-                        userInfo.removeFavoriteBoardId(board.getObjectId());
+                        userInfo.removeFavoriteBoardId(boardInfo.getBoardId());
                     }
                     if (operation == VIEW_FAVORITES) {
                         setupRecyclerView();
@@ -308,16 +324,15 @@ public class ListFragment extends Fragment {
             });
 
             try {
-                if (board.getLines() != null)
-                    holder.mLines.setText(getString(R.string.line_size, board.getLines().size()));
+                    holder.mLines.setText(getString(R.string.line_size, boardInfo.getSize()));
             } catch (Exception ignore) {
 
             }
 
-            setMemberImages(board, holder);
+            setMemberImages(boardInfo, holder);
         }
 
-        private void setMemberImages(Board board, BoardViewHolder holder) {
+        private void setMemberImages(BoardInfo board, BoardViewHolder holder) {
             int count = 0;
             for (Map.Entry<String, String> entry : board.getMembers().entrySet()) {
                 if (entry.getValue() != null)
@@ -345,11 +360,13 @@ public class ListFragment extends Fragment {
         public int getItemCount() {
             try {
                 synchronized (mValues) {
+//                    mValues.size();
                     return mValues.size();
                 }
             } catch (GloopLoadException e) {
                 e.printStackTrace();
-
+//                notifyDataSetChanged();
+//                setupRecyclerView();
                 return 0;
             }
         }

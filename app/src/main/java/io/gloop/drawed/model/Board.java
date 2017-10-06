@@ -12,29 +12,36 @@ import io.gloop.GloopObject;
  */
 public class Board extends GloopObject {
 
-    private boolean privateBoard = false;
-    private boolean freezeBoard = false;
-    private String name;
-    private int color;
-
+    private BoardInfo boardInfo = new BoardInfo(getObjectId());
     private List<Line> lines = new ArrayList<>();
-
-    private Map<String, String> members = new HashMap<>();
 
     public Board() {
         super();
     }
 
     public String getName() {
-        return this.name;
+        return this.boardInfo.getName();
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.boardInfo.setName(name);
+    }
+
+    @Override
+    public void setUser(String userId, int permission) {
+        super.setUser(userId, permission);
+        boardInfo.setUser(userId,permission);
+    }
+
+    @Override
+    public void save() {
+        boardInfo.save();
+        super.save();
     }
 
     public void addLine(Line line) {
         this.lines.add(line);
+        this.boardInfo.setSize(lines.size());
     }
 
     public List<Line> getLines() {
@@ -43,22 +50,15 @@ public class Board extends GloopObject {
 
     public void setLines(List<Line> lines) {
         this.lines = lines;
-    }
-
-    @Override
-    public String toString() {
-        return "Board{" +
-                "name='" + name + '\'' +
-                ", lines=" + lines +
-                '}';
+        this.boardInfo.setSize(lines.size());
     }
 
     public int getColor() {
-        return color;
+        return this.boardInfo.getColor();
     }
 
     public void setColor(int color) {
-        this.color = color;
+        this.boardInfo.setColor(color);
     }
 
     public void clear() {
@@ -67,38 +67,39 @@ public class Board extends GloopObject {
     }
 
     public boolean isPrivateBoard() {
-        return privateBoard;
+        return this.boardInfo.isPrivateBoard();
     }
 
     public void setPrivateBoard(boolean privateBoard) {
-        this.privateBoard = privateBoard;
+        this.boardInfo.setPrivateBoard(privateBoard);
     }
 
     public boolean isFreezeBoard() {
-        return freezeBoard;
+        return this.boardInfo.isFreezeBoard();
     }
 
     public void setFreezeBoard(boolean freezeBoard) {
-        this.freezeBoard = freezeBoard;
+        this.boardInfo.setFreezeBoard(freezeBoard);
     }
 
     public Map<String, String> getMembers() {
-        return members;
+        return this.boardInfo.getMembers();
     }
 
     public void setMembers(Map<String, String> members) {
-        this.members = members;
+        this.boardInfo.setMembers(members);
     }
 
     public void addMember(String email, String imageUri) {
-        if (this.members == null) {
-            this.members = new HashMap<>();
+        if (this.boardInfo.getMembers() == null) {
+            this.boardInfo.setMembers(new HashMap<String, String>());
         }
-        this.members.put(email, imageUri);
+        this.boardInfo.addMember(email, imageUri);
     }
 
     public void removeMemeber(String email) {
-        if (this.members != null)
-            this.members.remove(email);
+        if (this.boardInfo.getMembers() != null) {
+            this.boardInfo.getMembers().remove(email);
+        }
     }
 }
