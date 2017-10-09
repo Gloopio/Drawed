@@ -17,15 +17,6 @@ public class BoardAccessRequest extends GloopObject {
     public BoardAccessRequest() {
     }
 
-//    public void setPermission() {
-//        GloopGroup group = new GloopGroup();
-//        group.addMember(boardCreator);
-//        group.addMember(userId);
-//        group.save();
-//
-//        setUser(group.getObjectId());
-//    }
-
     public String getBoardName() {
         return boardName;
     }

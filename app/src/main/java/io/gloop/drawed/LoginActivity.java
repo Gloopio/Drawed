@@ -355,6 +355,18 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             // Register user using gloop
             if (Gloop.register(email, password)) {
 
+                UserInfo userInfo = Gloop.all(UserInfo.class).where().equalsTo("email", email).first();
+                if (userInfo != null) {
+                    userInfo.setEmail(email);
+                    userInfo.setUserName(email);
+                    userInfo.save();
+                } else {
+                    userInfo = new UserInfo();
+                    userInfo.setEmail(email);
+                    userInfo.setUserName(email);
+                    userInfo.save();
+                }
+
                 SharedPreferencesStore.setUser(email, password);
 
                 Intent i = new Intent(getApplicationContext(), BoardListActivity.class);

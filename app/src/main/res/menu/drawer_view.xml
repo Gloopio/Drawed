@@ -22,19 +22,19 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_dashboard"
-            android:title="Home"/>
+            android:title="@string/home"/>
         <item
             android:id="@+id/nav_favorites"
             android:icon="@drawable/ic_star_border_black_24dp"
-            android:title="Favorites"/>
+            android:title="@string/favorites"/>
         <item
             android:id="@+id/nav_my_boards"
             android:icon="@drawable/ic_assignment_black_24dp"
-            android:title="My Boards"/>
+            android:title="@string/my_boards"/>
         <item
             android:id="@+id/nav_brows"
             android:icon="@drawable/ic_search_black_24dp"
-            android:title="Browse"/>
+            android:title="@string/browse"/>
     </group>
 
     <group
@@ -42,12 +42,16 @@
         android:checkableBehavior="none">
         <item
             android:id="@+id/nav_user"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="User"/>
+            android:icon="@drawable/ic_face_black_24dp"
+            android:title="@string/my_profile"/>
+        <item
+            android:id="@+id/nav_night_mode"
+            android:icon="@drawable/ic_settings_brightness_black_24dp"
+            android:title="@string/night_mode"/>
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit_to_app_black_24dp"
-            android:title="Logout"/>
+            android:title="@string/logout"/>
     </group>
 
 </menu>

@@ -59,6 +59,12 @@
     <string name="facebook_app_id">119377242083433</string>
     <string name="fb_login_protocol_scheme">fb119377242083433</string>
     <string name="line_size">Lines: %1$d</string>
+    <string name="my_profile">My Profile</string>
+    <string name="browse">Browse</string>
+    <string name="my_boards">My Boards</string>
+    <string name="favorites">Favorites</string>
+    <string name="home">Home</string>
+    <string name="night_mode">Night mode</string>
 
 
 </resources>

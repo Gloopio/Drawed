@@ -20,27 +20,33 @@
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh_white_24dp"
         android:title="Refresh"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
     <item
-        android:id="@+id/action_night"
-        android:title="@string/menu_night_mode"
-        app:showAsAction="never">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/menu_night_mode_system"
-                    android:title="@string/menu_night_mode_system" />
-                <item
-                    android:id="@+id/menu_night_mode_day"
-                    android:title="@string/menu_night_mode_day" />
-                <item
-                    android:id="@+id/menu_night_mode_night"
-                    android:title="@string/menu_night_mode_night" />
-                <item
-                    android:id="@+id/menu_night_mode_auto"
-                    android:title="@string/menu_night_mode_auto" />
-            </group>
-        </menu>
-    </item>
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:title="Refresh"
+        app:showAsAction="always"/>
+    <!--<item-->
+        <!--android:id="@+id/action_night"-->
+        <!--android:title="@string/menu_night_mode"-->
+        <!--app:showAsAction="never">-->
+        <!--<menu>-->
+            <!--<group android:checkableBehavior="single">-->
+                <!--<item-->
+                    <!--android:id="@+id/menu_night_mode_system"-->
+                    <!--android:title="@string/menu_night_mode_system" />-->
+                <!--<item-->
+                    <!--android:id="@+id/menu_night_mode_day"-->
+                    <!--android:title="@string/menu_night_mode_day" />-->
+                <!--<item-->
+                    <!--android:id="@+id/menu_night_mode_night"-->
+                    <!--android:title="@string/menu_night_mode_night" />-->
+                <!--<item-->
+                    <!--android:id="@+id/menu_night_mode_auto"-->
+                    <!--android:title="@string/menu_night_mode_auto" />-->
+            <!--</group>-->
+        <!--</menu>-->
+    <!--</item>-->
 
 </menu>

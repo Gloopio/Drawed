@@ -149,42 +149,42 @@ public class DrawingView extends View {
                             public Object call() throws Exception {
 //                                synchronized (board) {
 //                                    board.addLine(newLine);
-                                    isSelfChanging = true;
+                                isSelfChanging = true;
 
-                                    if (!board.getMembers().containsKey(userInfo.getEmail())) {
-                                        if (userInfo.getImageURL() != null) {
+                                if (!board.getMembers().containsKey(userInfo.getEmail())) {
+                                    if (userInfo.getImageURL() != null) {
+                                        board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                                    } else
+                                        board.addMember(userInfo.getEmail(), null);
+
+//                                        GloopLogger.i("Found board.");
+
+                                    // if PUBLIC board add your self to the group.
+                                    GloopGroup group = Gloop
+                                            .all(GloopGroup.class)
+                                            .where()
+                                            .equalsTo("objectId", board.getOwner())
+                                            .first();
+
+                                    if (group != null) {
+//                                            GloopLogger.i("GloopGroup found add myself to group and save");
+                                        group.addMember(Gloop.getOwner().getUserId());
+                                        group.save();
+
+                                        if (userInfo.getImageURL() != null)
                                             board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                                        } else
+                                        else
                                             board.addMember(userInfo.getEmail(), null);
 
-                                        GloopLogger.i("Found board.");
-
-                                        // if PUBLIC board add your self to the group.
-                                        GloopGroup group = Gloop
-                                                .all(GloopGroup.class)
-                                                .where()
-                                                .equalsTo("objectId", board.getOwner())
-                                                .first();
-
-                                        if (group != null) {
-                                            GloopLogger.i("GloopGroup found add myself to group and save");
-                                            group.addMember(Gloop.getOwner().getUserId());
-                                            group.save();
-
-                                            if (userInfo.getImageURL() != null)
-                                                board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                                            else
-                                                board.addMember(userInfo.getEmail(), null);
-
-                                        } else {
-                                            GloopLogger.e("GloopGroup not found!");
-                                        }
+                                    } else {
+                                        GloopLogger.e("GloopGroup not found!");
                                     }
+                                }
 
-                                    board.save();
+                                board.save();
 
-                                    GloopLogger.i("Object saved");
-                                    isSelfChanging = false;
+                                GloopLogger.i("Object saved");
+                                isSelfChanging = false;
 //                                }
 
                                 return null;
@@ -239,11 +239,9 @@ public class DrawingView extends View {
                         for (int i = 0; i < points.size() - 1; i++) {
                             if (LineUtil.intersect(points.get(i), points.get(i + 1), erasePoint, point)) {
                                 linesToRemove.add(line);
-                                GloopLogger.i("Line found ");
                                 break;
                             }
                         }
-                        GloopLogger.i("iterate");
                     }
 
                     if (linesToRemove.size() > 0) {
@@ -254,7 +252,7 @@ public class DrawingView extends View {
                         isSelfChanging = false;
                     }
                 }
-                if (linesToRemove.size() >0 ) {
+                if (linesToRemove.size() > 0) {
                     drawLines();
                 }
             }
@@ -267,64 +265,56 @@ public class DrawingView extends View {
             public void run() {
                 try {
                     if (lineSize != board.getLines().size()) {
-                        GloopLogger.i("Draw");
                         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-//                    List<Line> tmp;
-//                        synchronized (board) {
 
-//                            board.loadLocal();
-//                        tmp = new ArrayList<>(board.getLines());
-//                    }
+                        for (Line line : board.getLines()) {
 
-                            for (Line line : board.getLines()) {
+                            Line l = ScreenUtil.scale(line);
 
-                                Line l = ScreenUtil.scale(line);
+                            if (l != null) {
+                                List<Point> points = l.getPoints();
+                                if (points.size() > 0) {
 
-                                if (l != null) {
-                                    List<Point> points = l.getPoints();
-                                    if (points.size() > 0) {
+                                    Paint drawPaint = new Paint();
+                                    drawPaint.setAntiAlias(true);
+                                    drawPaint.setStyle(Paint.Style.STROKE);
+                                    drawPaint.setStrokeJoin(Paint.Join.ROUND);
+                                    drawPaint.setStrokeCap(Paint.Cap.ROUND);
 
-                                        Paint drawPaint = new Paint();
-                                        drawPaint.setAntiAlias(true);
-                                        drawPaint.setStyle(Paint.Style.STROKE);
-                                        drawPaint.setStrokeJoin(Paint.Join.ROUND);
-                                        drawPaint.setStrokeCap(Paint.Cap.ROUND);
-
-                                        Path drawPath = new Path();
+                                    Path drawPath = new Path();
 
 
-                                        drawPaint.setColor(l.getColor());
-                                        float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
-                                        drawPaint.setStrokeWidth(lineThickness);
+                                    drawPaint.setColor(l.getColor());
+                                    float lineThickness = ScreenUtil.scale((float) line.getBrushSize());
+                                    drawPaint.setStrokeWidth(lineThickness);
 
-                                        Point firstPoint = points.get(0);
-                                        drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
+                                    Point firstPoint = points.get(0);
+                                    drawPath.moveTo(firstPoint.getX(), firstPoint.getY());
 
-                                        int size = points.size();
-                                        for (int i = 1; i < size; i++) {
-                                            Point point = points.get(i);
+                                    int size = points.size();
+                                    for (int i = 1; i < size; i++) {
+                                        Point point = points.get(i);
 
-                                            if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
-                                                continue;
+                                        if (((int) point.getX()) == 0 || ((int) point.getY()) == 0)   // cast to int for correct equality check with 0
+                                            continue;
 
-                                            drawPath.lineTo(point.getX(), point.getY());
-                                        }
-
-                                        drawCanvas.drawPath(drawPath, drawPaint);
-                                        drawPath.reset();
+                                        drawPath.lineTo(point.getX(), point.getY());
                                     }
+
+                                    drawCanvas.drawPath(drawPath, drawPaint);
+                                    drawPath.reset();
                                 }
                             }
                         }
-                        drawPaint.setColor(paintColor);
-                        drawPaint.setStrokeWidth(brushSize);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                invalidate();
-                            }
-                        });
-//                    }
+                    }
+                    drawPaint.setColor(paintColor);
+                    drawPaint.setStrokeWidth(brushSize);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    });
                 } catch (ConcurrentModificationException e) {
                     e.printStackTrace();
                     drawLines();
@@ -380,9 +370,7 @@ public class DrawingView extends View {
 
             @Override
             public void onChange() {
-                GloopLogger.i("Called");
                 if (!isSelfChanging) {
-                    GloopLogger.i("Board has changed");
                     DrawingView.this.board.loadLocal();  // local because they are already pushed over the websocket.
                     host.runOnUiThread(new Runnable() {
                         @Override

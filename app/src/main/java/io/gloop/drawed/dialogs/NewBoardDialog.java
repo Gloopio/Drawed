@@ -143,7 +143,10 @@ public class NewBoardDialog {
                 }
 
                 // add members with image to show in list
-                board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                if (userInfo.getImageURL() != null)
+                    board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                else
+                    board.addMember(userInfo.getEmail(), null);
 
                 // save the created board
                 board.save();
@@ -190,7 +193,8 @@ public class NewBoardDialog {
             }
         });
 
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        if (dialog.getWindow() != null)
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
         dialog.show();
     }

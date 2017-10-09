@@ -48,6 +48,7 @@ import io.gloop.GloopList;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
+import io.gloop.drawed.dialogs.DayNightSettingsDialog;
 import io.gloop.drawed.dialogs.NewBoardDialog;
 import io.gloop.drawed.dialogs.SearchDialog;
 import io.gloop.drawed.dialogs.UserProfileDialog;
@@ -70,6 +71,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
     private TextView navHeaderUsername;
     private ViewPager viewPager;
     private CircleImageView navHeaderUserImage;
+    private FloatingActionMenu floatingActionMenu;
 
 
     private GloopUser owner;
@@ -133,7 +135,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             }
         });
 
-        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
+        floatingActionMenu = (FloatingActionMenu) findViewById(R.id.fab_menu);
 
         final FloatingActionButton fabSearch = (FloatingActionButton) findViewById(R.id.fab_menu_item_search);
         fabSearch.setOnClickListener(new View.OnClickListener() {
@@ -166,30 +168,37 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
 
     }
 
+    public void setFABVisibility(int enable) {
+        if (enable == View.INVISIBLE)
+            floatingActionMenu.hideMenuButton(true);
+        else
+            floatingActionMenu.showMenuButton(true);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.sample_actions, menu);
         return true;
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        switch (SharedPreferencesStore.getNightMode()) {
-            case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
-                menu.findItem(R.id.menu_night_mode_system).setChecked(true);
-                break;
-            case AppCompatDelegate.MODE_NIGHT_AUTO:
-                menu.findItem(R.id.menu_night_mode_auto).setChecked(true);
-                break;
-            case AppCompatDelegate.MODE_NIGHT_YES:
-                menu.findItem(R.id.menu_night_mode_night).setChecked(true);
-                break;
-            case AppCompatDelegate.MODE_NIGHT_NO:
-                menu.findItem(R.id.menu_night_mode_day).setChecked(true);
-                break;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        switch (SharedPreferencesStore.getNightMode()) {
+//            case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
+//                menu.findItem(R.id.menu_night_mode_system).setChecked(true);
+//                break;
+//            case AppCompatDelegate.MODE_NIGHT_AUTO:
+//                menu.findItem(R.id.menu_night_mode_auto).setChecked(true);
+//                break;
+//            case AppCompatDelegate.MODE_NIGHT_YES:
+//                menu.findItem(R.id.menu_night_mode_night).setChecked(true);
+//                break;
+//            case AppCompatDelegate.MODE_NIGHT_NO:
+//                menu.findItem(R.id.menu_night_mode_day).setChecked(true);
+//                break;
+//        }
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -197,22 +206,22 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            case R.id.menu_night_mode_system:
-                setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-            case R.id.menu_night_mode_day:
-                setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case R.id.menu_night_mode_night:
-                setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            case R.id.menu_night_mode_auto:
-                setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-                break;
+//            case R.id.menu_night_mode_system:
+//                setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+//                break;
+//            case R.id.menu_night_mode_day:
+//                setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//                break;
+//            case R.id.menu_night_mode_night:
+//                setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//                break;
+//            case R.id.menu_night_mode_auto:
+//                setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+//                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -232,6 +241,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 break;
             case R.id.nav_user:
                 new UserProfileDialog(BoardListActivity.this, userImage, userInfo);
+                break;
+            case R.id.nav_night_mode:
+                new DayNightSettingsDialog(BoardListActivity.this);
                 break;
             case R.id.nav_logout:
                 logout();

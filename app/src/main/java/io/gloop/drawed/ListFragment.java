@@ -24,10 +24,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,7 +100,18 @@ public class ListFragment extends Fragment {
 
         recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) {
+                    ((BoardListActivity) getActivity()).setFABVisibility(View.INVISIBLE);
+                } else {
+                    ((BoardListActivity) getActivity()).setFABVisibility(View.VISIBLE);
+                }
 
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
 
         this.context = getContext();
 
@@ -105,24 +120,36 @@ public class ListFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Gloop.sync();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setupRecyclerView();
-                                checkForPrivateBoardAccessRequests();
-                            }
-                        });
-                    }
-                }).start();
+                update();
+
             }
         });
 
         return rv;
     }
+
+    private boolean running = false;
+
+    private void update() {
+        if (!running)
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    running = true;
+                    Gloop.sync();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupRecyclerView();
+                            checkForPrivateBoardAccessRequests();
+                            running = false;
+                        }
+                    });
+
+                }
+            }).start();
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -137,22 +164,29 @@ public class ListFragment extends Fragment {
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                boardAdapter.filter(s);
+                return false;
+            }
+        });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Gloop.sync();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                setupRecyclerView();
-                                checkForPrivateBoardAccessRequests();
-                            }
-                        });
-                    }
-                }).start();
+                update();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -195,6 +229,7 @@ public class ListFragment extends Fragment {
             // load boardInfos
             GloopList<BoardInfo> boardInfos = null;
 
+
             if (operation == VIEW_FAVORITES) {
                 GloopQuery<BoardInfo> query = Gloop.allLocal(BoardInfo.class).where();
 
@@ -212,12 +247,16 @@ public class ListFragment extends Fragment {
                 boardInfos = Gloop.allLocal(BoardInfo.class);
             } else if (operation == VIEW_BROWSE) {
                 boardInfos = Gloop.all(BoardInfo.class);
+//                try {
+//                    boardInfos.size();
+//                } catch (Exception ignore) {
+//                }
             }
-            try {
-                boardInfos.load();
+//            try {
+//                boardInfos.load();
 //                boardInfos.size();
-            } catch (Exception ignore) {
-            }
+//            } catch (Exception ignore) {
+//            }
 
 
             boardAdapter = new BoardAdapter(boardInfos);
@@ -243,22 +282,12 @@ public class ListFragment extends Fragment {
 
     public class BoardAdapter extends RecyclerView.Adapter<BoardAdapter.BoardViewHolder> {
 
-        private final GloopList<BoardInfo> mValues;
-//        private final GloopOnChangeListener onChangeListener;
-
+        private ArrayList<BoardInfo> list;
+        private final GloopList<BoardInfo> originalList;
 
         BoardAdapter(GloopList<BoardInfo> boards) {
-
-            mValues = boards;
-            // GloopOnChangedListener can be set on GloopLists to get notifications on data changes in the background.
-//            onChangeListener = new GloopOnChangeListener() {
-//                @Override
-//                public void onChange() {
-//                    notifyDataSetChanged();
-//                }
-//            };
-                mValues.removeOnChangeListeners();
-//                mValues.addOnChangeListener(onChangeListener);
+            originalList = boards;
+            list = (ArrayList<BoardInfo>) boards.getLocalCopy();
         }
 
         @Override
@@ -269,7 +298,7 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final BoardViewHolder holder, int position) {
-            final BoardInfo boardInfo = mValues.get(position);
+            final BoardInfo boardInfo = list.get(position);
 
             holder.mContentView.setText(boardInfo.getName());
             int color = boardInfo.getColor();
@@ -279,7 +308,6 @@ public class ListFragment extends Fragment {
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    removeOnChangeListener();
                     Board board = Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
 
                     Context context = view.getContext();
@@ -324,7 +352,7 @@ public class ListFragment extends Fragment {
             });
 
             try {
-                    holder.mLines.setText(getString(R.string.line_size, boardInfo.getSize()));
+                holder.mLines.setText(getString(R.string.line_size, boardInfo.getSize()));
             } catch (Exception ignore) {
 
             }
@@ -352,23 +380,28 @@ public class ListFragment extends Fragment {
             }
         }
 
-        void removeOnChangeListener() {
-//            mValues.removeOnChangeListener(onChangeListener);
-        }
-
         @Override
         public int getItemCount() {
             try {
-                synchronized (mValues) {
-//                    mValues.size();
-                    return mValues.size();
-                }
+                return list.size();
             } catch (GloopLoadException e) {
                 e.printStackTrace();
-//                notifyDataSetChanged();
-//                setupRecyclerView();
                 return 0;
             }
+        }
+
+        void filter(String s) {
+            if (s.equals("")) {
+                list = (ArrayList<BoardInfo>) originalList.getLocalCopy();
+            } else {
+                String search = s.toLowerCase();
+                for (BoardInfo boardInfo : originalList) {
+                    if (!boardInfo.getName().toLowerCase().startsWith(search))
+                        list.remove(boardInfo);
+                }
+            }
+
+            notifyDataSetChanged();
         }
 
         class BoardViewHolder extends RecyclerView.ViewHolder {
