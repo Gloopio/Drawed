@@ -23,6 +23,7 @@ import io.gloop.drawed.utils.SharedPreferencesStore;
 
 public class DayNightSettingsDialog implements View.OnClickListener {
 
+    private Dialog dialog;
     private AppCompatActivity activity;
 
     public DayNightSettingsDialog(AppCompatActivity activity) {
@@ -34,11 +35,13 @@ public class DayNightSettingsDialog implements View.OnClickListener {
 
         final View dialogView = View.inflate(activity, R.layout.dialog_day_night_settings, null);
 
-        final Dialog dialog = new Dialog(activity, R.style.MyAlertDialogStyle);
+        dialog = new Dialog(activity, R.style.MyAlertDialogStyle);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(dialogView);
 
-        ImageView imageView = (ImageView) dialog.findViewById(R.id.closeDialogImg);
+        setupNightModeButtons(dialogView);
+
+        ImageView imageView = (ImageView) dialog.findViewById(R.id.settings_night_mode_closeDialogImg);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,8 +69,6 @@ public class DayNightSettingsDialog implements View.OnClickListener {
                 return false;
             }
         });
-
-        setupNightModeButtons(dialogView);
 
         if (dialog.getWindow() != null)
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -113,26 +114,26 @@ public class DayNightSettingsDialog implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.settings_night_mode_follow_system:
                 if (checked) {
-                    setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                     SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                    setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                 }
                 break;
             case R.id.settings_night_mode_no:
                 if (checked) {
-                    setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                     SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 }
                 break;
             case R.id.settings_night_mode_yes:
                 if (checked) {
-                    setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                     SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 }
                 break;
             case R.id.settings_night_mode_auto:
                 if (checked) {
-                    setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
                     SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+                    setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
                 }
                 break;
 
@@ -142,11 +143,12 @@ public class DayNightSettingsDialog implements View.OnClickListener {
     private void setNightMode(@AppCompatDelegate.NightMode int nightMode) {
         AppCompatDelegate.setDefaultNightMode(nightMode);
         activity.recreate();
+        dialog.dismiss();
     }
 
     private void revealShow(View dialogView, boolean b, final Dialog dialog) {
 
-        final View view = dialogView.findViewById(R.id.dialog);
+        final View view = dialogView.findViewById(R.id.settings_night_mode_dialog);
 
         int w = view.getWidth();
         int h = view.getHeight();

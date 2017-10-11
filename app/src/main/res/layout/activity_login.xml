@@ -8,6 +8,7 @@
               android:orientation="vertical"
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
+              android:id="@+id/login_layout"
               tools:context="io.gloop.drawed.LoginActivity">
 
 

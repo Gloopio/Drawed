@@ -16,6 +16,7 @@
 
 package io.gloop.drawed;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -65,6 +66,7 @@ public class ListFragment extends Fragment {
     private GloopUser owner;
     private BoardAdapter boardAdapter;
 
+    private TextView infoText;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -97,6 +99,8 @@ public class ListFragment extends Fragment {
         operation = args.getInt("operation", 0);
         userInfo = (UserInfo) args.getSerializable("userinfo");
         this.owner = (GloopUser) args.getSerializable("owner");
+
+        infoText = (TextView) rv.findViewById(R.id.fragment_list_info_text);
 
         recyclerView = (RecyclerView) rv.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
@@ -218,6 +222,8 @@ public class ListFragment extends Fragment {
 
     private class LoadBoardsTask extends AsyncTask<Void, Integer, Void> {
 
+        private String info = null;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -240,13 +246,24 @@ public class ListFragment extends Fragment {
                     }
                     boardInfos = query.equalsTo("boardId", favoritesBoardIds.get(favoritesBoardIds.size() - 1)).all();
                 } else {
+                    info = "No favourites\n" +
+                            "Favourite an board by tapping the star next to it.";
                     boardInfos = Gloop.allLocal(BoardInfo.class).where().equalsTo("objectId", "").all(); // empty list
                 }
 
             } else if (operation == VIEW_MY_BOARDS) {
                 boardInfos = Gloop.allLocal(BoardInfo.class);
+                if (boardInfos.size() == 0) {
+                    info = "No Boards\n" +
+                            "Create a new board using the ‘+’ below.";
+                }
             } else if (operation == VIEW_BROWSE) {
                 boardInfos = Gloop.all(BoardInfo.class);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 //                try {
 //                    boardInfos.size();
 //                } catch (Exception ignore) {
@@ -270,6 +287,10 @@ public class ListFragment extends Fragment {
             try {
                 recyclerView.setAdapter(boardAdapter);
                 mSwipeRefreshLayout.setRefreshing(false);
+
+                if (info != null) {
+                    infoText.setText(info);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -301,21 +322,50 @@ public class ListFragment extends Fragment {
             final BoardInfo boardInfo = list.get(position);
 
             holder.mContentView.setText(boardInfo.getName());
-            int color = boardInfo.getColor();
+            final int color = boardInfo.getColor();
 
             holder.mImage.setBackgroundColor(color);
 
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    Board board = Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
+                public void onClick(final View view) {
+                    holder.mView.setClickable(false);
+                    holder.mView.setEnabled(false);
 
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, BoardDetailActivity.class);
-                    intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-                    intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
+                    new AsyncTask<Void, Void, Board>() {
 
-                    context.startActivity(intent);
+                        private ProgressDialog progress;
+
+                        @Override
+                        protected void onPreExecute() {
+                            super.onPreExecute();
+                            progress = new ProgressDialog(context);
+                            progress.setTitle("Loading");
+                            progress.setMessage("Wait while loading lines.");
+                            progress.setCancelable(false);
+                            progress.show();
+                        }
+
+                        @Override
+                        protected Board doInBackground(Void... voids) {
+                            return Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
+                        }
+
+                        @Override
+                        protected void onPostExecute(Board board) {
+                            super.onPostExecute(board);
+                            Context context = view.getContext();
+                            Intent intent = new Intent(context, BoardDetailActivity.class);
+                            intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                            intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
+
+                            context.startActivity(intent);
+
+                            progress.dismiss();
+                            holder.mView.setClickable(true);
+                            holder.mView.setEnabled(true);
+                        }
+                    }.execute();
                 }
             });
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {

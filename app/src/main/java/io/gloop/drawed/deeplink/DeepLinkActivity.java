@@ -2,7 +2,10 @@ package io.gloop.drawed.deeplink;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -20,8 +23,10 @@ import io.gloop.drawed.BoardDetailFragment;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.BoardInfo;
 import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.drawed.utils.SharedPreferencesStore;
 import io.gloop.permissions.GloopGroup;
 
 import static io.gloop.permissions.GloopPermission.PUBLIC;
@@ -45,7 +50,6 @@ public class DeepLinkActivity extends Activity {
             StrictMode.setThreadPolicy(policy);
         }
 
-
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
@@ -67,7 +71,6 @@ public class DeepLinkActivity extends Activity {
     // opens a dialog on long press on the list item
     private void showPopup(final String boardName) {
 
-
         final Dialog dialog = new Dialog(DeepLinkActivity.this, R.style.AppTheme_PopupTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_invire_request);
@@ -84,81 +87,121 @@ public class DeepLinkActivity extends Activity {
             }
         });
 
+        final Context context = getApplicationContext();
+
         Button acceptButton = (Button) dialog.findViewById(R.id.dialog_invite_request_accept);
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
-                Gloop.initialize(DeepLinkActivity.this);
+                new AsyncTask<Void, Void, Board>() {
 
-                if (Gloop.loginWithRememberedUser()) {
+                    private ProgressDialog progress;
+                    private UserInfo userInfo;
+                    private String errorMessage;
 
-                    UserInfo userInfo = Gloop.allLocal(UserInfo.class)
-                            .where()
-                            .equalsTo("email", Gloop.getOwner().getName())
-                            .first();
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        progress = new ProgressDialog(DeepLinkActivity.this);
+                        progress.setTitle("Loading");
+                        progress.setMessage("Wait while loading lines.");
+                        progress.setCancelable(false);
+                        progress.show();
+                    }
 
-                    Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
-                    if (board != null) {
-                        if (!board.isPrivateBoard()) {
-                            GloopGroup group = Gloop
-                                    .all(GloopGroup.class)
+                    @Override
+                    protected Board doInBackground(Void... voids) {
+                        SharedPreferencesStore.setContext(context);
+
+                        Gloop.initialize(DeepLinkActivity.this);
+
+                        if (Gloop.login(SharedPreferencesStore.getEmail(), SharedPreferencesStore.getPassword())) {
+
+                            userInfo = Gloop.allLocal(UserInfo.class)
                                     .where()
-                                    .equalsTo("objectId", board.getOwner())
+                                    .equalsTo("email", Gloop.getOwner().getName())
                                     .first();
 
-                            if (group != null) {
-                                GloopLogger.i("GloopGroup found add myself to group and save");
-                                group.addMember(Gloop.getOwner().getUserId());
-                                group.save();
+                            BoardInfo boardInfo = Gloop.all(BoardInfo.class).where().equalsTo("name", boardName).first();
+                            if (boardInfo != null) {
+                                if (!boardInfo.isPrivateBoard()) {
+                                    GloopGroup group = Gloop
+                                            .all(GloopGroup.class)
+                                            .where()
+                                            .equalsTo("objectId", boardInfo.getOwner())
+                                            .first();
+
+                                    if (group != null) {
+                                        GloopLogger.i("GloopGroup found add myself to group and save");
+                                        group.addMember(Gloop.getOwner().getUserId());
+                                        group.save();
+                                    } else {
+                                        GloopLogger.e("GloopGroup not found!");
+                                    }
+                                    boardInfo.save();
+                                } else {
+                                    // if the board is not public check the PrivateBoardRequest objects.
+
+                                    PrivateBoardRequest privateBoard = Gloop
+                                            .all(PrivateBoardRequest.class)
+                                            .where()
+                                            .equalsTo("boardName", boardName)
+                                            .first();
+
+                                    if (privateBoard != null) {
+                                        // request access to private board with the BoardAccessRequest object.
+                                        BoardAccessRequest request = new BoardAccessRequest();
+                                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
+                                        request.setBoardName(boardName);
+                                        request.setBoardCreator(privateBoard.getBoardCreator());
+                                        request.setUserId(Gloop.getOwner().getUserId());
+                                        request.setBoardGroupId(privateBoard.getGroupId());
+                                        if (userInfo.getImageURL() != null)
+                                            request.setUserImageUri(userInfo.getImageURL().toString());
+                                        request.save();
+                                    } else {
+                                        GloopLogger.i("Could not find public board with name: " + boardName);
+                                    }
+                                }
+
+                                return Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
                             } else {
-                                GloopLogger.e("GloopGroup not found!");
+                                errorMessage = "Could not find the board.";
+                                return null;
                             }
-                            board.save();
                         } else {
-                            // if the board is not public check the PrivateBoardRequest objects.
+                            errorMessage = "Your need to be signed into the drawed app. Open the app first.";
+                            return null;
+                        }
+                    }
 
-                            PrivateBoardRequest privateBoard = Gloop
-                                    .all(PrivateBoardRequest.class)
-                                    .where()
-                                    .equalsTo("boardName", boardName)
-                                    .first();
+                    @Override
+                    protected void onPostExecute(Board board) {
+                        super.onPostExecute(board);
 
-                            if (privateBoard != null) {
-                                // request access to private board with the BoardAccessRequest object.
-                                BoardAccessRequest request = new BoardAccessRequest();
-                                request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
-                                request.setBoardName(boardName);
-                                request.setBoardCreator(privateBoard.getBoardCreator());
-                                request.setUserId(Gloop.getOwner().getUserId());
-                                request.setBoardGroupId(privateBoard.getGroupId());
-                                if (userInfo.getImageURL() != null)
-                                    request.setUserImageUri(userInfo.getImageURL().toString());
-//                                request.setPermission();
-                                request.save();
-                            } else {
-                                GloopLogger.i("Could not find public board with name: " + boardName);
-                            }
+                        if (board != null) {
+                            Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
+                            intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                            intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
+                            startActivity(intent);
+
+                            Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
                         }
 
-                        Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
-                        intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-                        intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
-                        startActivity(intent);
+                        progress.dismiss();
 
-                        Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Could not find the board.", Toast.LENGTH_LONG).show();
-
-                    }
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                         dialog.dismiss();
                         DeepLinkActivity.this.finish();
+//                            }
+//                        });
                     }
-                });
+                }.execute();
 
 
             }

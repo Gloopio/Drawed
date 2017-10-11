@@ -40,7 +40,7 @@
     <string name="cancel">Cancel</string>
     <string name="ok">Ok</string>
     <string name="yes">yes</string>
-    <string name="logout">logout</string>
+    <string name="logout">Logout</string>
     <string name="dummy_username">Username</string>
 
     <string name="menu_night_mode">Night mode</string>

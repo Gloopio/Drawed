@@ -52,16 +52,16 @@
       },
       "oauth_client": [
         {
-          "client_id": "807518302577-ku55q98ufpraio08t0jphlgb6qdki2un.apps.googleusercontent.com",
+          "client_id": "807518302577-qs150qlk0faid1l0gel5q39vutkib105.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "807518302577-pvb0l0dq1qjq8dmpp84unhanatorde15.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "io.gloop.drawed",
             "certificate_hash": "cc1f6ad27b22fc00cc11855f1301d873b8074cda"
           }
-        },
-        {
-          "client_id": "807518302577-qs150qlk0faid1l0gel5q39vutkib105.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [

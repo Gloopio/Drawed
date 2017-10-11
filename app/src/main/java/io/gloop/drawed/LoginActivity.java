@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -44,6 +45,7 @@ import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.drawed.utils.SharedPreferencesStore;
+import io.gloop.exceptions.GloopUserAlreadyExistsException;
 
 /**
  * A login screen that offers login via email/password.
@@ -155,13 +157,17 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                                         startActivity(i);
                                         finish();
                                     } else {
-                                        if (Gloop.register(email, password)) {
+                                        try {
+                                            if (Gloop.register(email, password)) {
 
-                                            SharedPreferencesStore.setUser(email, password);
+                                                SharedPreferencesStore.setUser(email, password);
 
-                                            Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                                            startActivity(i);
-                                            finish();
+                                                Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                                                startActivity(i);
+                                                finish();
+                                            }
+                                        } catch (GloopUserAlreadyExistsException e) {
+                                            Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
                                         }
                                     }
 
@@ -266,15 +272,19 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 startActivity(i);
                 finish();
             } else {
-                if (Gloop.register(email, password)) {
+                try {
+                    if (Gloop.register(email, password)) {
 
-                    createUserInfo(acct);
+                        createUserInfo(acct);
 
-                    SharedPreferencesStore.setUser(email, password);
+                        SharedPreferencesStore.setUser(email, password);
 
-                    Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                    startActivity(i);
-                    finish();
+                        Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                } catch (GloopUserAlreadyExistsException e) {
+                    Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
                 }
             }
         } else {
@@ -353,25 +363,29 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
         if (isRegister) {
             // Register user using gloop
-            if (Gloop.register(email, password)) {
+            try {
+                if (Gloop.register(email, password)) {
 
-                UserInfo userInfo = Gloop.all(UserInfo.class).where().equalsTo("email", email).first();
-                if (userInfo != null) {
-                    userInfo.setEmail(email);
-                    userInfo.setUserName(email);
-                    userInfo.save();
-                } else {
-                    userInfo = new UserInfo();
-                    userInfo.setEmail(email);
-                    userInfo.setUserName(email);
-                    userInfo.save();
+                    UserInfo userInfo = Gloop.all(UserInfo.class).where().equalsTo("email", email).first();
+                    if (userInfo != null) {
+                        userInfo.setEmail(email);
+                        userInfo.setUserName(email);
+                        userInfo.save();
+                    } else {
+                        userInfo = new UserInfo();
+                        userInfo.setEmail(email);
+                        userInfo.setUserName(email);
+                        userInfo.save();
+                    }
+
+                    SharedPreferencesStore.setUser(email, password);
+
+                    Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                    startActivity(i);
+                    finish();
                 }
-
-                SharedPreferencesStore.setUser(email, password);
-
-                Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                startActivity(i);
-                finish();
+            } catch (GloopUserAlreadyExistsException e) {
+                Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
             }
         } else {
             // Login using Gloop

@@ -15,3 +15,5 @@ libs
 .idea/modules.xml
 .idea/runConfigurations.xml
 /.idea/dbnavigator.xml
+keystore
+debug.keystore

@@ -60,7 +60,6 @@ public class NewBoardDialog {
 
         final EditText etBoardName = (EditText) dialog.findViewById(R.id.dialog_new_board_board_name);
         etBoardName.getBackground().setColorFilter(context.getResources().getColor(R.color.edit_text_color), PorterDuff.Mode.SRC_IN);
-//        etBoardName.setText(randomName);
 
         Button generateButton = (Button) dialog.findViewById(R.id.dialog_new_board_btn_generate_name);
         generateButton.setOnClickListener(new View.OnClickListener() {

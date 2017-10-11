@@ -2,14 +2,14 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/dialog"
+    android:id="@+id/settings_night_mode_dialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/popupBackground"
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/closeDialogImg"
+        android:id="@+id/settings_night_mode_closeDialogImg"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="10dp"
