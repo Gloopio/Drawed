@@ -31,19 +31,10 @@ import io.gloop.drawed.model.UserInfo;
 
 public class UserProfileDialog {
 
-    private Activity activity;
     private CircleImageView userImage;
-    private UserInfo userInfo;
 
     public UserProfileDialog(Activity activity, CircleImageView userImage, UserInfo userInfo) {
-        this.activity = activity;
         this.userImage = userImage;
-        this.userInfo = userInfo;
-
-        showUserProfileDialog();
-    }
-
-    private void showUserProfileDialog() {
 
         final View dialogView = View.inflate(activity, R.layout.dialog_user_profile, null);
 

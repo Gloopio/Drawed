@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
+import io.gloop.constants.Constants;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.Line;
 import io.gloop.drawed.model.Point;
@@ -143,12 +144,9 @@ public class DrawingView extends View {
                         board.addLine(newLine);
 
                         // create new line and add to worker to save it in the background.
-//                        SaveInBackgroundWorker.getInstance().addItem(board, line, paintColor, brushSize);
                         BackgroundService.schedule(new Callable<Object>() {
                             @Override
                             public Object call() throws Exception {
-//                                synchronized (board) {
-//                                    board.addLine(newLine);
                                 isSelfChanging = true;
 
                                 if (!board.getMembers().containsKey(userInfo.getEmail())) {
@@ -157,17 +155,14 @@ public class DrawingView extends View {
                                     } else
                                         board.addMember(userInfo.getEmail(), null);
 
-//                                        GloopLogger.i("Found board.");
-
                                     // if PUBLIC board add your self to the group.
                                     GloopGroup group = Gloop
                                             .all(GloopGroup.class)
                                             .where()
-                                            .equalsTo("objectId", board.getOwner())
+                                            .equalsTo(Constants.OBJECT_ID, board.getOwner())
                                             .first();
 
                                     if (group != null) {
-//                                            GloopLogger.i("GloopGroup found add myself to group and save");
                                         group.addMember(Gloop.getOwner().getUserId());
                                         group.save();
 
@@ -185,7 +180,6 @@ public class DrawingView extends View {
 
                                 GloopLogger.i("Object saved");
                                 isSelfChanging = false;
-//                                }
 
                                 return null;
                             }

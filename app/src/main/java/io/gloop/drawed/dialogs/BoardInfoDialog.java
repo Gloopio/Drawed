@@ -36,12 +36,7 @@ import io.gloop.permissions.GloopUser;
 
 public class BoardInfoDialog {
 
-    private double x, y;
-
-    public BoardInfoDialog(final @NonNull Context context, final GloopUser owner, final BoardInfo boardInfo, final UserInfo userInfo, double x, double y) {
-        this.x = x;
-        this.y = y;
-
+    public BoardInfoDialog(final @NonNull Context context, final GloopUser owner, final BoardInfo boardInfo, final UserInfo userInfo, final double x, final double y) {
         final View dialogView = View.inflate(context, R.layout.dialog_info, null);
 
         final Dialog dialog = new Dialog(context, R.style.MyAlertDialogStyle);
@@ -90,7 +85,7 @@ public class BoardInfoDialog {
             @Override
             public void onClick(View view) {
                 new QRCodeDialog(context, boardInfo, qrCodeButton);
-                revealShow(dialogView, false, dialog);
+                revealShow(dialogView, false, dialog, x, y);
             }
         });
 
@@ -98,7 +93,7 @@ public class BoardInfoDialog {
             @Override
             public void onClick(View view) {
                 share(context, owner.getName(), boardInfo);
-                revealShow(dialogView, false, dialog);
+                revealShow(dialogView, false, dialog, x, y);
             }
         });
 
@@ -111,10 +106,12 @@ public class BoardInfoDialog {
                 boardInfo.removeMemeber(userInfo.getEmail());
                 boardInfo.save();
 
-                Board board = Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
+                Board board = Gloop.all(Board.class)
+                        .where()
+                        .equalsTo("objectId", boardInfo.getBoardId())
+                        .first();
 
-                GloopGroup group = Gloop
-                        .all(GloopGroup.class)
+                GloopGroup group = Gloop.all(GloopGroup.class)
                         .where()
                         .equalsTo("objectId", boardInfo.getOwner())
                         .first();
@@ -125,7 +122,7 @@ public class BoardInfoDialog {
                 // delete board
                 boardInfo.delete();
                 board.delete();
-                revealShow(dialogView, false, dialog);
+                revealShow(dialogView, false, dialog, x, y);
             }
         });
 
@@ -133,14 +130,14 @@ public class BoardInfoDialog {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                revealShow(dialogView, false, dialog);
+                revealShow(dialogView, false, dialog, x, y);
             }
         });
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                revealShow(dialogView, true, null);
+                revealShow(dialogView, true, null, x, y);
             }
         });
 
@@ -149,7 +146,7 @@ public class BoardInfoDialog {
             public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
                 if (i == KeyEvent.KEYCODE_BACK) {
 
-                    revealShow(dialogView, false, dialog);
+                    revealShow(dialogView, false, dialog, x, y);
                     return true;
                 }
 
@@ -163,7 +160,7 @@ public class BoardInfoDialog {
         dialog.show();
     }
 
-    private void revealShow(View dialogView, boolean b, final Dialog dialog) {
+    private void revealShow(View dialogView, boolean b, final Dialog dialog, double x, double y) {
 
         final View view = dialogView.findViewById(R.id.pop_stat_view);
 

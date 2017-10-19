@@ -21,17 +21,17 @@ public class SplashActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        Fabric.with(this, new Crashlytics());
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_splashscreen);
-
-        SharedPreferencesStore.setContext(getBaseContext());
     }
 
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
+        Fabric.with(this, new Crashlytics());
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        SharedPreferencesStore.setContext(getBaseContext());
 
         // setup screen util at start
         ScreenUtil.setActivity(this);

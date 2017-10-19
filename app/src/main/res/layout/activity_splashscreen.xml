@@ -3,16 +3,21 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-              android:padding="55dp"
-              android:background="@color/background_splash_screen"
+              android:padding="80dp"
               android:orientation="vertical"
               tools:context="io.gloop.drawed.SplashActivity">
 
+    <!--<ImageView-->
+        <!--android:id="@+id/splashscreen"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:src="@drawable/logo_new_1"/>-->
+
     <ImageView
-        android:id="@+id/splashscreen"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_gravity="center"
-        android:src="@drawable/logo_new_1"/>
+        android:src="@drawable/drawed_logo2"/>
 
 </LinearLayout>

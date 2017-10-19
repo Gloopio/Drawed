@@ -42,6 +42,7 @@
     <string name="yes">yes</string>
     <string name="logout">Logout</string>
     <string name="dummy_username">Username</string>
+    <string name="access_request">"Allow access to user %1$s on board %2$s"</string>
 
     <string name="menu_night_mode">Night mode</string>
     <string name="menu_night_mode_system">Follow system</string>
@@ -60,11 +61,20 @@
     <string name="fb_login_protocol_scheme">fb119377242083433</string>
     <string name="line_size">Lines: %1$d</string>
     <string name="my_profile">My Profile</string>
-    <string name="browse">Browse</string>
-    <string name="my_boards">My Boards</string>
-    <string name="favorites">Favorites</string>
     <string name="home">Home</string>
     <string name="night_mode">Night mode</string>
+    <string name="user_already_exists">User with the same name already exists</string>
+    <string name="board_added">Board added to your list.</string>
+    <string name="request_access_to_board">Request access to board!</string>
+    <string name="loading">Loading</string>
+    <string name="wait_while_loading_lines">Wait while loading lines.</string>
+    <string name="favorites">Favorites</string>
+    <string name="my_boards">My Boards</string>
+    <string name="browse">Browse</string>
+    <string name="grant_camera_permissions">Please grant camera permission to use the QR Scanner</string>
+    <string name="successfull_grant_access">Successfully grant access to user</string>
+    <string name="user_has_no_access">User %1$s has no access to the board.</string>
+
 
 
 </resources>

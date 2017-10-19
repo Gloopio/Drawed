@@ -28,10 +28,6 @@ public class DayNightSettingsDialog implements View.OnClickListener {
 
     public DayNightSettingsDialog(AppCompatActivity activity) {
         this.activity = activity;
-        show();
-    }
-
-    private void show() {
 
         final View dialogView = View.inflate(activity, R.layout.dialog_day_night_settings, null);
 

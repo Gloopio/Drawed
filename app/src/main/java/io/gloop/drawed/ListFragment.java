@@ -43,24 +43,30 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.gloop.Gloop;
 import io.gloop.GloopList;
-import io.gloop.GloopLogger;
+import io.gloop.constants.Constants;
 import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.BoardInfoDialog;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.drawed.model.BoardInfo;
 import io.gloop.drawed.model.UserInfo;
+import io.gloop.exceptions.GloopException;
 import io.gloop.exceptions.GloopLoadException;
 import io.gloop.permissions.GloopUser;
 import io.gloop.query.GloopQuery;
 
 public class ListFragment extends Fragment {
+
+    private final static String SELECTED = "selected";
+    private final static String NOT_SELECTED = "notSelected";
 
     private Context context;
     private GloopUser owner;
@@ -200,27 +206,33 @@ public class ListFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final GloopList<BoardAccessRequest> accessRequests = Gloop
-                        .all(BoardAccessRequest.class)
-                        .where()
-                        .equalsTo("boardCreator", owner.getUserId())
-                        .all();
-                for (final BoardAccessRequest accessRequest : accessRequests) {
-                    final FragmentActivity activity = getActivity();
-                    activity.runOnUiThread(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    new AcceptBoardAccessDialog(activity, accessRequest).show();
-                                }
-                            }
-                    );
+                try {
+                    final GloopList<BoardAccessRequest> accessRequests = Gloop
+                            .all(BoardAccessRequest.class)
+                            .where()
+                            .equalsTo("boardCreator", owner.getUserId())
+                            .all();
+                    if (accessRequests != null) {
+                        for (final BoardAccessRequest accessRequest : accessRequests) {
+                            final FragmentActivity activity = getActivity();
+                            activity.runOnUiThread(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            new AcceptBoardAccessDialog(activity, accessRequest).show();
+                                        }
+                                    }
+                            );
+                        }
+                    }
+                } catch (GloopException e) {
+                    e.printStackTrace();
                 }
             }
         }).start();
     }
 
-    private class LoadBoardsTask extends AsyncTask<Void, Integer, Void> {
+    private class LoadBoardsTask extends AsyncTask<Void, Integer, GloopList<BoardInfo>> {
 
         private String info = null;
 
@@ -231,7 +243,7 @@ public class ListFragment extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(Void... urls) {
+        protected GloopList<BoardInfo> doInBackground(Void... urls) {
             // load boardInfos
             GloopList<BoardInfo> boardInfos = null;
 
@@ -259,37 +271,25 @@ public class ListFragment extends Fragment {
                 }
             } else if (operation == VIEW_BROWSE) {
                 boardInfos = Gloop.all(BoardInfo.class);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-//                try {
-//                    boardInfos.size();
-//                } catch (Exception ignore) {
-//                }
+                boardInfos.load();
             }
-//            try {
-//                boardInfos.load();
-//                boardInfos.size();
-//            } catch (Exception ignore) {
-//            }
 
-
-            boardAdapter = new BoardAdapter(boardInfos);
-            return null;
+            return boardInfos;
         }
 
 
         @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
+        protected void onPostExecute(GloopList<BoardInfo> boardInfos) {
+            super.onPostExecute(boardInfos);
             try {
+                boardAdapter = new BoardAdapter(boardInfos);
                 recyclerView.setAdapter(boardAdapter);
                 mSwipeRefreshLayout.setRefreshing(false);
 
                 if (info != null) {
                     infoText.setText(info);
+                } else {
+                    infoText.setText("");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -306,9 +306,25 @@ public class ListFragment extends Fragment {
         private ArrayList<BoardInfo> list;
         private final GloopList<BoardInfo> originalList;
 
-        BoardAdapter(GloopList<BoardInfo> boards) {
+        BoardAdapter(final GloopList<BoardInfo> boards) {
             originalList = boards;
-            list = (ArrayList<BoardInfo>) boards.getLocalCopy();
+            if (boards.size() != 0) {
+                list = (ArrayList<BoardInfo>) boards.getLocalCopy();
+                Collections.sort(list, Collections.reverseOrder(new Comparator<BoardInfo>() {
+                    @Override
+                    public int compare(BoardInfo left, BoardInfo right) {
+                        return Long.compare(left.getTimestamp(), right.getTimestamp());
+                    }
+                }));
+            }
+
+//            originalList.addOnChangeListener(new GloopOnChangeListener() {
+//                @Override
+//                public void onChange() {
+//                    list = (ArrayList<BoardInfo>) boards.getLocalCopy();
+//                    notifyDataSetChanged();
+//                }
+//            });
         }
 
         @Override
@@ -340,15 +356,18 @@ public class ListFragment extends Fragment {
                         protected void onPreExecute() {
                             super.onPreExecute();
                             progress = new ProgressDialog(context);
-                            progress.setTitle("Loading");
-                            progress.setMessage("Wait while loading lines.");
+                            progress.setTitle(getString(R.string.loading));
+                            progress.setMessage(getString(R.string.wait_while_loading_lines));
                             progress.setCancelable(false);
                             progress.show();
                         }
 
                         @Override
                         protected Board doInBackground(Void... voids) {
-                            return Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
+                            return Gloop.all(Board.class)
+                                    .where()
+                                    .equalsTo(Constants.OBJECT_ID, boardInfo.getBoardId())
+                                    .first();
                         }
 
                         @Override
@@ -371,7 +390,6 @@ public class ListFragment extends Fragment {
             holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    GloopLogger.i("Long press position: " + holder.mView.getX() + " " + holder.mView.getY());
                     new BoardInfoDialog(context, owner, boardInfo, userInfo, 100.0, 100.0);
                     setupRecyclerView();
                     return true;
@@ -380,18 +398,18 @@ public class ListFragment extends Fragment {
 
             if (userInfo.getFavoritesBoardId().contains(boardInfo.getBoardId())) {
                 holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
-                holder.mFavorite.setTag("selected");
+                holder.mFavorite.setTag(SELECTED);
             }
             holder.mFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (holder.mFavorite.getTag().equals("notSelected")) {
+                    if (holder.mFavorite.getTag().equals(NOT_SELECTED)) {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_black_24dp);
-                        holder.mFavorite.setTag("selected");
+                        holder.mFavorite.setTag(SELECTED);
                         userInfo.addFavoriteBoardId(boardInfo.getBoardId());
                     } else {
                         holder.mFavorite.setImageResource(R.drawable.ic_star_border_black_24dp);
-                        holder.mFavorite.setTag("notSelected");
+                        holder.mFavorite.setTag(NOT_SELECTED);
                         userInfo.removeFavoriteBoardId(boardInfo.getBoardId());
                     }
                     if (operation == VIEW_FAVORITES) {
@@ -433,7 +451,10 @@ public class ListFragment extends Fragment {
         @Override
         public int getItemCount() {
             try {
-                return list.size();
+                if (list != null)
+                    return list.size();
+                else
+                    return 0;
             } catch (GloopLoadException e) {
                 e.printStackTrace();
                 return 0;

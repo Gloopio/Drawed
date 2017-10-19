@@ -45,7 +45,6 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.gloop.Gloop;
 import io.gloop.GloopList;
-import io.gloop.GloopLogger;
 import io.gloop.GloopOnChangeListener;
 import io.gloop.drawed.dialogs.AcceptBoardAccessDialog;
 import io.gloop.drawed.dialogs.DayNightSettingsDialog;
@@ -87,11 +86,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            navigationView.setNavigationItemSelectedListener(this);
-        }
-
         final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
@@ -103,6 +97,11 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                 .where()
                 .equalsTo("email", owner.getName())
                 .first();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -141,7 +140,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         fabSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new SearchDialog(BoardListActivity.this, floatingActionMenu, owner, BoardListActivity.this.getSupportFragmentManager(), userInfo);
+                new SearchDialog(BoardListActivity.this, floatingActionMenu, owner, userInfo);
                 floatingActionMenu.close(false);
             }
         });
@@ -181,47 +180,12 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         return true;
     }
 
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        switch (SharedPreferencesStore.getNightMode()) {
-//            case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
-//                menu.findItem(R.id.menu_night_mode_system).setChecked(true);
-//                break;
-//            case AppCompatDelegate.MODE_NIGHT_AUTO:
-//                menu.findItem(R.id.menu_night_mode_auto).setChecked(true);
-//                break;
-//            case AppCompatDelegate.MODE_NIGHT_YES:
-//                menu.findItem(R.id.menu_night_mode_night).setChecked(true);
-//                break;
-//            case AppCompatDelegate.MODE_NIGHT_NO:
-//                menu.findItem(R.id.menu_night_mode_day).setChecked(true);
-//                break;
-//        }
-//        return true;
-//    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-//            case R.id.menu_night_mode_system:
-//                setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-//                break;
-//            case R.id.menu_night_mode_day:
-//                setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-//                break;
-//            case R.id.menu_night_mode_night:
-//                setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-//                break;
-//            case R.id.menu_night_mode_auto:
-//                setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-//                SharedPreferencesStore.setNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
-//                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -261,17 +225,11 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         finish();
     }
 
-
-    private void setNightMode(@AppCompatDelegate.NightMode int nightMode) {
-        AppCompatDelegate.setDefaultNightMode(nightMode);
-        recreate();
-    }
-
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
-        adapter.addFragment(ListFragment.newInstance(VIEW_FAVORITES, userInfo, owner), "Favorites");
-        adapter.addFragment(ListFragment.newInstance(VIEW_MY_BOARDS, userInfo, owner), "My Boards");
-        adapter.addFragment(ListFragment.newInstance(VIEW_BROWSE, userInfo, owner), "Browse");
+        adapter.addFragment(ListFragment.newInstance(VIEW_FAVORITES, userInfo, owner), getString(R.string.favorites));
+        adapter.addFragment(ListFragment.newInstance(VIEW_MY_BOARDS, userInfo, owner), getString(R.string.my_boards));
+        adapter.addFragment(ListFragment.newInstance(VIEW_BROWSE, userInfo, owner), getString(R.string.browse));
         viewPager.setAdapter(adapter);
     }
 
@@ -328,9 +286,9 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                         startActivity(intent);
                     }
                 } else {
-                    Toast.makeText(this, "Please grant camera permission to use the QR Scanner", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.grant_camera_permissions, Toast.LENGTH_SHORT).show();
                 }
-                return;
+                break;
             case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
@@ -346,7 +304,7 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
-                return;
+                break;
             }
         }
     }
@@ -433,8 +391,6 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
         accessRequests.addOnChangeListener(new GloopOnChangeListener() {
             @Override
             public void onChange() {
-                GloopLogger.i("Request access to a private board");
-                GloopLogger.i(accessRequests);
                 for (BoardAccessRequest accessRequest : accessRequests) {
 //                    if (accessRequest.getBoardCreator().equals(owner.getUserId()))
                     new AcceptBoardAccessDialog(BoardListActivity.this, accessRequest).show();
@@ -483,10 +439,13 @@ public class BoardListActivity extends AppCompatActivity implements NavigationVi
                         }
 
                         final Uri imageUri = imageReturnedIntent.getData();
-                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                        Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                        selectedImage = ThumbnailUtils.extractThumbnail(selectedImage, 200, 200);
-                        userImage.setImageBitmap(selectedImage);
+                        final InputStream imageStream;
+                        if (imageUri != null) {
+                            imageStream = getContentResolver().openInputStream(imageUri);
+                            Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                            selectedImage = ThumbnailUtils.extractThumbnail(selectedImage, 200, 200);
+                            userImage.setImageBitmap(selectedImage);
+                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }

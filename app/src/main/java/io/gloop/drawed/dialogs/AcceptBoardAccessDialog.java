@@ -9,10 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import io.gloop.Gloop;
-import io.gloop.GloopLogger;
 import io.gloop.drawed.R;
-import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.BoardInfo;
 import io.gloop.permissions.GloopGroup;
 
 /**
@@ -21,14 +20,13 @@ import io.gloop.permissions.GloopGroup;
 
 public class AcceptBoardAccessDialog extends Dialog {
 
-    public AcceptBoardAccessDialog(@NonNull Context context,  final BoardAccessRequest request) {
+    public AcceptBoardAccessDialog(@NonNull Context context, final BoardAccessRequest request) {
         super(context, R.style.AppTheme_PopupTheme);
-        GloopLogger.i("Show access user popup.");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_acceped_board_access);
 
         TextView textView = (TextView) findViewById(R.id.dialog_accept_text);
-        textView.setText("Allow access to user " + request.getUserId() + " on board " + request.getBoardName());
+        textView.setText(context.getString(R.string.access_request, request.getUserId(), request.getBoardName()));
 
         //grant access
         Button grantButton = (Button) findViewById(R.id.dialog_accept_btn_grant);
@@ -43,13 +41,17 @@ public class AcceptBoardAccessDialog extends Dialog {
                 group.addMember(request.getUserId());
                 group.save();
 
-                Board board = Gloop.all(Board.class).where().equalsTo("name", request.getBoardName()).first();
-                if (board != null) {
-                    board.addMember(request.getUserId(), request.getUserImageUri());
+                BoardInfo boardInfo = Gloop.all(BoardInfo.class)
+                        .where()
+                        .equalsTo("name", request.getBoardName())
+                        .first();
+
+                if (boardInfo != null) {
+                    boardInfo.addMember(request.getUserId(), request.getUserImageUri());
+                    boardInfo.save();
                 }
 
                 request.delete();
-
                 dismiss();
             }
         });

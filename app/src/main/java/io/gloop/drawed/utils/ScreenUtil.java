@@ -32,7 +32,7 @@ public class ScreenUtil {
         return metrics.widthPixels;
     }
 
-    public static float getScaleFactor() {
+    private static float getScaleFactor() {
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         float factor1 = metrics.heightPixels / 1920f;

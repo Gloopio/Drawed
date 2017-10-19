@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
@@ -65,7 +66,8 @@ public class NewBoardDialog {
         generateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                etBoardName.setText(NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context));
+                String boardName = NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context);
+                etBoardName.setText(boardName);
             }
         });
 
@@ -82,85 +84,103 @@ public class NewBoardDialog {
             @Override
             public void onClick(View v) {
 
-                ProgressDialog progress = new ProgressDialog(context);
-                progress.setTitle("Creating new board");
-                progress.setMessage("Wait while loading...");
-                progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-                progress.show();
+                new AsyncTask<Void, Void, Board>() {
 
-                final Board board = new Board();
+                    private ProgressDialog progress;
 
-                // test to grant additional permission to another user
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+
+                        progress = new ProgressDialog(context);
+                        progress.setTitle("Creating new board");
+                        progress.setMessage("Wait while loading...");
+                        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+                        progress.show();
+                    }
+
+                    @Override
+                    protected Board doInBackground(Void... voids) {
+                        final Board board = new Board();
+
+                        // test to grant additional permission to another user
 //                board.addPermission("test", 1000);
 
-                // set name and color
-                if (!Objects.equals(etBoardName.getText().toString(), ""))
-                    board.setName(etBoardName.getText().toString());
-                else
-                    board.setName(NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context));
+                        // set name and color
+                        if (!Objects.equals(etBoardName.getText().toString(), ""))
+                            board.setName(etBoardName.getText().toString());
+                        else
+                            board.setName(NameUtil.randomAdjective(context) + colorName + NameUtil.randomObject(context));
 
-                board.setColor(ColorUtil.getColorByName(context, colorName));
+                        board.setColor(ColorUtil.getColorByName(context, colorName));
 
-                // set board private
-                Switch switchPrivate = (Switch) dialog.findViewById(R.id.dialog_new_board_switch_private);
-                board.setPrivateBoard(switchPrivate.isChecked());
+                        // set board private
+                        Switch switchPrivate = (Switch) dialog.findViewById(R.id.dialog_new_board_switch_private);
+                        board.setPrivateBoard(switchPrivate.isChecked());
 
-                // set board freeze
-                Switch switchFreeze = (Switch) dialog.findViewById(R.id.dialog_new_board_switch_freeze);
-                board.setFreezeBoard(switchFreeze.isChecked());
+                        // set board freeze
+                        Switch switchFreeze = (Switch) dialog.findViewById(R.id.dialog_new_board_switch_freeze);
+                        board.setFreezeBoard(switchFreeze.isChecked());
 
-                GloopGroup group = new GloopGroup();
-                group.setUser(owner.getUserId(), PUBLIC | READ | WRITE);
+                        GloopGroup group = new GloopGroup();
+                        group.setUser(owner.getUserId(), PUBLIC | READ | WRITE);
 
-                // set permissions depending on the selection.
-                if (board.isPrivateBoard()) {
-                    group.setUser(owner.getUserId(), READ | WRITE);
-                    if (board.isFreezeBoard())
-                        board.setUser(group.getObjectId(), READ);
-                    else
-                        board.setUser(group.getObjectId(), READ | WRITE);
-                } else if (board.isFreezeBoard()) {
-                    if (board.isPrivateBoard()) {
-                        group.setUser(owner.getUserId(), READ | WRITE);
-                        board.setUser(group.getObjectId(), READ);
-                    } else
-                        board.setUser(group.getObjectId(), READ | PUBLIC);
-                } else {
-                    board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
-                }
+                        // set permissions depending on the selection.
+                        if (board.isPrivateBoard()) {
+                            group.setUser(owner.getUserId(), READ | WRITE);
+                            if (board.isFreezeBoard())
+                                board.setUser(group.getObjectId(), READ);
+                            else
+                                board.setUser(group.getObjectId(), READ | WRITE);
+                        } else if (board.isFreezeBoard()) {
+                            if (board.isPrivateBoard()) {
+                                group.setUser(owner.getUserId(), READ | WRITE);
+                                board.setUser(group.getObjectId(), READ);
+                            } else
+                                board.setUser(group.getObjectId(), READ | PUBLIC);
+                        } else {
+                            board.setUser(group.getObjectId(), READ | WRITE | PUBLIC);
+                        }
 
-                group.save();
+                        group.save();
 
-                if (board.isPrivateBoard()) {
-                    // this is used to discover private boards and request access to it.
-                    PrivateBoardRequest privateBoard = new PrivateBoardRequest();
-                    privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
-                    privateBoard.setBoardName(board.getName());
-                    privateBoard.setBoardCreator(owner.getUserId());
-                    privateBoard.setGroupId(group.getObjectId());
-                    privateBoard.save();
-                }
+                        if (board.isPrivateBoard()) {
+                            // this is used to discover private boards and request access to it.
+                            PrivateBoardRequest privateBoard = new PrivateBoardRequest();
+                            privateBoard.setUser(board.getOwner(), READ | WRITE | PUBLIC);
+                            privateBoard.setBoardName(board.getName());
+                            privateBoard.setBoardCreator(owner.getUserId());
+                            privateBoard.setGroupId(group.getObjectId());
+                            privateBoard.save();
+                        }
 
-                // add members with image to show in list
-                if (userInfo.getImageURL() != null)
-                    board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
-                else
-                    board.addMember(userInfo.getEmail(), null);
+                        // add members with image to show in list
+                        if (userInfo.getImageURL() != null)
+                            board.addMember(userInfo.getEmail(), userInfo.getImageURL().toString());
+                        else
+                            board.addMember(userInfo.getEmail(), null);
 
-                // save the created board
-                board.save();
+                        // save the created board
+                        board.save();
+                        return board;
+                    }
 
-                Context context = view.getContext();
-                Intent intent = new Intent(context, BoardDetailActivity.class);
-                intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
-                intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
+                    @Override
+                    protected void onPostExecute(Board board) {
+                        super.onPostExecute(board);
+                        Context context = view.getContext();
+                        Intent intent = new Intent(context, BoardDetailActivity.class);
+                        intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                        intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
 
-                context.startActivity(intent);
+                        context.startActivity(intent);
 
-                progress.dismiss();
+                        progress.dismiss();
 
-                // close popup
-                dialog.dismiss();
+                        // close popup
+                        dialog.dismiss();
+                    }
+                }.execute();
             }
         });
 

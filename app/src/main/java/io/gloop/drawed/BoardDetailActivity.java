@@ -9,9 +9,6 @@ import android.view.WindowManager;
 
 public class BoardDetailActivity extends AppCompatActivity {
 
-    // Goro instance
-//    private BoundGoro goro;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,13 +36,6 @@ public class BoardDetailActivity extends AppCompatActivity {
                     .add(R.id.item_detail_container, fragment)
                     .commit();
         }
-
-//        goro = Goro.bindWith(this, new BoundGoro.OnUnexpectedDisconnection() {
-//            @Override
-//            public void onServiceDisconnected(BoundGoro goro) {
-//                GloopLogger.e(goro);
-//            }
-//        });
     }
 
     @Override
@@ -57,20 +47,4 @@ public class BoardDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-//    public void schedule(Callable submissionTask) {
-//        goro.schedule(submissionTask);
-//    }
-//
-//    protected void onStart() {
-//        super.onStart();
-//        goro.bind();
-//    }
-//
-//    protected void onStop() {
-//        super.onStop();
-//        goro.unbind();
-//    }
-
-
 }

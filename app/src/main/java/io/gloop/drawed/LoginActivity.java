@@ -67,10 +67,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        if (Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = (new StrictMode.ThreadPolicy.Builder()).permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
+        StrictMode.ThreadPolicy policy = (new StrictMode.ThreadPolicy.Builder()).permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         // Set up the login form.
         mEmailView = (EditText) findViewById(R.id.email);
@@ -167,7 +165,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                                                 finish();
                                             }
                                         } catch (GloopUserAlreadyExistsException e) {
-                                            Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
+                                            Snackbar.make(findViewById(R.id.login_layout), R.string.user_already_exists, Snackbar.LENGTH_LONG).show();
                                         }
                                     }
 
@@ -182,12 +180,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                 parameters.putString("fields", "id,name,email");
                 request.setParameters(parameters);
                 request.executeAsync();
-
             }
 
             @Override
             public void onCancel() {
-
             }
 
             @Override
@@ -252,39 +248,40 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        Log.d("Gloop", "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
 
-            String email = acct.getEmail();
-            String password = acct.getId();
+            if (acct != null) {
+                String email = acct.getEmail();
+                String password = acct.getId();
 
-            if (Gloop.login(email, password)) {
-                // keep user logged in
-                SharedPreferencesStore.setUser(email, password);
+                if (Gloop.login(email, password)) {
+                    // keep user logged in
+                    SharedPreferencesStore.setUser(email, password);
 
-                createUserInfo(acct);
+                    createUserInfo(acct);
 
-                showProgress(false);
+                    showProgress(false);
 
-                Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                startActivity(i);
-                finish();
-            } else {
-                try {
-                    if (Gloop.register(email, password)) {
+                    Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                    startActivity(i);
+                    finish();
+                } else {
+                    try {
+                        if (Gloop.register(email, password)) {
 
-                        createUserInfo(acct);
+                            createUserInfo(acct);
 
-                        SharedPreferencesStore.setUser(email, password);
+                            SharedPreferencesStore.setUser(email, password);
 
-                        Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
-                        startActivity(i);
-                        finish();
+                            Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
+                            startActivity(i);
+                            finish();
+                        }
+                    } catch (GloopUserAlreadyExistsException e) {
+                        Snackbar.make(findViewById(R.id.login_layout), R.string.user_already_exists, Snackbar.LENGTH_LONG).show();
                     }
-                } catch (GloopUserAlreadyExistsException e) {
-                    Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
                 }
             }
         } else {
@@ -385,7 +382,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                     finish();
                 }
             } catch (GloopUserAlreadyExistsException e) {
-                Snackbar.make(findViewById(R.id.login_layout), "User with the same name already exists", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.login_layout), R.string.user_already_exists, Snackbar.LENGTH_LONG).show();
             }
         } else {
             // Login using Gloop

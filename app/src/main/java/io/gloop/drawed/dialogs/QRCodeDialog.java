@@ -69,7 +69,6 @@ public class QRCodeDialog {
                     revealShow(dialogView, false, dialog);
                     return true;
                 }
-
                 return false;
             }
         });
@@ -100,9 +99,7 @@ public class QRCodeDialog {
             revealAnimator.start();
 
         } else {
-
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
+            Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, endRadius, 0);
 
             anim.addListener(new AnimatorListenerAdapter() {
                 @Override

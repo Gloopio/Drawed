@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import io.gloop.Gloop;
+import io.gloop.constants.Constants;
+import io.gloop.drawed.R;
 import io.gloop.drawed.model.BoardAccessRequest;
 import io.gloop.permissions.GloopGroup;
 
@@ -28,19 +30,21 @@ public class NotificationReceiver extends BroadcastReceiver {
             GloopGroup group = Gloop
                     .all(GloopGroup.class)
                     .where()
-                    .equalsTo("objectId", request.getBoardGroupId())
+                    .equalsTo(Constants.OBJECT_ID, request.getBoardGroupId())
                     .first();
             group.addMember(request.getUserId());
             group.save();
 
-            Gloop.all(BoardAccessRequest.class).where().equalsTo("objectId", request.getObjectId()).first().delete();
-//            request.delete();
+            Gloop.all(BoardAccessRequest.class)
+                    .where()
+                    .equalsTo(Constants.OBJECT_ID, request.getObjectId())
+                    .first()
+                    .delete();
 
-            Toast.makeText(context, "Successfully grant access to user " + request.getUserId(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.successfull_grant_access) + request.getUserId(), Toast.LENGTH_SHORT).show();
 
         } else if (NO_ACTION.equals(action)) {
-            Toast.makeText(context, "User " + request.getUserId() + " has no access to the board.", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(context, context.getString(R.string.user_has_no_access, request.getUserId()), Toast.LENGTH_SHORT).show();
             request.delete();
         }
 

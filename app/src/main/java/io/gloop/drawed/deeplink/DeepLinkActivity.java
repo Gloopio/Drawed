@@ -124,54 +124,51 @@ public class DeepLinkActivity extends Activity {
                                     .first();
 
                             BoardInfo boardInfo = Gloop.all(BoardInfo.class).where().equalsTo("name", boardName).first();
-                            if (boardInfo != null) {
-                                if (!boardInfo.isPrivateBoard()) {
-                                    GloopGroup group = Gloop
-                                            .all(GloopGroup.class)
-                                            .where()
-                                            .equalsTo("objectId", boardInfo.getOwner())
-                                            .first();
+                            if (boardInfo != null && !boardInfo.isPrivateBoard()) {
+                                GloopGroup group = Gloop
+                                        .all(GloopGroup.class)
+                                        .where()
+                                        .equalsTo("objectId", boardInfo.getOwner())
+                                        .first();
 
-                                    if (group != null) {
-                                        GloopLogger.i("GloopGroup found add myself to group and save");
-                                        group.addMember(Gloop.getOwner().getUserId());
-                                        group.save();
-                                    } else {
-                                        GloopLogger.e("GloopGroup not found!");
-                                    }
-                                    boardInfo.save();
+                                if (group != null) {
+                                    GloopLogger.i("GloopGroup found add myself to group and save");
+                                    group.addMember(Gloop.getOwner().getUserId());
+                                    group.save();
                                 } else {
-                                    // if the board is not public check the PrivateBoardRequest objects.
-
-                                    PrivateBoardRequest privateBoard = Gloop
-                                            .all(PrivateBoardRequest.class)
-                                            .where()
-                                            .equalsTo("boardName", boardName)
-                                            .first();
-
-                                    if (privateBoard != null) {
-                                        // request access to private board with the BoardAccessRequest object.
-                                        BoardAccessRequest request = new BoardAccessRequest();
-                                        request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
-                                        request.setBoardName(boardName);
-                                        request.setBoardCreator(privateBoard.getBoardCreator());
-                                        request.setUserId(Gloop.getOwner().getUserId());
-                                        request.setBoardGroupId(privateBoard.getGroupId());
-                                        if (userInfo.getImageURL() != null)
-                                            request.setUserImageUri(userInfo.getImageURL().toString());
-                                        request.save();
-                                    } else {
-                                        GloopLogger.i("Could not find public board with name: " + boardName);
-                                    }
+                                    GloopLogger.e("GloopGroup not found!");
                                 }
-
+                                boardInfo.save();
                                 return Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first();
                             } else {
-                                errorMessage = "Could not find the board.";
-                                return null;
+                                // if the board is not public check the PrivateBoardRequest objects.
+
+                                PrivateBoardRequest privateBoard = Gloop
+                                        .all(PrivateBoardRequest.class)
+                                        .where()
+                                        .equalsTo("boardName", boardName)
+                                        .first();
+
+                                if (privateBoard != null) {
+                                    // request access to private board with the BoardAccessRequest object.
+                                    BoardAccessRequest request = new BoardAccessRequest();
+                                    request.setUser(privateBoard.getBoardCreator(), PUBLIC | READ | WRITE);
+                                    request.setBoardName(boardName);
+                                    request.setBoardCreator(privateBoard.getBoardCreator());
+                                    request.setUserId(Gloop.getOwner().getUserId());
+                                    request.setBoardGroupId(privateBoard.getGroupId());
+                                    if (userInfo.getImageURL() != null)
+                                        request.setUserImageUri(userInfo.getImageURL().toString());
+                                    request.save();
+                                } else {
+                                    GloopLogger.i("Could not find public board with name: " + boardName);
+                                }
                             }
+                            errorMessage = "Request to access private board is send.";
+                            return null;
+
                         } else {
-                            errorMessage = "Your need to be signed into the drawed app. Open the app first.";
+                            errorMessage = "Could not find the board.";
                             return null;
                         }
                     }

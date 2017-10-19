@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -42,23 +41,11 @@ import static io.gloop.permissions.GloopPermission.WRITE;
 
 public class SearchDialog {
 
-    private Activity activity;
     private FloatingActionMenu fab;
-    private GloopUser owner;
-    private FragmentManager fragmentManager;
-    private UserInfo userInfo;
 
-    public SearchDialog(Activity activity, FloatingActionMenu fab, GloopUser owner, final FragmentManager fragmentManager, UserInfo userInfo) {
-        this.activity = activity;
+    public SearchDialog(Activity activity, FloatingActionMenu fab, final GloopUser owner, final UserInfo userInfo) {
         this.fab = fab;
-        this.owner = owner;
-        this.fragmentManager = fragmentManager;
-        this.userInfo = userInfo;
 
-        show();
-    }
-
-    private void show() {
         final View dialogView = View.inflate(activity, R.layout.dialog_search, null);
 
         final Dialog dialog = new Dialog(activity, R.style.MyAlertDialogStyle);

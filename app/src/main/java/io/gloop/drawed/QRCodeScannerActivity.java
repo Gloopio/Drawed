@@ -14,6 +14,7 @@ import io.gloop.Gloop;
 import io.gloop.GloopLogger;
 import io.gloop.drawed.model.Board;
 import io.gloop.drawed.model.BoardAccessRequest;
+import io.gloop.drawed.model.BoardInfo;
 import io.gloop.drawed.model.PrivateBoardRequest;
 import io.gloop.drawed.model.UserInfo;
 import io.gloop.permissions.GloopGroup;
@@ -48,6 +49,11 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void handleResult(Result rawResult) {
         String contents = rawResult.getText();
         Uri uri = Uri.parse(contents);
@@ -56,12 +62,16 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
         if (segments.size() >= 1) {
             String boardName = segments.get(0);
 
-            Board board = Gloop.all(Board.class).where().equalsTo("name", boardName).first();
-            if (board != null && !board.isPrivateBoard()) {
+            BoardInfo boardInfo = Gloop.all(BoardInfo.class)
+                    .where()
+                    .equalsTo("name", boardName)
+                    .first();
+
+            if (boardInfo != null && !boardInfo.isPrivateBoard()) {
                 GloopGroup group = Gloop
                         .all(GloopGroup.class)
                         .where()
-                        .equalsTo("objectId", board.getOwner())
+                        .equalsTo("objectId", boardInfo.getOwner())
                         .first();
 
                 if (group != null) {
@@ -71,7 +81,7 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                 } else {
                     GloopLogger.e("GloopGroup not found!");
                 }
-                board.save();
+                boardInfo.save();
 
                 UserInfo userInfo = Gloop.allLocal(UserInfo.class)
                         .where()
@@ -79,11 +89,11 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                         .first();
 
                 Intent intent = new Intent(getApplicationContext(), BoardDetailActivity.class);
-                intent.putExtra(BoardDetailFragment.ARG_BOARD, board);
+                intent.putExtra(BoardDetailFragment.ARG_BOARD,  Gloop.all(Board.class).where().equalsTo("objectId", boardInfo.getBoardId()).first());
                 intent.putExtra(BoardDetailFragment.ARG_USER_INFO, userInfo);
                 startActivity(intent);
 
-                Toast.makeText(getApplicationContext(), "Board added to your list.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.board_added, Toast.LENGTH_LONG).show();
             } else {
                 // if the board is not public check the PrivateBoardRequest objects.
                 PrivateBoardRequest privateBoard = Gloop
@@ -117,7 +127,7 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                         if (userInfo != null)
                             request.setUserImageUri(userInfo.getImageURL().toString());
                         request.save();
-                        Toast.makeText(getApplicationContext(), "Request access to board send!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.request_access_to_board, Toast.LENGTH_LONG).show();
                     }
                     mScannerView.stopCamera();
                     finish();
