@@ -20,6 +20,10 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+import com.crashlytics.android.answers.ShareEvent;
+
 import io.gloop.Gloop;
 import io.gloop.drawed.R;
 import io.gloop.drawed.deeplink.DeepLinkActivity;
@@ -93,6 +97,9 @@ public class BoardInfoDialog {
             @Override
             public void onClick(View view) {
                 share(context, owner.getName(), boardInfo);
+
+                Answers.getInstance().logShare(new ShareEvent());
+
                 revealShow(dialogView, false, dialog, x, y);
             }
         });
@@ -122,6 +129,9 @@ public class BoardInfoDialog {
                 // delete board
                 boardInfo.delete();
                 board.delete();
+
+                Answers.getInstance().logCustom(new CustomEvent("Board deleted"));
+
                 revealShow(dialogView, false, dialog, x, y);
             }
         });
@@ -201,7 +211,7 @@ public class BoardInfoDialog {
     private static void share(Context context, String username, BoardInfo board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
+        String shareBody = username + " want's to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Drawed Board Invite");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
         context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -210,7 +220,7 @@ public class BoardInfoDialog {
     private static void qrCode(Context context, String username, Board board) {
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        String shareBody = username + " want'ss to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
+        String shareBody = username + " want's to share the board " + board.getName() + " with you. " + DeepLinkActivity.BASE_DEEP_LINK + board.getName();
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Drawed Board Invite");
         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
         context.startActivity(Intent.createChooser(sharingIntent, "Share via"));

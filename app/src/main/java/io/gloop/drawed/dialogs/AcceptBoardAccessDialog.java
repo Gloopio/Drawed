@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import io.gloop.Gloop;
 import io.gloop.drawed.R;
 import io.gloop.drawed.model.BoardAccessRequest;
@@ -51,6 +54,8 @@ public class AcceptBoardAccessDialog extends Dialog {
                     boardInfo.addMember(request.getUserId(), request.getUserImageUri());
                     boardInfo.save();
                 }
+
+                Answers.getInstance().logCustom(new CustomEvent("User joined a board."));
 
                 if (request.delete())
                     dismiss();

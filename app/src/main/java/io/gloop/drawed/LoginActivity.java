@@ -22,6 +22,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.LoginEvent;
+import com.crashlytics.android.answers.SignUpEvent;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -148,6 +151,9 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                                         // keep user logged in
                                         SharedPreferencesStore.setUser(email, password);
 
+                                        Answers.getInstance().logLogin(new LoginEvent()
+                                                .putMethod("Digits")
+                                                .putSuccess(true));
 
                                         showProgress(false);
 
@@ -159,6 +165,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                                             if (Gloop.register(email, password)) {
 
                                                 SharedPreferencesStore.setUser(email, password);
+
+                                                Answers.getInstance().logSignUp(new SignUpEvent()
+                                                        .putMethod("Digits")
+                                                        .putSuccess(true));
 
                                                 Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
                                                 startActivity(i);
@@ -275,6 +285,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
                             SharedPreferencesStore.setUser(email, password);
 
+                            Answers.getInstance().logSignUp(new SignUpEvent()
+                                    .putMethod("Digits")
+                                    .putSuccess(true));
+
                             Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
                             startActivity(i);
                             finish();
@@ -377,6 +391,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
                     SharedPreferencesStore.setUser(email, password);
 
+                    Answers.getInstance().logSignUp(new SignUpEvent()
+                            .putMethod("Digits")
+                            .putSuccess(true));
+
                     Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
                     startActivity(i);
                     finish();
@@ -389,6 +407,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             if (Gloop.login(email, password)) {
                 // keep user logged in
                 SharedPreferencesStore.setUser(email, password);
+
+                Answers.getInstance().logLogin(new LoginEvent()
+                        .putMethod("Digits")
+                        .putSuccess(true));
 
                 showProgress(false);
 

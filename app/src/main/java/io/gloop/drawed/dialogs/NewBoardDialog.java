@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.Objects;
@@ -162,6 +164,9 @@ public class NewBoardDialog {
 
                         // save the created board
                         board.save();
+
+                        Answers.getInstance().logCustom(new CustomEvent("Board created"));
+
                         return board;
                     }
 

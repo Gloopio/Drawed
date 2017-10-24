@@ -6,7 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.LoginEvent;
 import com.facebook.FacebookSdk;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import io.fabric.sdk.android.Fabric;
 import io.gloop.Gloop;
@@ -28,6 +32,11 @@ public class SplashActivity extends Activity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
+        DrawedApplication application = (DrawedApplication) getApplication();
+        Tracker mTracker = application.getDefaultTracker();
+        mTracker.setScreenName("Image~" + "SplashScreen");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         Fabric.with(this, new Crashlytics());
         FacebookSdk.sdkInitialize(getApplicationContext());
@@ -65,6 +74,11 @@ public class SplashActivity extends Activity {
 
             if (!email.isEmpty() && !password.isEmpty()) {
                 if (Gloop.login(email, password)) {
+
+                    Answers.getInstance().logLogin(new LoginEvent()
+                            .putMethod("Digits")
+                            .putSuccess(true));
+
                     Intent i = new Intent(getApplicationContext(), BoardListActivity.class);
                     startActivity(i);
                     finish();

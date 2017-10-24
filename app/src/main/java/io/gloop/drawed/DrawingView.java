@@ -18,6 +18,9 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -171,10 +174,15 @@ public class DrawingView extends View {
                                         else
                                             board.addMember(userInfo.getEmail(), null);
 
+
+                                        Answers.getInstance().logCustom(new CustomEvent("User joined a board."));
+
                                     } else {
                                         GloopLogger.e("GloopGroup not found!");
                                     }
                                 }
+
+                                Answers.getInstance().logCustom(new CustomEvent("Line drawn"));
 
                                 board.save();
 
