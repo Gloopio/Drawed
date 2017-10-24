@@ -1,7 +1,6 @@
 package io.gloop.drawed;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,9 +20,20 @@ public class IntroActivity extends AppIntro {
         // Just set a title, description, background and image. AppIntro will do the rest.
         // addSlide(AppIntroFragment.newInstance(title, description, image, backgroundColor));
         // TODO set real content
-        addSlide(AppIntroFragment.newInstance("Test1", "Hello user!", R.drawable.intro_1, Color.parseColor("#00BCD4")));
-        addSlide(AppIntroFragment.newInstance("Test2", "Hello user !!", R.drawable.intro_2, Color.parseColor("#4CAF50")));
-        addSlide(AppIntroFragment.newInstance("Test3", "Hello user !!!", R.drawable.intro_3, Color.parseColor("#5C6BC0")));
+        addSlide(AppIntroFragment.newInstance("Draw",
+                "Create a board and start drawing with your fingers.",
+                R.drawable.intro_pencil,
+                getResources().getColor(R.color.intro_1)));
+
+        addSlide(AppIntroFragment.newInstance("Work Together",
+                "Draw amazing boards together with your friends.",
+                R.drawable.intro_share,
+                getResources().getColor(R.color.intro_2)));
+
+        addSlide(AppIntroFragment.newInstance("Public Boards",
+                "Make your boards accessible to the wide world. Let everyone contribute to your board.",
+                R.drawable.intro_public,
+                getResources().getColor(R.color.intro_3)));
 
         // OPTIONAL METHODS
         // Override bar/separator color.
@@ -33,6 +43,9 @@ public class IntroActivity extends AppIntro {
         // Hide Skip/Done button.
         showSkipButton(true);
         // setProgressButtonEnabled(false);
+
+        setColorTransitionsEnabled(true);
+//        setFlowAnimation();
     }
 
     @Override
@@ -52,7 +65,6 @@ public class IntroActivity extends AppIntro {
     @Override
     public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment) {
         super.onSlideChanged(oldFragment, newFragment);
-        // Do something when the slide changes.
     }
 
     private void startMainIntent() {

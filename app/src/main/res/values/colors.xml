@@ -46,4 +46,8 @@
     <color name="card_background_color">#fff</color>
     <color name="edit_text_color">#fff</color>
 
+    <color name="intro_1">#24B48F</color>
+    <color name="intro_2">#3E94FA</color>
+    <color name="intro_3">#F08D2B</color>
+
 </resources>

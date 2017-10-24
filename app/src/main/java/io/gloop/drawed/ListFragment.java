@@ -456,7 +456,7 @@ public class ListFragment extends Fragment {
                 else
                     return 0;
             } catch (GloopLoadException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 return 0;
             }
         }

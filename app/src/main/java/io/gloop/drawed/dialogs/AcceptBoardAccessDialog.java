@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.gloop.Gloop;
 import io.gloop.drawed.R;
@@ -20,7 +21,7 @@ import io.gloop.permissions.GloopGroup;
 
 public class AcceptBoardAccessDialog extends Dialog {
 
-    public AcceptBoardAccessDialog(@NonNull Context context, final BoardAccessRequest request) {
+    public AcceptBoardAccessDialog(@NonNull final Context context, final BoardAccessRequest request) {
         super(context, R.style.AppTheme_PopupTheme);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_acceped_board_access);
@@ -51,8 +52,11 @@ public class AcceptBoardAccessDialog extends Dialog {
                     boardInfo.save();
                 }
 
-                request.delete();
-                dismiss();
+                if (request.delete())
+                    dismiss();
+                else
+                    Toast.makeText(context, "Could not complete the request.", Toast.LENGTH_LONG).show();
+
             }
         });
         // deny access
@@ -60,7 +64,10 @@ public class AcceptBoardAccessDialog extends Dialog {
         denyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request.delete();
+                if (request.delete())
+                    dismiss();
+                else
+                    Toast.makeText(context, "Could not complete the request.", Toast.LENGTH_LONG).show();
                 dismiss();
             }
         });
